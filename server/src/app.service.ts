@@ -14,12 +14,11 @@ export class PusherService {
 
   async trigger(channel: string, event: string, data: any) {
     const pusher = new Pusher({
-      appId: '1701877',
-      key: '58b0ec4905821bf0b6de',
-      secret: '075286a370da33dbcf4d',
+      appId: process.env.PUSHER_APP_ID,
+      key: process.env.NEXT_PUBLIC_PUSHER_APP_KEY,
+      secret: process.env.PUSHER_APP_SECRET,
       cluster: 'ap2', 
       useTLS: true,
-      host: "https://nest-react-chat-app-server.vercel.app/"
     });
     await pusher.trigger(channel, event, data);
   }
