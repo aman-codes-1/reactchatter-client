@@ -1,9 +1,18 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { PusherService } from './pusher.service';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { AppService, PusherService } from './app.service'
 
-@Controller('api')
+@Controller('')
 export class AppController {
-  constructor(private pusherService: PusherService) {}
+  constructor(
+    private readonly appService : AppService,
+    private pusherService: PusherService
+) {}
+
+  @Get()
+  getHello(): string {
+    return this.appService.getHello();
+  }
+
   @Post('messages')
   async messages(
     @Body('username') username: string,
@@ -13,7 +22,6 @@ export class AppController {
       username,
       message,
     });
-
     return [];
   }
 }
