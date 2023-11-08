@@ -8,7 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PusherService = exports.AppService = void 0;
 const common_1 = require("@nestjs/common");
-var Pusher = require('pusher');
+const Pusher = require("pusher");
 require("dotenv/config");
 let AppService = class AppService {
     getHello() {

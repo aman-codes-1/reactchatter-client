@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-// import * as Pusher from 'pusher';
-var Pusher = require('pusher');
+import * as Pusher from 'pusher';
 import 'dotenv/config'
 
 @Injectable()
@@ -11,7 +10,7 @@ export class AppService {
 }
 
 export class PusherService {
-  pusher: typeof Pusher;
+  pusher: typeof Pusher.prototype;
   constructor() {
     this.pusher = new Pusher({
       appId: process.env.PUSHER_APP_ID,
