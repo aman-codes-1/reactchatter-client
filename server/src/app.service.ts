@@ -9,7 +9,7 @@ export class AppService {
 }
 
 export class PusherService {
-  pusher: Pusher;
+  private pusher: Pusher;
   constructor() {
     this.pusher = new Pusher({
       appId: '1701877',

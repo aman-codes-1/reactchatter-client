@@ -1,9 +1,8 @@
-import * as Pusher from 'pusher';
 export declare class AppService {
     getHello(): string;
 }
 export declare class PusherService {
-    pusher: Pusher;
+    private pusher;
     constructor();
     trigger(channel: string, event: string, data: any): Promise<void>;
 }
