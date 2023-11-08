@@ -5,6 +5,5 @@ export declare class AppService {
 }
 export declare class PusherService {
     pusher: Pusher;
-    constructor();
     trigger(channel: string, event: string, data: any): Promise<void>;
 }

@@ -18,7 +18,6 @@ export class AppController {
     @Body('username') username: string,
     @Body('message') message: string,
   ) {
-    console.log(username, message)
     await this.pusherService.trigger('chat', 'message', {
       username,
       message,
