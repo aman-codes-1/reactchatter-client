@@ -20,16 +20,16 @@ exports.AppService = AppService = __decorate([
 ], AppService);
 class PusherService {
     constructor() {
-        this.pusher = new Pusher({
+    }
+    async trigger(channel, event, data) {
+        const pusher = new Pusher({
             appId: '1701877',
             key: '58b0ec4905821bf0b6de',
             secret: '075286a370da33dbcf4d',
             cluster: 'ap2',
             useTLS: true,
         });
-    }
-    async trigger(channel, event, data) {
-        await this.pusher.trigger(channel, event, data);
+        await pusher.trigger(channel, event, data);
     }
 }
 exports.PusherService = PusherService;
