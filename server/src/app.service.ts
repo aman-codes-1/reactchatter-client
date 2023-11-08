@@ -10,7 +10,7 @@ export class AppService {
 }
 
 export class PusherService {
-  pusher: typeof Pusher.prototype;
+  pusher: any;
   constructor() {
     this.pusher = new Pusher({
       appId: process.env.PUSHER_APP_ID,
