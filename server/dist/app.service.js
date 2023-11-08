@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PusherService = exports.AppService = void 0;
 const common_1 = require("@nestjs/common");
 const Pusher = require("pusher");
+require("dotenv/config");
 let AppService = class AppService {
     getHello() {
         return 'Hello World!';
@@ -20,16 +21,16 @@ exports.AppService = AppService = __decorate([
 ], AppService);
 class PusherService {
     constructor() {
-    }
-    async trigger(channel, event, data) {
-        const pusher = new Pusher({
+        this.pusher = new Pusher({
             appId: process.env.PUSHER_APP_ID,
             key: process.env.NEXT_PUBLIC_PUSHER_APP_KEY,
             secret: process.env.PUSHER_APP_SECRET,
             cluster: 'ap2',
             useTLS: true,
         });
-        await pusher.trigger(channel, event, data);
+    }
+    async trigger(channel, event, data) {
+        await this.pusher.trigger(channel, event, data);
     }
 }
 exports.PusherService = PusherService;

@@ -24,6 +24,7 @@ let AppController = class AppController {
         return this.appService.getHello();
     }
     async messages(username, message) {
+        console.log(username, message);
         await this.pusherService.trigger('chat', 'message', {
             username,
             message,

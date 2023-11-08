@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as Pusher from 'pusher';
+import 'dotenv/config'
 
 @Injectable()
 export class AppService {
@@ -9,17 +10,18 @@ export class AppService {
 }
 
 export class PusherService {
+  pusher: Pusher;
   constructor() {
-  }
-
-  async trigger(channel: string, event: string, data: any) {
-    const pusher = new Pusher({
+    this.pusher = new Pusher({
       appId: process.env.PUSHER_APP_ID,
       key: process.env.NEXT_PUBLIC_PUSHER_APP_KEY,
       secret: process.env.PUSHER_APP_SECRET,
-      cluster: 'ap2', 
+      cluster: 'ap2',
       useTLS: true,
     });
-    await pusher.trigger(channel, event, data);
+  }
+
+  async trigger(channel: string, event: string, data: any) {
+    await this.pusher.trigger(channel, event, data);
   }
 }
