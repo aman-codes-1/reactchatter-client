@@ -18,7 +18,8 @@ export class PusherService {
       key: '58b0ec4905821bf0b6de',
       secret: '075286a370da33dbcf4d',
       cluster: 'ap2', 
-      // useTLS: true,
+      useTLS: true,
+      host: "https://nest-react-chat-app-server.vercel.app/"
     });
     await pusher.trigger(channel, event, data);
   }
