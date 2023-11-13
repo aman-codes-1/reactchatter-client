@@ -39,7 +39,6 @@
     "eslint-import-resolver-typescript": "2.7.1",
     "eslint-plugin-import": "2.25.4",
     "eslint-plugin-react": "7.29.4",
-    "husky": "7.0.4",
     "ts-jest": "26.4.4",
     "typescript": "4.6.3",
     "url": "0.11.0"
@@ -49,7 +48,6 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "prepare": "husky install",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "npm run lint -- --fix"
   },
