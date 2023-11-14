@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
-import { ConfigModule } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from './user.schema';
+import { ConfigModule } from "@nestjs/config";
+import { MongooseModule } from "@nestjs/mongoose";
+import { User, UserSchema } from "./user.schema";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { AuthController } from "./auth.controller";
@@ -13,7 +13,7 @@ import { PusherService } from "./pusher.service";
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: ".env",
     }),
     MongooseModule.forRoot(process.env.MONGO_URI),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
