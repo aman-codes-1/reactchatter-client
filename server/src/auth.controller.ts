@@ -1,18 +1,27 @@
 import { Body, Controller, Post } from "@nestjs/common";
+import { OAuth2Client } from "google-auth-library";
+import { AuthService } from "./auth.service";
+
+const client = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET
+);
 
 @Controller("auth")
 export class AuthController {
-  constructor() {}
+  constructor(private authService: AuthService) {}
 
   @Post("login")
-  async messages(
-    @Body("username") username: string,
-    @Body("message") message: string
-  ) {
-    // await this.pusherService.trigger('chat', 'message', {
-    //   username,
-    //   message,
-    // });
-    return [];
+  async login(@Body("token") token: string): Promise<any> {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const { email, name, picture } = ticket.getPayload();
+    const data = await this.authService.login({ email, name, image: picture });
+    return {
+      data,
+      message: 'success',
+    };
   }
 }

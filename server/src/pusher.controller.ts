@@ -1,13 +1,9 @@
 import { Body, Controller, Post } from "@nestjs/common";
-import { AppService } from "./app.service";
 import { PusherService } from "./pusher.service";
 
 @Controller("api")
 export class PusherController {
-  constructor(
-    private readonly appService: AppService,
-    private pusherService: PusherService
-  ) {}
+  constructor(private pusherService: PusherService) {}
 
   @Post("messages")
   async messages(
