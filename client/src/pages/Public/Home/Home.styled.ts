@@ -1,7 +1,7 @@
 import { styled } from '@mui/system';
 
 export const HomeStyled = styled('div')(({ theme }) => ({
-  '.container': {
+  '.home-container': {
     backgroundImage: 'url(/assets/images/cool-background.svg)',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
@@ -11,16 +11,18 @@ export const HomeStyled = styled('div')(({ theme }) => ({
     zIndex: '-1',
     userSelect: 'none',
   },
-  '.wrapper': {
+  '.home-wrapper': {
     display: 'flex',
     alignItems: 'center',
     flexDirection: 'column',
-    padding: '0px 30px',
     height: '100%',
-    '.header': {
+    [theme.breakpoints.down('sm')]: {
+      padding: '0px 30px',
+    },
+    '.home-header': {
       marginTop: 164,
       textAlign: 'center',
-      '.main-heading': {
+      '.home-heading': {
         fontSize: '58px',
         color: 'white',
         textShadow: '0 1px 0 rgba(255, 255, 255, 0.4)',
@@ -29,7 +31,7 @@ export const HomeStyled = styled('div')(({ theme }) => ({
           fontSize: '45px',
         },
       },
-      '.main-sub-heading': {
+      '.home-sub-heading': {
         margin: '6px 0px 6px 0px',
         lineHeight: '32px',
         fontSize: '21px',
@@ -37,7 +39,7 @@ export const HomeStyled = styled('div')(({ theme }) => ({
           fontSize: '19px',
         },
       },
-      '.login-button': {
+      '.home-login-button': {
         marginTop: 11,
         textTransform: 'none',
         fontWeight: 'bold',
@@ -51,14 +53,14 @@ export const HomeStyled = styled('div')(({ theme }) => ({
           height: 'auto',
         },
       },
-      '.login-button:hover': {
-        backgroundColor: '#18254a',
+      '.home-login-button:hover': {
+        backgroundColor: '#19284a',
       },
     },
-    '.footer': {
+    '.home-footer': {
       margin: 'auto 0px 8px 0px',
       textAlign: 'center',
-      '.footer-sub-heading': {
+      '.home-footer-sub-heading': {
         fontSize: '14.5px',
       },
     },

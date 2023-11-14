@@ -13,7 +13,7 @@ export const callApi = async ({
     method,
     url,
     data,
-    baseURL,
+    baseURL: baseURL || process.env.REACT_APP_BACKEND_URI,
     headers,
     responseType,
     ...(signal ? { signal } : {}),
@@ -42,3 +42,9 @@ export const formatDate = (dateValue: string | number | Date) => {
 };
 
 export const getCurrentYear = () => new Date().getFullYear();
+
+export const apiRoutes = {
+  // Authentication
+  AuthLogin: '/auth/login',
+  AuthLogout: '/auth/logout',
+};
