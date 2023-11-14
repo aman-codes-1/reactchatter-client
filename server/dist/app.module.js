@@ -8,7 +8,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
-const config_1 = require("@nestjs/config");
 const mongoose_1 = require("@nestjs/mongoose");
 const user_schema_1 = require("./user.schema");
 const app_controller_1 = require("./app.controller");
@@ -17,16 +16,13 @@ const auth_controller_1 = require("./auth.controller");
 const auth_service_1 = require("./auth.service");
 const pusher_controller_1 = require("./pusher.controller");
 const pusher_service_1 = require("./pusher.service");
+require("dotenv/config");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            config_1.ConfigModule.forRoot({
-                isGlobal: true,
-                envFilePath: ".env",
-            }),
             mongoose_1.MongooseModule.forRoot(process.env.MONGO_URI),
             mongoose_1.MongooseModule.forFeature([{ name: user_schema_1.User.name, schema: user_schema_1.UserSchema }]),
         ],

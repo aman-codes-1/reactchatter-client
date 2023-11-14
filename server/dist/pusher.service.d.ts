@@ -1,4 +1,5 @@
 declare var Pusher: any;
+import 'dotenv/config';
 export declare class PusherService {
     pusher: typeof Pusher;
     constructor();
