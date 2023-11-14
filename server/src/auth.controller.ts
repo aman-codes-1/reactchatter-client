@@ -1,6 +1,7 @@
 import { Body, Controller, Post } from "@nestjs/common";
 import { OAuth2Client } from "google-auth-library";
 import { AuthService } from "./auth.service";
+import 'dotenv/config'
 
 const client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
