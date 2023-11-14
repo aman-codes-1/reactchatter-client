@@ -15,7 +15,6 @@ const Routes = () => {
   const [defaultRoutes, setDefaultRoutes] = useState<ReactNode[]>([]);
   const [privateRoutes, setPrivateRoutes] = useState<ReactNode[]>([]);
   const [publicRoutes, setPublicRoutes] = useState<ReactNode[]>([]);
-  console.log(defaultRoutes, privateRoutes, publicRoutes);
 
   useEffect(() => {
     routesConfig(isLoggedIn).forEach((route: IRouteConfig) => {
