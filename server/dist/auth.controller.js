@@ -16,6 +16,7 @@ exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
 const google_auth_library_1 = require("google-auth-library");
 const auth_service_1 = require("./auth.service");
+require("dotenv/config");
 const client = new google_auth_library_1.OAuth2Client({
     clientId: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,

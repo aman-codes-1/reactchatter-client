@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PusherService = void 0;
 const common_1 = require("@nestjs/common");
 var Pusher = require("pusher");
+require("dotenv/config");
 let PusherService = class PusherService {
     constructor() {
         this.pusher = new Pusher({
