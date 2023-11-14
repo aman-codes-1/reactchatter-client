@@ -1,12 +1,11 @@
 import { Body, Controller, Post } from "@nestjs/common";
 import { OAuth2Client } from "google-auth-library";
 import { AuthService } from "./auth.service";
-import 'dotenv/config'
 
-const client = new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET
-);
+const client = new OAuth2Client({
+  clientId: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+});
 
 @Controller("auth")
 export class AuthController {
@@ -22,7 +21,7 @@ export class AuthController {
     const data = await this.authService.login({ email, name, image: picture });
     return {
       data,
-      message: 'success',
+      message: "success",
     };
   }
 }
