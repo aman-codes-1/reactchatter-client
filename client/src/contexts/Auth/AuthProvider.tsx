@@ -53,30 +53,13 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   const localAuthObj = JSON.parse(localAuth || '{}') || {};
 
   const verifyUser = async () => {
-    setIsLoading(true);
-    try {
-      const { data } = await callApi({
-        method: 'GET',
-        url: `user/profile/${localAuthObj?.cognitoId}`,
-      });
-      setAuth(
-        getLoggedInDetails({
-          email: data?.data?.email,
-          cognitoId: data?.data?.cognitoId,
-          ...data?.data,
-          ...localAuthObj,
-        }),
-      );
-      setIsLoading(false);
-    } catch (err) {
-      setAuth(undefined);
-      localStorage.removeItem('auth');
-      setIsLoading(false);
-    }
+    setAuth(localAuthObj);
+    setIsLoading(false);
   };
 
   useEffect(() => {
     if (!auth && localAuth) {
+      setIsLoading(true);
       verifyUser();
     } else {
       setIsLoading(false);
