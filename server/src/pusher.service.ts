@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 var Pusher = require("pusher");
+import 'dotenv/config'
 
 @Injectable()
 export class PusherService {
