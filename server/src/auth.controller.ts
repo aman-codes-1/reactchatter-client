@@ -9,16 +9,19 @@ export class AuthController {
 
   @Post("login")
   async login(@Body("token") token: string): Promise<any> {
-    // const client = new OAuth2Client({
-    //   clientId: process.env.GOOGLE_CLIENT_ID,
-    //   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    // });
-    // const ticket = await client.verifyIdToken({
-    //   idToken: token,
-    //   audience: process.env.GOOGLE_CLIENT_ID,
-    // });
-    // const { email, name, picture } = ticket.getPayload();
-    // const data = await this.authService.login({ email, name, image: picture });
-    return [];
+    const client = new OAuth2Client({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    });
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const { email, name, picture } = ticket.getPayload();
+    const data = await this.authService.login({ email, name, image: picture });
+    return {
+      data,
+      message: "success",
+    };
   }
 }
