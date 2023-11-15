@@ -15,6 +15,7 @@
 
 # dist
 /client/dist
+/server/dist
 
 # misc
 .DS_Store
