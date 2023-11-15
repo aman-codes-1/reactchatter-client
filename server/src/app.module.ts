@@ -15,7 +15,7 @@ import { PusherService } from "./pusher.service";
       isGlobal: true,
       envFilePath: ".env",
     }),
-    MongooseModule.forRoot(process.env.MONGO_URI),
+    MongooseModule.forRoot("mongodb+srv://amancodes0:5tDLbXZLhLiXPIz8@cluster0.4bwkilc.mongodb.net/"),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
   controllers: [AppController, AuthController, PusherController],

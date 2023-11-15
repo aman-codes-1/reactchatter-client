@@ -9,7 +9,7 @@ export const client = new OAuth2Client({
 
 @Controller("auth")
 export class AuthController {
-  constructor() {}
+  constructor(private authService: AuthService) {}
 
   @Post("login")
   async login(@Body("token") token: string): Promise<any> {
@@ -17,8 +17,8 @@ export class AuthController {
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
-    const data = ticket.getPayload();
-    // const data = await this.authService.login({ email, name, image: picture });
+    const { email, name, picture } = ticket.getPayload();
+    const data = await this.authService.login({ email, name, image: picture });
     return {
       data,
       message: "success",
