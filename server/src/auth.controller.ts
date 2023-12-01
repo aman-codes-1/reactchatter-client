@@ -1,26 +1,90 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Get, Post, Req, Res } from "@nestjs/common";
 import { OAuth2Client } from "google-auth-library";
 import { AuthService } from "./auth.service";
-
-export const client = new OAuth2Client({
-  clientId: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-});
+import { Request, Response } from "express";
 
 @Controller("auth")
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post("login")
-  async login(@Body("token") token: string): Promise<any> {
-    const ticket = await client.verifyIdToken({
-      idToken: token,
+  client = new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.GOOGLE_CLIENT_REDIRECT_URI,
+  );
+
+  @Post("google")
+  async google(
+    @Body() body: { code: string },
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<any> {
+    const { code } = body;
+    const { tokens } = await this.client.getToken(code);
+    this.client.setCredentials(tokens);
+    const ticket = await this.client.verifyIdToken({
+      idToken: tokens.id_token,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
-    const { email, name, picture } = ticket.getPayload();
-    const data = await this.authService.login({ email, name, image: picture });
+    const { iss, azp, aud, sub, at_hash, ...rest } = ticket.getPayload();
+    const ticketData = { ...rest, ...tokens };
+    const data = await this.authService.login(ticketData);
+    response.cookie("auth", JSON.stringify(data), {
+      httpOnly: true,
+    });
+    const {
+      iat,
+      exp,
+      access_token,
+      refresh_token,
+      scope,
+      token_type,
+      id_token,
+      expiry_date,
+      ...restData
+    } = data || {};
     return {
-      data,
+      data: restData,
+      message: "success",
+    };
+  }
+
+  @Get("google/verifyToken")
+  async verifyToken(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<any> {
+    const authCookie = request?.cookies?.["auth"];
+    let auth = authCookie !== undefined ? JSON.parse(authCookie || "{}") : {};
+    const { refresh_token: refreshToken, expiry_date: expiryDate } = auth || {};
+    this.client.setCredentials({
+      refresh_token: refreshToken,
+    });
+    const today = new Date();
+    today.setSeconds(today.getSeconds() - 60);
+    if (expiryDate < today.getTime()) {
+      const { res: { data = {} } = {} } = await this.client.getAccessToken();
+      this.client.setCredentials({
+        ...data,
+      });
+      auth = { ...auth, ...data };
+      response.cookie("auth", JSON.stringify(auth), {
+        httpOnly: true,
+      });
+    }
+    const authData = await this.authService.login(auth);
+    const {
+      iat,
+      exp,
+      access_token,
+      refresh_token,
+      scope,
+      token_type,
+      id_token,
+      expiry_date,
+      ...restData
+    } = authData || {};
+    return {
+      data: restData,
       message: "success",
     };
   }

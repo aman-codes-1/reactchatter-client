@@ -20,10 +20,7 @@ module.exports = {
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
-  plugins: [
-    'react',
-    '@typescript-eslint',
-  ],
+  plugins: ['react', '@typescript-eslint'],
   settings: {
     'import/resolver': {
       typescript: {},
@@ -36,7 +33,10 @@ module.exports = {
     'react/jsx-props-no-spreading': 'off',
     'react/function-component-definition': 'off',
     'react/jsx-no-constructed-context-values': 'off',
-    'react/jsx-filename-extension': [1, { extensions: ['.ts', '.tsx', '.json'] }],
+    'react/jsx-filename-extension': [
+      1,
+      { extensions: ['.ts', '.tsx', '.json'] },
+    ],
     'import/extensions': [
       'error',
       'ignorePackages',

@@ -30,7 +30,9 @@ const Loader = ({
         variant="indeterminate"
         disableShrink
         sx={{
-          color: color || ((theme) => (theme.palette.mode === 'light' ? '#1a90ff' : '#0196DA')),
+          color:
+            color
+            || ((theme) => (theme.palette.mode === 'light' ? '#1a90ff' : '#0196DA')),
           animationDuration: '550ms',
           position: 'absolute',
           left: 0,

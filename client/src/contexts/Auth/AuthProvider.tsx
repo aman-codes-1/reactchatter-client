@@ -1,70 +1,53 @@
-import { createContext, useEffect, useState } from 'react';
+import {
+  createContext, useContext, useLayoutEffect, useState,
+} from 'react';
+import { googleLogout } from '@react-oauth/google';
+import { AuthProviderProps, Context } from './IAuthProvider';
 import { Loader } from '../../components';
-import { callApi } from '../../helpers';
-import { Auth, AuthProviderProps, Context } from './IAuthProvider';
+import { SnackbarContext } from '../Snackbar';
+import { Authentication } from '../../libs';
 
 export const AuthContext = createContext<Context>({
   auth: {},
   setAuth: () => null,
 });
 
-export const getLoggedInDetails = (auth: Auth) => {
-  const {
-    accessToken,
-    expiresIn,
-    idToken,
-    newDeviceMetadata,
-    refreshToken,
-    tokenType,
-    email,
-    cognitoId,
-  } = auth || {};
-  localStorage.setItem(
-    'auth',
-    JSON.stringify({
-      accessToken,
-      expiresIn,
-      idToken,
-      newDeviceMetadata,
-      refreshToken,
-      tokenType,
-      email,
-      cognitoId,
-    }),
-  );
-  const userData = {
-    ...auth,
-    userId: auth?.cognitoId,
-    userIdDB: auth?.id || 'no-value',
-    permissionArr: auth?.permissions?.length
-      ? auth?.permissions?.map(({ objectName }: any) => objectName)
-      : [],
-  };
-  return {
-    isLoggedIn: true,
-    ...userData,
-  };
-};
-
 const AuthProvider = ({ children }: AuthProviderProps) => {
+  const authentication = new Authentication();
   const [auth, setAuth] = useState();
   const [isLoading, setIsLoading] = useState(true);
-  const localAuth = localStorage.getItem('auth');
-  const localAuthObj = JSON.parse(localAuth || '{}') || {};
+  const isGoogle = Boolean(localStorage.getItem('isGoogle'));
+  const { openSnackbar } = useContext(SnackbarContext);
 
-  const verifyUser = async () => {
-    setAuth(localAuthObj);
-    setIsLoading(false);
+  const verifyLogin = async () => {
+    setIsLoading(true);
+    try {
+      const { data }: any = await authentication.googleVerifyToken();
+      setAuth({
+        isLoggedIn: true,
+        ...data?.data,
+      });
+      setIsLoading(false);
+    } catch (err) {
+      googleLogout();
+      localStorage.removeItem('isGoogle');
+      setAuth(undefined);
+      window.location.reload();
+      openSnackbar({
+        message: JSON.stringify(err),
+        type: 'error',
+      });
+      setIsLoading(false);
+    }
   };
 
-  useEffect(() => {
-    if (!auth && localAuth) {
-      setIsLoading(true);
-      verifyUser();
+  useLayoutEffect(() => {
+    if (!auth && isGoogle === true) {
+      verifyLogin();
     } else {
       setIsLoading(false);
     }
-  }, []);
+  }, [auth, isGoogle]);
 
   if (isLoading) {
     return <Loader center />;

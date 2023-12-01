@@ -1,12 +1,10 @@
-import {
-  ReactNode, Suspense, useEffect, useState,
-} from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Route, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks';
-import { Loader, ScrollToTop } from '../components';
-import { PrivateRoute, PublicRoute } from '.';
+import { ScrollToTop } from '../components';
 import { routesConfig } from './config';
 import { IRouteConfig } from './IRoutes';
+import { AppRoute } from '.';
 
 const Routes = () => {
   const location = useLocation();
@@ -19,14 +17,14 @@ const Routes = () => {
   useEffect(() => {
     routesConfig(isLoggedIn).forEach((route: IRouteConfig) => {
       const {
-        type, path, visibility, Element, key,
+        Element, key, path, type,
       } = route;
-      if (type === 'private' && visibility) {
+      if (type === 'private') {
         setPrivateRoutes((prev: ReactNode[]) => [
           ...prev,
           <Route key={key} path={path} element={<Element />} />,
         ]);
-      } else if (type === 'public' && visibility) {
+      } else if (type === 'public') {
         setPublicRoutes((prev: ReactNode[]) => [
           ...prev,
           <Route key={key} path={path} element={<Element />} />,
@@ -42,13 +40,10 @@ const Routes = () => {
 
   return (
     <ScrollToTop pathname={pathname}>
-      <Suspense fallback={<Loader center />}>
-        {isLoggedIn ? (
-          <PrivateRoute privateRoutes={privateRoutes} defaultRoutes={defaultRoutes} />
-        ) : (
-          <PublicRoute publicRoutes={publicRoutes} defaultRoutes={defaultRoutes} />
-        )}
-      </Suspense>
+      <AppRoute
+        defaultRoutes={defaultRoutes}
+        routes={isLoggedIn ? privateRoutes : publicRoutes}
+      />
     </ScrollToTop>
   );
 };
