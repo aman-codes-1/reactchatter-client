@@ -20,27 +20,28 @@ export const HomeStyled = styled('div')(({ theme }) => ({
       padding: '0px 30px',
     },
     '.home-header': {
-      marginTop: 164,
+      marginTop: 162,
       textAlign: 'center',
+      letterSpacing: '0.4px',
       '.home-heading': {
         fontSize: '58px',
-        color: 'white',
+        color: theme.palette.common.white,
         textShadow: '0 1px 0 rgba(255, 255, 255, 0.4)',
-        marginBottom: 6,
+        marginBottom: 8,
         [theme.breakpoints.down('sm')]: {
           fontSize: '45px',
         },
       },
       '.home-sub-heading': {
-        margin: '6px 0px 6px 0px',
+        margin: '8px 0px 8px 0px',
         lineHeight: '32px',
-        fontSize: '21px',
+        fontSize: '1.26rem',
         [theme.breakpoints.down('sm')]: {
           fontSize: '19px',
         },
       },
-      '.home-login-button': {
-        marginTop: 11,
+      '.home-login-btn': {
+        marginTop: 10,
         textTransform: 'none',
         fontWeight: 'bold',
         backgroundColor: '#0F172B',
@@ -53,7 +54,7 @@ export const HomeStyled = styled('div')(({ theme }) => ({
           height: 'auto',
         },
       },
-      '.home-login-button:hover': {
+      '.home-login-btn:hover': {
         backgroundColor: '#19284a',
       },
     },

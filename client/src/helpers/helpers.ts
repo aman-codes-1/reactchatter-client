@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 
 export const callApi = async ({
   method = '',
@@ -8,7 +8,9 @@ export const callApi = async ({
   baseURL = '',
   signal = undefined,
   responseType = '',
+  withCredentials = false,
 }) => {
+  const source = axios.CancelToken.source();
   const options = {
     method,
     url,
@@ -16,8 +18,10 @@ export const callApi = async ({
     baseURL: baseURL || process.env.REACT_APP_BACKEND_URI,
     headers,
     responseType,
+    withCredentials,
     ...(signal ? { signal } : {}),
-  } as any;
+    cancelToken: source.token,
+  } as AxiosRequestConfig;
   return new Promise((resolve, reject) => {
     axios(options)
       .then((res: any) => {
@@ -26,6 +30,9 @@ export const callApi = async ({
       .catch((err: any) => {
         reject(err);
       });
+    setTimeout(() => {
+      source.cancel();
+    }, 10000);
   }) as any;
 };
 
@@ -43,8 +50,26 @@ export const formatDate = (dateValue: string | number | Date) => {
 
 export const getCurrentYear = () => new Date().getFullYear();
 
+export const checkIfImageExists = (url: string, callback: (exists: boolean) => void) => {
+  const img = new Image();
+  img.src = url || 'undefined';
+
+  if (img.complete) {
+    callback(true);
+  } else {
+    img.onload = () => {
+      callback(true);
+    };
+
+    img.onerror = () => {
+      callback(false);
+    };
+  }
+};
+
 export const apiRoutes = {
   // Authentication
-  AuthLogin: '/auth/login',
-  AuthLogout: '/auth/logout',
+  AuthGoogleLogin: '/auth/google',
+  AuthGoogleVerifyToken: '/auth/google/verifyToken',
+  AuthGoogleLogout: '/auth/google/logout',
 };

@@ -1,7 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
-import { Loader } from './components';
 import { AuthProvider, SnackbarProvider } from './contexts';
 import { Theme } from './style';
 
@@ -10,13 +9,13 @@ const AppRoutes = lazy(() => import('./routes').then((module) => ({ default: mod
 const App = () => (
   <ThemeProvider theme={Theme}>
     <BrowserRouter>
-      <AuthProvider>
-        <Suspense fallback={<Loader center />}>
+      <Suspense fallback={null}>
+        <AuthProvider>
           <SnackbarProvider>
             <AppRoutes />
           </SnackbarProvider>
-        </Suspense>
-      </AuthProvider>
+        </AuthProvider>
+      </Suspense>
     </BrowserRouter>
   </ThemeProvider>
 );

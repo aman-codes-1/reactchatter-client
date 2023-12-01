@@ -1,3 +1,9 @@
-export { Base, SuspenseWrapper } from './Layouts';
+export { Avatar } from './Avatar';
+export { BaseSvg } from './BaseSvg';
+export { ListItem } from './ListItem';
 export { Loader } from './Loader';
+export { NavBar } from './NavBar';
+export { SideBar } from './SideBar';
 export { ScrollToTop } from './ScrollToTop';
+export { SuspenseWrapper } from './SuspenseWrapper';
+export { UserProfile } from './UserProfile';

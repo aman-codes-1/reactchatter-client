@@ -8,12 +8,22 @@ import { HomeStyled } from './Home.styled';
 const Home = () => (
   <HomeStyled>
     <Box className="home-container">
-      <Typography component="div" className="home-wrapper">
-        <Typography component="div" className="home-header">
-          <Typography className="home-heading" fontWeight="bolder">
+      <div className="home-wrapper">
+        <div className="home-header">
+          <Typography
+            component="h1"
+            className="home-heading"
+            fontWeight={700}
+            fontFamily="unset"
+          >
             ReactChatter
           </Typography>
-          <Typography className="home-sub-heading" fontWeight="bold">
+          <Typography
+            component="h5"
+            className="home-sub-heading"
+            fontWeight={700}
+            fontFamily="unset"
+          >
             A simple real-time chat application built using
             <br />
             React.js v18, Material UI, Typescript, Nest.js and Pusher.
@@ -22,17 +32,19 @@ const Home = () => (
             <Button
               size="large"
               variant="contained"
-              className="home-login-button"
+              className="home-login-btn"
             >
               Login
             </Button>
           </Link>
-        </Typography>
-        <Typography
-          component="div"
-          className="home-footer"
-        >
-          <Typography component="p" className="home-footer-sub-heading" fontWeight="normal">
+        </div>
+        <div className="home-footer">
+          <Typography
+            component="p"
+            className="home-footer-sub-heading"
+            fontWeight={400}
+            fontFamily="unset"
+          >
             Made with ❤️ by
             {' '}
             <MuiLink
@@ -55,7 +67,12 @@ const Home = () => (
               <strong>Source Code</strong>
             </MuiLink>
           </Typography>
-          <Typography component="p" className="home-footer-sub-heading" fontWeight="normal">
+          <Typography
+            component="p"
+            className="home-footer-sub-heading"
+            fontWeight={400}
+            fontFamily="unset"
+          >
             &copy;
             {' '}
             {getCurrentYear()}
@@ -74,8 +91,8 @@ const Home = () => (
             {' '}
             All rights reserved.
           </Typography>
-        </Typography>
-      </Typography>
+        </div>
+      </div>
     </Box>
   </HomeStyled>
 );

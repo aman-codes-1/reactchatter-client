@@ -8,7 +8,7 @@ export class PusherController {
   @Post("messages")
   async messages(
     @Body("username") username: string,
-    @Body("message") message: string
+    @Body("message") message: string,
   ) {
     await this.pusherService.trigger("chat", "message", {
       username,

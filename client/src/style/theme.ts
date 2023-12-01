@@ -6,12 +6,15 @@ export const Theme = createTheme({
       main: '#0196DA',
     },
     common: {
-      black: '#000',
-      white: '#fff',
+      black: '#000000',
+      white: '#FFFFFF',
     },
     error: {
       main: '#a94442',
       contrastText: '#f2dede',
+      light: '#FEE2E2',
+      dark: '#DC2626',
+      900: '#bd2020',
     },
     warning: {
       main: '#F17602',
@@ -23,13 +26,20 @@ export const Theme = createTheme({
     },
     success: {
       main: '#57AF47',
-      contrastText: '#fff',
+      contrastText: '#f5fff5',
+      light: '#CCE8CD',
+      dark: '#388e3c',
+      900: '#2b702e',
     },
     grey: {
       50: '#fafafa',
       100: '#f5f5f5',
       200: '#eee',
       300: '#e0e0e0',
+      400: '#C8C8C8',
+      500: '#8E949D',
+      800: '#898991',
+      900: '#767676',
     },
     text: {
       primary: 'rgba(0, 0, 0, 0.87)',

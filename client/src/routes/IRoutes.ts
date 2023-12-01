@@ -1,19 +1,13 @@
 import { ReactNode } from 'react';
 
 export type IRouteConfig = {
+  Element: () => JSX.Element;
   key: string;
   type: string;
   path: string;
-  visibility: boolean;
-  Element: () => JSX.Element;
 };
 
-export type IPublicRoute = {
-  publicRoutes: ReactNode;
+export type IAppRoute = {
   defaultRoutes: ReactNode;
-}
-
-export type IPrivateRoute = {
-  privateRoutes: ReactNode;
-  defaultRoutes: ReactNode;
-}
+  routes: ReactNode;
+};

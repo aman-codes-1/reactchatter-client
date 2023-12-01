@@ -1,4 +1,5 @@
 import { NestFactory } from "@nestjs/core";
+import * as cookieParser from "cookie-parser";
 import { AppModule } from "./app.module";
 
 async function bootstrap() {
@@ -7,12 +8,16 @@ async function bootstrap() {
     origin: [
       "https://nest-react-chat-app-server.vercel.app",
       "https://nest-react-chat-app.vercel.app",
-      "http://localhost:3000",
+      "http://localhost:3001",
       "http://localhost:8000",
       "http://localhost:8080",
       "http://localhost:4200",
     ],
+    allowedHeaders:
+      "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe",
+    credentials: true,
   });
+  app.use(cookieParser());
   await app.listen(8000);
 }
 bootstrap();

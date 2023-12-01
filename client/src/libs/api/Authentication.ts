@@ -1,16 +1,18 @@
 import { apiRoutes, callApi } from '../../helpers';
 
 type Auth = {
-  token?: string;
+  code?: string;
 };
 
 class Authentication {
-  public async loginUser({ token }: Auth) {
+  public async googleLogin({ code }: Auth) {
     return new Promise((resolve, reject) => {
       callApi({
         method: 'POST',
-        url: apiRoutes.AuthLogin,
-        data: { token },
+        url: apiRoutes.AuthGoogleLogin,
+        data: { code },
+        headers: { 'Content-Type': 'application/json' },
+        withCredentials: true,
       })
         .then((data) => {
           resolve(data);
@@ -21,18 +23,34 @@ class Authentication {
     });
   }
 
-  public async logoutUser() {
+  public async googleVerifyToken() {
+    return new Promise((resolve, reject) => {
+      callApi({
+        method: 'GET',
+        url: apiRoutes.AuthGoogleVerifyToken,
+        // headers: { 'Content-Type': 'application/json' },
+        withCredentials: true,
+      })
+        .then((data) => {
+          resolve(data);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  public async googleLogout() {
     return new Promise((resolve, reject) => {
       callApi({
         method: 'POST',
-        url: apiRoutes.AuthLogout,
+        url: apiRoutes.AuthGoogleLogout,
         data: {},
       })
         .then((data) => {
           resolve(data);
         })
         .catch((err) => {
-          localStorage.removeItem('auth');
           reject(err);
         });
     });
