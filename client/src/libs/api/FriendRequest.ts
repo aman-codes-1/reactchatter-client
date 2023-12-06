@@ -1,18 +1,17 @@
 import { apiRoutes, callApi } from '../../helpers';
 
-type Auth = {
-  code?: string;
+type Request = {
+  sendToEmail?: string;
+  sentByUserId?: string;
 };
 
-class Authentication {
-  public async googleLogin({ code }: Auth) {
+class FriendRequest {
+  public async sendFriendRequest({ sendToEmail, sentByUserId }: Request) {
     return new Promise((resolve, reject) => {
       callApi({
         method: 'POST',
-        url: apiRoutes.AuthGoogleLogin,
-        data: { code },
-        headers: { 'Content-Type': 'application/json' },
-        withCredentials: true,
+        url: apiRoutes.SendFriendRequest,
+        data: { sendToEmail, sentByUserId },
       })
         .then((data) => {
           resolve(data);
@@ -23,12 +22,12 @@ class Authentication {
     });
   }
 
-  public async googleVerifyToken() {
+  public async sentFriendRequests({ sentByUserId }: Request) {
     return new Promise((resolve, reject) => {
       callApi({
-        method: 'GET',
-        url: apiRoutes.AuthGoogleVerifyToken,
-        withCredentials: true,
+        method: 'POST',
+        url: apiRoutes.SentFriendRequests,
+        data: { sentByUserId },
       })
         .then((data) => {
           resolve(data);
@@ -40,4 +39,4 @@ class Authentication {
   }
 }
 
-export default Authentication;
+export default FriendRequest;

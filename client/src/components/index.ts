@@ -5,5 +5,6 @@ export { Loader } from './Loader';
 export { NavBar } from './NavBar';
 export { SideBar } from './SideBar';
 export { ScrollToTop } from './ScrollToTop';
+export { SuccessErrorMessage } from './SuccessErrorMessage';
 export { SuspenseWrapper } from './SuspenseWrapper';
 export { UserProfile } from './UserProfile';

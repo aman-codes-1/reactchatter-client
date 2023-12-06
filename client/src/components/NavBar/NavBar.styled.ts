@@ -40,7 +40,7 @@ export const NavBarStyled = styled('div')(({ theme }) => ({
   '.nav-menu-btn': {
     textTransform: 'none',
     fontWeight: 'bold',
-    backgroundColor: '#0F172B',
+    backgroundColor: theme.palette.action.active,
     color: theme.palette.common.white,
     padding: '0.5rem 1rem',
     fontSize: '.875rem',
@@ -55,6 +55,6 @@ export const NavBarStyled = styled('div')(({ theme }) => ({
     },
   },
   '.nav-menu-btn:hover': {
-    backgroundColor: '#19284a',
+    backgroundColor: theme.palette.action.hover,
   },
 }));

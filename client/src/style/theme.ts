@@ -38,16 +38,22 @@ export const Theme = createTheme({
       300: '#e0e0e0',
       400: '#C8C8C8',
       500: '#8E949D',
-      800: '#898991',
-      900: '#767676',
+      600: '#9B9BA3',
+      // 9CA3AF
+      800: '#71717A',
+      900: '#374151',
     },
     text: {
-      primary: 'rgba(0, 0, 0, 0.87)',
+      primary: '#111827',
       secondary: 'rgba(0, 0, 0, 0.6)',
       disabled: 'rgba(0,0,0, 0.38)',
     },
     background: {
       default: '#F8FAFB',
+    },
+    action: {
+      active: '#0F172B',
+      hover: '#1E293B',
     },
   },
   shape: {

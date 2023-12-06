@@ -38,7 +38,7 @@ export const SnackbarContext = createContext<Context>({
   setIsOpen: () => null,
 });
 
-const SnackbarProvider = ({ children }: Props) => {
+export const SnackbarProvider = ({ children }: Props) => {
   const initialState: State = {
     message: 'There was an error processing your request.',
     type: 'error',
@@ -124,5 +124,3 @@ const SnackbarProvider = ({ children }: Props) => {
     </SnackbarContext.Provider>
   );
 };
-
-export default SnackbarProvider;

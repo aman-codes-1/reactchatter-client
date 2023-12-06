@@ -29,13 +29,7 @@ const SideBar = () => {
   const navLinks = [
     {
       icon: (
-        <Icon
-          sx={{
-            color: '#9CA3AF',
-            border: '1px solid #E5E7EB',
-            borderRadius: '8px',
-          }}
-        >
+        <Icon className="list-item-icon">
           <PersonAddAltOutlinedIcon fontSize="small" />
         </Icon>
       ),
@@ -44,13 +38,7 @@ const SideBar = () => {
     },
     {
       icon: (
-        <Icon
-          sx={{
-            color: '#9CA3AF',
-            border: '1px solid #E5E7EB',
-            borderRadius: '8px',
-          }}
-        >
+        <Icon className="list-item-icon">
           <PersonOutlineOutlinedIcon fontSize="small" />
         </Icon>
       ),
@@ -59,13 +47,7 @@ const SideBar = () => {
     },
     {
       icon: (
-        <Icon
-          sx={{
-            color: '#9CA3AF',
-            border: '1px solid #E5E7EB',
-            borderRadius: '8px',
-          }}
-        >
+        <Icon className="list-item-icon">
           <PeopleAltOutlinedIcon fontSize="small" />
         </Icon>
       ),
@@ -84,7 +66,7 @@ const SideBar = () => {
         <div className="sidebar-menu-wrapper">
           <NavBar />
           {chats?.length ? (
-            <div style={{ width: '100%' }}>
+            <div className="your-chats-menu-wrapper">
               <Typography
                 component="div"
                 className="sidebar-heading"
@@ -94,13 +76,13 @@ const SideBar = () => {
               >
                 Your chats
               </Typography>
-              <div style={{ width: '100%', paddingTop: '1.4rem' }}>
+              <div className="your-chats-chat-wrapper">
                 {toggleChats
                   && chats.map((chat) => (
                     <UserProfile
                       picture={chat?.picture}
                       name={chat?.name}
-                      padding="0.2rem 0px"
+                      padding="0.15rem 0px"
                       avatarWidth={30}
                       avatarHeight={30}
                       dense
@@ -110,7 +92,7 @@ const SideBar = () => {
             </div>
           ) : null}
           {navLinks?.length ? (
-            <div style={{ width: '100%', paddingTop: '0.5rem' }}>
+            <div className="overview-menu-wrapper">
               <Typography
                 className="sidebar-heading"
                 fontFamily="unset"
@@ -118,15 +100,20 @@ const SideBar = () => {
               >
                 Overview
               </Typography>
-              <div style={{ width: '100%', paddingTop: '0.5rem' }}>
+              <div className="overview-nav-link-wrapper">
                 {navLinks.map((navLink, idx) => (
                   <ListItem
                     key={navLink?.title}
                     listItemIcon={navLink?.icon}
                     primaryText={navLink?.title}
-                    padding="0.2rem 0px"
+                    padding="0.15rem 0px"
                     dense
-                    selected={idx === navLinks.findIndex((el) => selectedParam === el?.link?.split?.('/')?.[2])}
+                    selected={
+                      idx
+                      === navLinks.findIndex(
+                        (el) => selectedParam === el?.link?.split?.('/')?.[2],
+                      )
+                    }
                     onClick={(_) => handleClickListItem(_, navLink?.link)}
                   />
                 ))}
