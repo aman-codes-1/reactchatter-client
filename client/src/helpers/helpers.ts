@@ -50,7 +50,10 @@ export const formatDate = (dateValue: string | number | Date) => {
 
 export const getCurrentYear = () => new Date().getFullYear();
 
-export const checkIfImageExists = (url: string, callback: (exists: boolean) => void) => {
+export const checkIfImageExists = (
+  url: string,
+  callback: (exists: boolean) => void,
+) => {
   const img = new Image();
   img.src = url || 'undefined';
 
@@ -67,9 +70,33 @@ export const checkIfImageExists = (url: string, callback: (exists: boolean) => v
   }
 };
 
+export const regex = {
+  validateEmail:
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+  validatePassword:
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/,
+  validateURL:
+    /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/,
+  validatePhone:
+    /^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/,
+  checkNumber: /^[0-9]+$/,
+  checkNumberLengthTen: /^[0-9]{10}$/,
+  validatePortNumber:
+    /^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$/,
+  validateExtension: /^(\d{4})/,
+  positiveNumbersOnly: /^[+]?([0-9]+(?:[.][0-9]*)?|\.[0-9]+)$/,
+  alphaNumeric: /^[A-Za-z0-9 ]+$/,
+  upperCaseLetters: /^[A-Z]{2}$/,
+  validateName: /^[^0-9]+[A-Za-z0-9 &,;/()\\#^\\['.-]*$/,
+  validateAlphabets: /^[A-Za-z ]+$/,
+};
+
 export const apiRoutes = {
   // Authentication
   AuthGoogleLogin: '/auth/google',
   AuthGoogleVerifyToken: '/auth/google/verifyToken',
-  AuthGoogleLogout: '/auth/google/logout',
+
+  // Friend Request
+  SendFriendRequest: '/request/send',
+  SentFriendRequests: '/request/sent',
 };

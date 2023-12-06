@@ -21,14 +21,14 @@ export const ListItemStyled = styled('div')<{
       '.MuiListItemText-primary': {
         fontSize: '0.875rem',
         fontWeight: 600,
-        color: '#111827',
         lineHeight: '1.5rem',
+        color: theme.palette.grey[900],
       },
       '.MuiListItemText-secondary': {
         fontSize: '0.75rem',
         fontWeight: 600,
-        color: theme.palette.grey[800],
         lineHeight: '1rem',
+        color: theme.palette.grey[600],
       },
     },
   },

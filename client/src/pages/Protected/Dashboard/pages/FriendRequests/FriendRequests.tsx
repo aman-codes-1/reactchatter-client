@@ -3,7 +3,7 @@ import { MainLayout } from '../../components';
 const FriendRequests = () => (
   <MainLayout
     heading="Friend Requests"
-    defaultText="You have no friend requests"
+    defaultText="You have no friend requests."
   />
 );
 

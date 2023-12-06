@@ -44,7 +44,7 @@ export const HomeStyled = styled('div')(({ theme }) => ({
         marginTop: 10,
         textTransform: 'none',
         fontWeight: 'bold',
-        backgroundColor: '#0F172B',
+        backgroundColor: theme.palette.action.active,
         width: '120px',
         height: '50px',
         fontSize: '16px',
@@ -55,7 +55,7 @@ export const HomeStyled = styled('div')(({ theme }) => ({
         },
       },
       '.home-login-btn:hover': {
-        backgroundColor: '#19284a',
+        backgroundColor: theme.palette.action.hover,
       },
     },
     '.home-footer': {

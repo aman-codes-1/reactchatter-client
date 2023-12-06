@@ -28,10 +28,10 @@ export const LoginStyled = styled('div')(({ theme }) => ({
     },
   },
   '.btn-active': {
-    backgroundColor: '#0F172B !important',
+    backgroundColor: `${theme.palette.action.active} !important`,
   },
   '.btn-active:hover': {
-    backgroundColor: '#1E293B !important',
+    backgroundColor: `${theme.palette.action.hover} !important`,
   },
   '.btn-disabled': {
     color: `${theme.palette.common.white} !important`,

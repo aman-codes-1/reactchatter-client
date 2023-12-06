@@ -1,8 +1,8 @@
 import {
-  createContext, useContext, useLayoutEffect, useState,
+  createContext, useContext, useEffect, useState,
 } from 'react';
 import { googleLogout } from '@react-oauth/google';
-import { AuthProviderProps, Context } from './IAuthProvider';
+import { AuthProviderProps, Context } from './IAuth';
 import { Loader } from '../../components';
 import { SnackbarContext } from '../Snackbar';
 import { Authentication } from '../../libs';
@@ -12,7 +12,7 @@ export const AuthContext = createContext<Context>({
   setAuth: () => null,
 });
 
-const AuthProvider = ({ children }: AuthProviderProps) => {
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const authentication = new Authentication();
   const [auth, setAuth] = useState();
   const [isLoading, setIsLoading] = useState(true);
@@ -41,7 +41,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!auth && isGoogle === true) {
       verifyLogin();
     } else {
@@ -59,5 +59,3 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     </AuthContext.Provider>
   );
 };
-
-export default AuthProvider;
