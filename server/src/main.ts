@@ -5,16 +5,7 @@ import { AppModule } from "./app.module";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: [
-      "http://reactchatter-server.vercel.app",
-      "http://reactchatter.vercel.app",
-      "https://reactchatter-server.vercel.app",
-      "https://reactchatter.vercel.app",
-      "http://localhost:3001",
-      "http://localhost:8000",
-      "http://localhost:8080",
-      "http://localhost:4200",
-    ],
+    origin: process.env.ALLOWED_DOMAINS?.split(","),
     allowedHeaders:
       "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe",
     credentials: true,
