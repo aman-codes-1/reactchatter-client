@@ -13,8 +13,8 @@ async function bootstrap() {
         "http://localhost:8080",
         "http://localhost:4200",
       ],
-      allowedHeaders:
-        "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe",
+      // allowedHeaders:
+      //   "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe",
       credentials: true,
     },
   });
