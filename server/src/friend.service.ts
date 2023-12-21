@@ -80,9 +80,7 @@ export class FriendService {
                       ],
                     },
                     {
-                      $not: [
-                        { $eq: ["$_id", userObjectId] },
-                      ],
+                      $not: [{ $eq: ["$_id", userObjectId] }],
                     },
                   ],
                 },
