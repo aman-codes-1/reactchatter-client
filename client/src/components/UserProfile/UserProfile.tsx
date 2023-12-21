@@ -16,6 +16,7 @@ const UserProfile = ({
   disableHover = false,
   secondaryAction,
   dense = false,
+  onClick,
 }: UserProfileProps) => {
   const [avatar, setAvatar] = useState<ReactNode>();
 
@@ -57,6 +58,7 @@ const UserProfile = ({
             {avatar || <Avatar width={avatarWidth} height={avatarHeight} />}
           </ListItemAvatar>
         )}
+        onClick={onClick}
       />
     </UserProfileStyled>
   );

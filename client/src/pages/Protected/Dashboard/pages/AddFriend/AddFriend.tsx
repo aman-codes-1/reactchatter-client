@@ -9,8 +9,9 @@ import { useAuth } from '../../../../../hooks';
 import { AddFriendStyled } from './AddFriend.styled';
 
 const AddFriend = () => {
-  const sendFriendRequest = new FriendRequest();
+  const friendRequest = new FriendRequest();
   const [email, setEmail] = useState('');
+  const [disabled, setDisabled] = useState(false);
   const [validation, setValidation] = useState({
     isRequired: false,
     isNotValid: false,
@@ -20,7 +21,7 @@ const AddFriend = () => {
     message: '',
     type: '',
   });
-  const { auth: { _id = '' } = {} } = useAuth();
+  const { auth: { _id = '', email: Email = '' } = {} } = useAuth();
 
   const resetStates = () => {
     setState({
@@ -43,6 +44,11 @@ const AddFriend = () => {
     });
     const val = (e.target as HTMLInputElement)?.value;
     setEmail(val);
+    if (val === Email) {
+      setDisabled(true);
+    } else {
+      setDisabled(false);
+    }
   };
 
   const handleCheckEmail = () => {
@@ -83,7 +89,7 @@ const AddFriend = () => {
       type: '',
     });
     try {
-      await sendFriendRequest.sendFriendRequest({
+      await friendRequest.sendFriendRequest({
         sendToEmail: email,
         sentByUserId: _id,
       });
@@ -92,6 +98,7 @@ const AddFriend = () => {
         message: 'Friend Request Sent.',
         type: 'success',
       });
+      setEmail('');
     } catch (err: any) {
       setState({
         loading: false,
@@ -128,9 +135,10 @@ const AddFriend = () => {
             loading={loading}
             variant="contained"
             className={`add-friend-email-btn ${
-              loading ? '' : 'add-btn-active'
+              loading || disabled ? '' : 'add-btn-active'
             }`}
             onClick={handleClickAdd}
+            disabled={disabled}
           >
             Add
           </LoadingButton>

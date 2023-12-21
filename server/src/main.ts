@@ -6,8 +6,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
     origin: [
-      "https://nest-react-chat-app-server.vercel.app",
-      "https://nest-react-chat-app.vercel.app",
+      "https://reactchatter-server.vercel.app",
+      "https://reactchatter.vercel.app",
       "http://localhost:3001",
       "http://localhost:8000",
       "http://localhost:8080",

@@ -1,11 +1,15 @@
 import { Body, Controller, Get, Post, Req, Res } from "@nestjs/common";
+import { Request, Response } from "express";
 import { OAuth2Client } from "google-auth-library";
 import { AuthService } from "./auth.service";
-import { Request, Response } from "express";
+import { RequestService } from "./request.service";
 
 @Controller("auth")
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private requestService: RequestService,
+  ) {}
 
   client = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,

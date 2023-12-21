@@ -17,6 +17,8 @@ const ListItem = ({
   dense = false,
   selected = false,
   onClick,
+  btnSx,
+  children,
 }: ListItemProps) => (
   <ListItemStyled
     padding={padding}
@@ -31,9 +33,17 @@ const ListItem = ({
           selected={selected}
           className="list-item-btn"
           onClick={onClick}
+          sx={btnSx}
         >
+          {children}
           {listItemIcon}
-          <ListItemText id={primaryText} primary={primaryText} secondary={secondaryText || null} />
+          {primaryText || secondaryText ? (
+            <ListItemText
+              id={primaryText}
+              primary={primaryText}
+              secondary={secondaryText || null}
+            />
+          ) : null}
         </ListItemButton>
       </MuiListItem>
     </List>

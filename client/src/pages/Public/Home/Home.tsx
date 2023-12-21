@@ -58,7 +58,7 @@ const Home = () => (
             </MuiLink>
             {' | '}
             <MuiLink
-              href="https://github.com/aman-codes-1/nest-react-chat-app"
+              href="https://github.com/aman-codes-1/ReactChatter"
               target="_blank"
               rel="noreferrer"
               underline="none"

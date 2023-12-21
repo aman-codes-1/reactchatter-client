@@ -20,6 +20,21 @@ export class RequestController {
     };
   }
 
+  @Post("respond")
+  async respond(
+    @Body("requestId") requestId: string,
+    @Body("status") status: string,
+  ) {
+    const requestData = await this.requestService.respondToRequest({
+      requestId,
+      status,
+    });
+    return {
+      data: requestData,
+      message: "success",
+    };
+  }
+
   @Post("sent")
   async sent(@Body("sentByUserId") sentByUserId: string) {
     const requestData = await this.requestService.sentRequests({
@@ -31,14 +46,14 @@ export class RequestController {
     };
   }
 
-  // @Post("received")
-  // async received(
-  //   @Body("userId") userId: string,
-  // ) {
-  //   const requestData = await this.requestService.receiveRequests({ sendToEmail, sentByUserId });
-  //   return {
-  //     data: requestData,
-  //     message: "success",
-  //   };
-  // }
+  @Post("received")
+  async received(@Body("sentByUserId") sentByUserId: string) {
+    const requestData = await this.requestService.receiveRequests({
+      sentByUserId,
+    });
+    return {
+      data: requestData,
+      message: "success",
+    };
+  }
 }

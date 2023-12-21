@@ -1,12 +1,16 @@
-import { MouseEvent, useState } from 'react';
+import { MouseEvent, useContext, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Icon, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
-import { NavBar } from '../NavBar';
+import ArrowDropDownCircleIcon from '@mui/icons-material/ArrowDropDownCircle';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { SideBarFooter } from './components';
-import { ListItem, UserProfile } from '..';
+import { ListItem, NavBar, UserProfile } from '..';
+import { FriendsContext } from '../../contexts';
+import { useAuth } from '../../hooks';
+import { chatHrefConstructor } from '../../helpers';
 import { SideBarStyled } from './SideBar.styled';
 
 const SideBar = () => {
@@ -14,43 +18,22 @@ const SideBar = () => {
   const { pathname } = useLocation();
   const [toggleChats, setToggleChats] = useState(true);
   const selectedParam = pathname?.split?.('/')?.[2];
-
-  const chats = [
-    {
-      name: 'Aman Jain',
-      picture: '',
-    },
-    {
-      name: 'Shubham',
-      picture: '',
-    },
-  ];
+  const { state: { data = [] } = {} } = useContext(FriendsContext);
+  const { auth: { _id = '' } = {} } = useAuth();
 
   const navLinks = [
     {
-      icon: (
-        <Icon className="list-item-icon">
-          <PersonAddAltOutlinedIcon fontSize="small" />
-        </Icon>
-      ),
+      icon: <PersonAddAltOutlinedIcon className="list-item-icon" />,
       title: 'Add Friend',
       link: '/dashboard/add',
     },
     {
-      icon: (
-        <Icon className="list-item-icon">
-          <PersonOutlineOutlinedIcon fontSize="small" />
-        </Icon>
-      ),
+      icon: <PersonOutlineOutlinedIcon className="list-item-icon" />,
       title: 'Friend Requests',
       link: '/dashboard/requests',
     },
     {
-      icon: (
-        <Icon className="list-item-icon">
-          <PeopleAltOutlinedIcon fontSize="small" />
-        </Icon>
-      ),
+      icon: <PeopleAltOutlinedIcon className="list-item-icon" />,
       title: 'Sent Requests',
       link: '/dashboard/sent',
     },
@@ -60,32 +43,56 @@ const SideBar = () => {
     navigate(link);
   };
 
+  const handleClickChat = (_: MouseEvent, friendId: string) => {
+    navigate(`/dashboard/chats/${chatHrefConstructor(_id, friendId)}`);
+  };
+
   return (
     <SideBarStyled>
       <div className="sidebar-wrapper">
         <div className="sidebar-menu-wrapper">
           <NavBar />
-          {chats?.length ? (
+          {data?.length ? (
             <div className="your-chats-menu-wrapper">
-              <Typography
-                component="div"
-                className="sidebar-heading"
-                fontFamily="unset"
-                fontWeight={700}
+              <ListItem
+                dense
+                btnSx={{ p: 0 }}
                 onClick={() => setToggleChats((prev) => !prev)}
               >
-                Your chats
-              </Typography>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    width: '100%',
+                  }}
+                >
+                  <Typography
+                    className="sidebar-heading"
+                    fontFamily="unset"
+                    fontWeight={700}
+                  >
+                    Your chats
+                  </Typography>
+                  {toggleChats ? (
+                    <ArrowDropUpIcon />
+                  ) : (
+                    <ArrowDropDownCircleIcon />
+                  )}
+                </div>
+              </ListItem>
               <div className="your-chats-chat-wrapper">
                 {toggleChats
-                  && chats.map((chat) => (
+                  && data.map((friend: any) => (
                     <UserProfile
-                      picture={chat?.picture}
-                      name={chat?.name}
+                      picture={friend?.friendDetails?.picture}
+                      name={friend?.friendDetails?.name}
+                      email={friend?.friendDetails?.email}
                       padding="0.15rem 0px"
                       avatarWidth={30}
                       avatarHeight={30}
                       dense
+                      onClick={(_) => handleClickChat(_, friend?._id)}
                     />
                   ))}
               </div>
