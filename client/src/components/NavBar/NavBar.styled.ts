@@ -15,7 +15,7 @@ export const NavBarStyled = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     width: '100%',
-    padding: '1rem 0rem',
+    padding: '1rem 0.45rem',
     [theme.breakpoints.down('sm')]: {
       width: '30px',
       padding: '0.5rem 1rem',

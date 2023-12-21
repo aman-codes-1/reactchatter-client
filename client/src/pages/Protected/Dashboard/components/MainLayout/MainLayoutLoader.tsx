@@ -1,11 +1,14 @@
 import { Skeleton } from '@mui/material';
-import { MainLayoutStyled } from './MainLayout.styled';
+import { MainLayoutLoaderStyled } from './MainLayout.styled';
 
-const MainLayoutLoader = ({ children }: any) => (
-  <MainLayoutStyled>
-    <Skeleton width={350} height={100} className="skeleton" />
+const MainLayoutLoader = ({ defaultText, children }: any) => (
+  <MainLayoutLoaderStyled>
+    <Skeleton width={370} height={100} className="skeleton-heading" />
+    {defaultText ? (
+      <Skeleton width={270} height={30} className="skeleton-default-text" />
+    ) : null}
     {children}
-  </MainLayoutStyled>
+  </MainLayoutLoaderStyled>
 );
 
 export default MainLayoutLoader;

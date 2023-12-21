@@ -30,7 +30,7 @@ export const SideBarStyled = styled('div')(({ theme }) => ({
         width: '100%',
         '.your-chats-chat-wrapper': {
           width: '100%',
-          paddingTop: '1.35rem',
+          paddingTop: '0.875rem',
         },
       },
       '.overview-menu-wrapper': {
@@ -38,18 +38,21 @@ export const SideBarStyled = styled('div')(({ theme }) => ({
         paddingTop: '0.5rem',
         '.overview-nav-link-wrapper': {
           width: '100%',
-          paddingTop: '0.5rem',
+          paddingTop: '0.875rem',
         },
       },
       '.sidebar-heading': {
+        paddingLeft: '0.45rem',
         fontSize: '0.75rem',
         color: theme.palette.grey[600],
       },
     },
   },
   '.list-item-icon': {
-    color: '#9CA3AF',
-    border: '1px solid #E5E7EB',
+    padding: '0.15rem',
+    fontSize: '1.1rem',
+    color: theme.palette.grey[600],
+    outline: '1px solid #E5E7EB',
     borderRadius: '8px',
   },
 }));

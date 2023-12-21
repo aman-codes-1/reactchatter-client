@@ -1,1 +1,1 @@
-export { Authentication, FriendRequest } from './api';
+export { Authentication, Friend, FriendRequest } from './api';

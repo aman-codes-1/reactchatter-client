@@ -1,8 +1,16 @@
 import { Typography } from '@mui/material';
 import { MainLayoutStyled } from './MainLayout.styled';
 import { MainLayoutProps } from './IMainLayout';
+import { SuccessErrorMessage } from '../../../../../components';
 
-const MainLayout = ({ heading, defaultText, children }: MainLayoutProps) => (
+const MainLayout = ({
+  heading,
+  defaultText,
+  loading,
+  data,
+  error,
+  children,
+}: MainLayoutProps) => (
   <MainLayoutStyled>
     <Typography
       className="main-layout-heading"
@@ -11,7 +19,7 @@ const MainLayout = ({ heading, defaultText, children }: MainLayoutProps) => (
     >
       {heading}
     </Typography>
-    {defaultText && (
+    {defaultText && !loading && !error && !data?.length ? (
       <Typography
         className="main-layout-default-text"
         fontFamily="unset"
@@ -19,7 +27,8 @@ const MainLayout = ({ heading, defaultText, children }: MainLayoutProps) => (
       >
         {defaultText}
       </Typography>
-    )}
+    ) : null}
+    {error ? <SuccessErrorMessage message={error} type="error" /> : null}
     {children}
   </MainLayoutStyled>
 );

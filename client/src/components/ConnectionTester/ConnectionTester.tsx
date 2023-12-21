@@ -1,5 +1,4 @@
-import { ReactNode, useLayoutEffect, useState } from 'react';
-import { Loader } from '../../components';
+import { useLayoutEffect, useState } from 'react';
 
 const containerStyles = {
   display: 'flex',
@@ -14,22 +13,18 @@ const imgStyles = {
   height: '50%',
 };
 
-export const ConnectionTester = ({ children }: { children: ReactNode }) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [isOnline, setIsOnline] = useState(false);
+export const ConnectionTester = ({ children }: any) => {
+  const [isOnline, setIsOnline] = useState(window.navigator.onLine);
 
   useLayoutEffect(() => {
     const fetchRequest = async () => {
-      setIsLoading(true);
       try {
         await fetch('https://www.google.com/', {
           mode: 'no-cors',
         });
         setIsOnline(true);
-        setIsLoading(false);
       } catch (err) {
         setIsOnline(false);
-        setIsLoading(false);
       }
     };
     fetchRequest();
@@ -41,11 +36,7 @@ export const ConnectionTester = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
-  if (isLoading) {
-    return <Loader center />;
-  }
-
-  if (!isLoading && !isOnline) {
+  if (!isOnline) {
     return (
       <div style={containerStyles}>
         <img
@@ -57,7 +48,5 @@ export const ConnectionTester = ({ children }: { children: ReactNode }) => {
     );
   }
 
-  return (
-    <div>{children}</div>
-  );
+  return children || null;
 };

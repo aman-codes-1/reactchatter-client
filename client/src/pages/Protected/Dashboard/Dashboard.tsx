@@ -47,7 +47,7 @@ const Dashboard = () => (
               />
             )}
           />
-          {/* <Route path="/chats:chatId" element={<>Chats</>} /> */}
+          <Route path="/chats:id" element={<>Chats</>} />
         </Route>
       </Routes>
     </DashboardStyled>

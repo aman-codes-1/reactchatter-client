@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { ListItemButtonProps } from '@mui/material';
 
 export type UserProfileProps = {
   picture: string;
@@ -10,4 +11,5 @@ export type UserProfileProps = {
   disableHover?: boolean;
   secondaryAction?: ReactNode;
   dense?: boolean;
+  onClick?: ListItemButtonProps['onClick'];
 };

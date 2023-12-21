@@ -1,10 +1,11 @@
 export { Avatar } from './Avatar';
 export { BaseSvg } from './BaseSvg';
+export { ConnectionTester } from './ConnectionTester';
 export { ListItem } from './ListItem';
 export { Loader } from './Loader';
 export { NavBar } from './NavBar';
-export { SideBar } from './SideBar';
 export { ScrollToTop } from './ScrollToTop';
+export { SideBar } from './SideBar';
 export { SuccessErrorMessage } from './SuccessErrorMessage';
 export { SuspenseWrapper } from './SuspenseWrapper';
 export { UserProfile } from './UserProfile';

@@ -53,5 +53,6 @@ module.exports = {
     'linebreak-style': 0,
     'class-methods-use-this': 0,
     'eslint-disable-next-line react/jsx-no-useless-fragment': 'off',
+    'no-underscore-dangle': 'off',
   },
 };

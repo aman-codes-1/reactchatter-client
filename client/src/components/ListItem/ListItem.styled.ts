@@ -12,8 +12,8 @@ export const ListItemStyled = styled('div')<{
   padding,
   '.list-item-btn': {
     borderRadius: '10px',
-    paddingLeft: '1.5rem',
-    paddingRight: '1.5rem',
+    // paddingLeft: '1.5rem',
+    // paddingRight: '1.5rem',
     gap: '17px',
     '.MuiListItemText-root': {
       wordWrap: 'break-word',
@@ -36,20 +36,22 @@ export const ListItemStyled = styled('div')<{
     background: disableHover ? 'transparent' : '#F9FAFB',
     cursor: disableHover ? 'default' : 'pointer',
     color: '#4F46E5',
-    '.MuiTypography-root, .MuiIcon-root, .Mui-selected': {
+    '.MuiTypography-root, .Mui-selected': {
       color: disableHover ? '' : '#4F46E5',
     },
-    '.MuiIcon-root': {
-      border: disableHover ? '' : '1px solid #4F46E5',
+    '.list-item-icon': {
+      color: disableHover ? '' : '#4F46E5',
+      outline: disableHover ? '' : '1px solid #4F46E5',
       background: disableHover ? '' : theme.palette.common.white,
     },
   },
   '.MuiButtonBase-root.MuiListItemButton-root.Mui-selected': {
-    '.MuiTypography-root, .MuiIcon-root': {
+    '.MuiTypography-root': {
       color: '#4F46E5',
     },
-    '.MuiIcon-root': {
-      border: '1px solid #4F46E5',
+    '.list-item-icon': {
+      color: '#4F46E5',
+      outline: '1px solid #4F46E5',
       background: theme.palette.common.white,
     },
   },
