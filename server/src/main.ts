@@ -9,7 +9,7 @@ async function bootstrap() {
         ? process.env.ALLOWED_DOMAINS?.split(",")
         : process.env.ALLOWED_DOMAINS,
       allowedHeaders:
-        "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe",
+        "Origin, X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe",
       credentials: true,
     },
   });
