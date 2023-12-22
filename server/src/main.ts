@@ -8,8 +8,9 @@ async function bootstrap() {
       origin: process.env.ALLOWED_DOMAINS?.includes(",")
         ? process.env.ALLOWED_DOMAINS?.split(",")
         : process.env.ALLOWED_DOMAINS,
-      allowedHeaders:
-        "Origin, X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe",
+      methods: ["GET", "PUT", "POST", "DELETE"],
+      // allowedHeaders:
+      //   "Origin, X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe",
       credentials: true,
     },
   });
