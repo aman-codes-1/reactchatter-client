@@ -15,7 +15,6 @@ class Authentication {
           'Content-Type': 'application/json',
         },
         withCredentials: true,
-        credentials: 'include',
       })
         .then((data) => {
           resolve(data);
