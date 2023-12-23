@@ -11,8 +11,11 @@ class Authentication {
         method: 'POST',
         url: apiRoutes.AuthGoogleLogin,
         data: { code },
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         withCredentials: true,
+        credentials: 'include',
       })
         .then((data) => {
           resolve(data);

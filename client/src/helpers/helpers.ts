@@ -9,6 +9,7 @@ export const callApi = async ({
   signal = undefined,
   responseType = '',
   withCredentials = false,
+  credentials = '',
 }) => {
   const source = axios.CancelToken.source();
   const options = {
@@ -19,6 +20,7 @@ export const callApi = async ({
     headers,
     responseType,
     withCredentials,
+    credentials,
     ...(signal ? { signal } : {}),
     cancelToken: source.token,
   } as AxiosRequestConfig;
