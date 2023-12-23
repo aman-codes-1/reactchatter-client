@@ -8,9 +8,9 @@ async function bootstrap() {
     origin: process.env.ALLOWED_DOMAINS?.includes(",")
       ? process.env.ALLOWED_DOMAINS?.split(",")
       : process.env.ALLOWED_DOMAINS,
-    methods: ["GET", "PUT", "POST", "DELETE"],
-    allowedHeaders:
-      "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    // allowedHeaders:
+    //   "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe",
     credentials: true,
   });
   app.use(cookieParser());
