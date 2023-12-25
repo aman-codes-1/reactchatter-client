@@ -37,6 +37,7 @@ export class AuthController {
       httpOnly: true,
       domain: process.env.CLIENT_DOMAIN,
       sameSite: 'none',
+      secure: true,
     });
     const {
       iat,
@@ -81,6 +82,7 @@ export class AuthController {
         httpOnly: true,
         domain: process.env.CLIENT_DOMAIN,
         sameSite: 'none',
+        secure: true,
       });
     }
     const authData = await this.authService.login(auth);
