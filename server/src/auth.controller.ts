@@ -36,6 +36,7 @@ export class AuthController {
     response.cookie("auth", JSON.stringify(data), {
       httpOnly: true,
       domain: process.env.CLIENT_DOMAIN,
+      sameSite: 'none',
     });
     const {
       iat,
@@ -79,6 +80,7 @@ export class AuthController {
       response.cookie("auth", JSON.stringify(auth), {
         httpOnly: true,
         domain: process.env.CLIENT_DOMAIN,
+        sameSite: 'none',
       });
     }
     const authData = await this.authService.login(auth);
