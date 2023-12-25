@@ -61,7 +61,7 @@ export class AuthController {
   ): Promise<any> {
     const authCookie = await request?.cookies?.["auth"];
     if (!authCookie) {
-      throw new BadRequestException("Unable to login. Please try again later.");
+      throw new BadRequestException("Unable to verify user. Please try to re-login.");
     }
     let auth = authCookie !== undefined ? JSON.parse(authCookie || "{}") : {};
     const { refresh_token: refreshToken, expiry_date: expiryDate } = auth || {};
