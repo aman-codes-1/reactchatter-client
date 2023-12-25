@@ -100,6 +100,7 @@ export const apiRoutes = {
   // Authentication
   AuthGoogleLogin: '/auth/google',
   AuthGoogleVerifyToken: '/auth/google/verifyToken',
+  AuthGoogleLogout: '/auth/google/logout',
 
   // Friend Request
   SendFriendRequest: '/request/send',
