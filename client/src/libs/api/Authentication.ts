@@ -35,6 +35,23 @@ class Authentication {
         .then((data) => {
           resolve(data);
         })
+        .catch(async (err) => {
+          await this.googleLogout();
+          reject(err);
+        });
+    });
+  }
+
+  public async googleLogout() {
+    return new Promise((resolve, reject) => {
+      callApi({
+        method: 'POST',
+        url: apiRoutes.AuthGoogleLogout,
+        withCredentials: true,
+      })
+        .then((data) => {
+          resolve(data);
+        })
         .catch((err) => {
           reject(err);
         });

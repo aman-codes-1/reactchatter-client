@@ -1,4 +1,12 @@
-import { BadRequestException, Body, Controller, Get, Post, Req, Res } from "@nestjs/common";
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+} from "@nestjs/common";
 import { Request, Response } from "express";
 import { OAuth2Client } from "google-auth-library";
 import { AuthService } from "./auth.service";
@@ -35,8 +43,8 @@ export class AuthController {
     const data = await this.authService.login(ticketData);
     response.cookie("auth", JSON.stringify(data), {
       httpOnly: true,
-      domain: process.env.CLIENT_DOMAIN,
-      sameSite: 'none',
+      domain: process.env.COOKIE_DOMAIN,
+      sameSite: "none",
       secure: true,
     });
     const {
@@ -63,7 +71,9 @@ export class AuthController {
   ): Promise<any> {
     const authCookie = await request?.cookies?.["auth"];
     if (!authCookie) {
-      throw new BadRequestException("Unable to verify user. Please try to re-login.");
+      throw new BadRequestException(
+        "Unable to verify user. Please try to re-login.",
+      );
     }
     let auth = authCookie !== undefined ? JSON.parse(authCookie || "{}") : {};
     const { refresh_token: refreshToken, expiry_date: expiryDate } = auth || {};
@@ -80,8 +90,8 @@ export class AuthController {
       auth = { ...auth, ...data };
       response.cookie("auth", JSON.stringify(auth), {
         httpOnly: true,
-        domain: process.env.CLIENT_DOMAIN,
-        sameSite: 'none',
+        domain: process.env.COOKIE_DOMAIN,
+        sameSite: "none",
         secure: true,
       });
     }
@@ -99,6 +109,19 @@ export class AuthController {
     } = authData || {};
     return {
       data: restData,
+      message: "success",
+    };
+  }
+
+  @Post("google/logout")
+  async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
+    response.clearCookie("auth", {
+      httpOnly: true,
+      domain: process.env.COOKIE_DOMAIN,
+      sameSite: "none",
+      secure: true,
+    });
+    return {
       message: "success",
     };
   }
