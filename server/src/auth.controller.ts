@@ -52,7 +52,7 @@ export class AuthController {
     };
   }
 
-  @Get("google/verifyToken")
+  @Post("google/verifyToken")
   async verifyToken(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,

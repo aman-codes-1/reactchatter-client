@@ -28,7 +28,7 @@ class Authentication {
   public async googleVerifyToken() {
     return new Promise((resolve, reject) => {
       callApi({
-        method: 'GET',
+        method: 'POST',
         url: apiRoutes.AuthGoogleVerifyToken,
         withCredentials: true,
       })
