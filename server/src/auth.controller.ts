@@ -35,12 +35,8 @@ export class AuthController {
     const data = await this.authService.login(ticketData);
     response.cookie("auth", JSON.stringify(data), {
       httpOnly: true,
-      domain: process.env.COOKIE_DOMAIN,
+      domain: process.env.CLIENT_DOMAIN,
     });
-    const authCookie = await request?.cookies?.["auth"];
-    if (!authCookie) {
-      throw new BadRequestException("Unable to login. Please try again later.");
-    }
     const {
       iat,
       exp,
@@ -82,7 +78,7 @@ export class AuthController {
       auth = { ...auth, ...data };
       response.cookie("auth", JSON.stringify(auth), {
         httpOnly: true,
-        domain: process.env.COOKIE_DOMAIN,
+        domain: process.env.CLIENT_DOMAIN,
       });
     }
     const authData = await this.authService.login(auth);
