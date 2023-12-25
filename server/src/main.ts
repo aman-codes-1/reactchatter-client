@@ -5,9 +5,11 @@ import { AppModule } from "./app.module";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: process.env.ALLOWED_DOMAINS?.includes(",")
-      ? process.env.ALLOWED_DOMAINS?.split(",")
-      : process.env.ALLOWED_DOMAINS,
+    origin: process.env.ALLOWED_DOMAINS
+      ? (process.env.ALLOWED_DOMAINS?.includes(",") &&
+          process.env.ALLOWED_DOMAINS?.split(",")) ||
+        process.env.ALLOWED_DOMAINS
+      : process.env.CLIENT_URI,
     methods: ["GET", "PUT", "POST", "DELETE", "OPTIONS"],
     allowedHeaders:
       "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe",
