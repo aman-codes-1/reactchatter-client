@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, Res } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Get, Post, Req, Res } from "@nestjs/common";
 import { Request, Response } from "express";
 import { OAuth2Client } from "google-auth-library";
 import { AuthService } from "./auth.service";
@@ -20,6 +20,7 @@ export class AuthController {
   @Post("google")
   async google(
     @Body() body: { code: string },
+    @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ): Promise<any> {
     const { code } = body;
@@ -58,7 +59,10 @@ export class AuthController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ): Promise<any> {
-    const authCookie = request?.cookies?.["auth"];
+    const authCookie = await request?.cookies?.["auth"];
+    if (!authCookie) {
+      throw new BadRequestException("Unable to verify user. Please try to re-login.");
+    }
     let auth = authCookie !== undefined ? JSON.parse(authCookie || "{}") : {};
     const { refresh_token: refreshToken, expiry_date: expiryDate } = auth || {};
     this.client.setCredentials({
