@@ -1,6 +1,7 @@
 import {
   createContext, useContext, useEffect, useState,
 } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { googleLogout } from '@react-oauth/google';
 import { AuthProviderProps, Context } from './IAuth';
 import { Loader } from '../../components';
@@ -14,6 +15,7 @@ export const AuthContext = createContext<Context>({
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const authentication = new Authentication();
+  const navigate = useNavigate();
   const [auth, setAuth] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const isGoogle = Boolean(localStorage.getItem('isGoogle'));
@@ -28,13 +30,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         ...data?.data,
       });
       setIsLoading(false);
-    } catch (err) {
+    } catch (err: any) {
       googleLogout();
       localStorage.removeItem('isGoogle');
       setAuth(undefined);
-      window.location.reload();
+      navigate('/', { replace: true });
       openSnackbar({
-        message: JSON.stringify(err),
+        message: err?.response?.data?.message,
         type: 'error',
       });
       setIsLoading(false);
