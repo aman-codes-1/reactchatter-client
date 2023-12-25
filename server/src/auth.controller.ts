@@ -35,7 +35,7 @@ export class AuthController {
     const data = await this.authService.login(ticketData);
     response.cookie("auth", JSON.stringify(data), {
       httpOnly: true,
-      domain: process.env.CLIENT_DOMAIN,
+      domain: process.env.COOKIE_DOMAIN,
     });
     const authCookie = await request?.cookies?.["auth"];
     if (!authCookie) {
@@ -82,7 +82,7 @@ export class AuthController {
       auth = { ...auth, ...data };
       response.cookie("auth", JSON.stringify(auth), {
         httpOnly: true,
-        domain: process.env.CLIENT_DOMAIN,
+        domain: process.env.COOKIE_DOMAIN,
       });
     }
     const authData = await this.authService.login(auth);
