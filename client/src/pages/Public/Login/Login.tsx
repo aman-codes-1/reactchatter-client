@@ -48,7 +48,7 @@ const Login = () => {
   const login = useGoogleLogin({
     flow: 'auth-code',
     ux_mode: 'redirect',
-    redirect_uri: process.env.REACT_APP_GOOGLE_CLIENT_REDIRECT_URI || '',
+    redirect_uri: `${process.env.REACT_APP_CLIENT_URI}/login` || '',
     include_granted_scopes: true,
     select_account: isLoading,
   });
