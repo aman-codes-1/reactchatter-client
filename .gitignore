@@ -3,30 +3,24 @@
 # dependencies
 /client/node_modules
 /server/node_modules
-/apollo-server/node_modules
 
 # testing
 /client/coverage
 /server/coverage
-/apollo-server/coverage
 
 # build
 /client/build
 /server/build
-/apollo-server/build
 
 # dist
 /client/dist
 /server/dist
-/apollo-server/dist
 
 # misc
 /client/.env
 /client/.DS_Store
 /server/.env
 /server/.DS_Store
-/apollo-server/.env
-/apollo-server/.DS_Store
 
 # log
 /client/npm-debug.log*
@@ -35,6 +29,3 @@
 /server/npm-debug.log*
 /server/yarn-debug.log*
 /server/yarn-error.log*
-/apollo-server/npm-debug.log*
-/apollo-server/yarn-debug.log*
-/apollo-server/yarn-error.log*
