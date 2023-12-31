@@ -13,7 +13,8 @@ const SideBarFooter = () => {
   const authentication = new Authentication();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const { auth: { email = '', name = '', picture = '' } = {}, setAuth } = useAuth();
+  const { auth: { email = '', name = '', picture = '' } = {}, setAuth } =
+    useAuth();
   const { openSnackbar } = useContext(SnackbarContext);
 
   const handleLogout = async () => {
@@ -44,7 +45,7 @@ const SideBarFooter = () => {
         disableHover
         dense={email?.length > 27}
         padding={!email ? '0.5rem 0px' : ''}
-        secondaryAction={(
+        secondaryAction={
           <IconButton className="logout-btn" edge="end" onClick={handleLogout}>
             {isLoading ? (
               <CircularProgress size={18} />
@@ -52,7 +53,7 @@ const SideBarFooter = () => {
               <LogoutIcon className="logout-icon" />
             )}
           </IconButton>
-        )}
+        }
       />
     </SideBarFooterStyled>
   );

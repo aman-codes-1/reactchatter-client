@@ -53,11 +53,11 @@ const UserProfile = ({
         secondaryAction={secondaryAction}
         disableHover={disableHover}
         dense={dense}
-        listItemIcon={(
+        listItemIcon={
           <ListItemAvatar className="list-item-avatar">
             {avatar || <Avatar width={avatarWidth} height={avatarHeight} />}
           </ListItemAvatar>
-        )}
+        }
         onClick={onClick}
       />
     </UserProfileStyled>

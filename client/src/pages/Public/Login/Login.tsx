@@ -22,9 +22,10 @@ const Login = () => {
     const googleLogin = async () => {
       setIsLoading(true);
       try {
-        const { data }: any = (await authentication.googleLogin({
-          code: code || '',
-        })) || {};
+        const { data }: any =
+          (await authentication.googleLogin({
+            code: code || '',
+          })) || {};
         localStorage.setItem('isGoogle', 'true');
         setAuth({
           isLoggedIn: true,

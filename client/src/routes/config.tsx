@@ -7,15 +7,16 @@ export const routesConfig = (isLoggedIn: boolean) => [
     key: '1',
     type: 'default',
     path: '/',
-    Element: () => (isLoggedIn ? (
-      <Navigate replace to="/dashboard" />
-    ) : (
-      <SuspenseWrapper
-        path="pages/Public/Home"
-        compName="Home"
-        fallback={<Loader center />}
-      />
-    )),
+    Element: () =>
+      isLoggedIn ? (
+        <Navigate replace to="/dashboard" />
+      ) : (
+        <SuspenseWrapper
+          path="pages/Public/Home"
+          compName="Home"
+          fallback={<Loader center />}
+        />
+      ),
   },
   {
     key: '2',
@@ -31,10 +32,7 @@ export const routesConfig = (isLoggedIn: boolean) => [
       <GoogleOAuthProvider
         clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || ''}
       >
-        <SuspenseWrapper
-          path="pages/Public/Login"
-          compName="Login"
-        />
+        <SuspenseWrapper path="pages/Public/Login" compName="Login" />
       </GoogleOAuthProvider>
     ),
   },

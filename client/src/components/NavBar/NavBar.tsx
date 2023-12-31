@@ -9,7 +9,10 @@ const NavBar = ({ className }: any) => (
     <Link to="/dashboard" className="nav-logo">
       <BaseSvg id="logo" className="nav-logo-svg" />
     </Link>
-    <Button className="nav-menu-btn" endIcon={<MenuRoundedIcon className="nav-menu-btn-icon" />}>
+    <Button
+      className="nav-menu-btn"
+      endIcon={<MenuRoundedIcon className="nav-menu-btn-icon" />}
+    >
       Menu
     </Button>
   </NavBarStyled>

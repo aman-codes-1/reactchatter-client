@@ -1,6 +1,4 @@
-import {
-  Box, Button, Link as MuiLink, Typography,
-} from '@mui/material';
+import { Box, Button, Link as MuiLink, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { getCurrentYear } from '../../../helpers';
 import { HomeStyled } from './Home.styled';
@@ -29,11 +27,7 @@ const Home = () => (
             React.js v18, Material UI, Typescript, Nest.js and Pusher.
           </Typography>
           <Link to="/login">
-            <Button
-              size="large"
-              variant="contained"
-              className="home-login-btn"
-            >
+            <Button size="large" variant="contained" className="home-login-btn">
               Login
             </Button>
           </Link>
@@ -45,8 +39,7 @@ const Home = () => (
             fontWeight={400}
             fontFamily="unset"
           >
-            Made with ❤️ by
-            {' '}
+            Made with ❤️ by{' '}
             <MuiLink
               href="https://www.linkedin.com/in/aman-jain-4b24b8111/"
               target="_blank"
@@ -73,12 +66,7 @@ const Home = () => (
             fontWeight={400}
             fontFamily="unset"
           >
-            &copy;
-            {' '}
-            {getCurrentYear()}
-            {' '}
-            by
-            {' '}
+            &copy; {getCurrentYear()} by{' '}
             <MuiLink
               href="https://bold.pro/my/aman-codes"
               target="_blank"
@@ -87,8 +75,7 @@ const Home = () => (
               color="black"
             >
               <strong>Aman.codes</strong>
-            </MuiLink>
-            {' '}
+            </MuiLink>{' '}
             All rights reserved.
           </Typography>
         </div>

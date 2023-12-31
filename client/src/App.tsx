@@ -5,7 +5,9 @@ import { ConnectionTester } from './components';
 import { AuthProvider, SnackbarProvider } from './contexts';
 import { Theme } from './style';
 
-const AppRoutes = lazy(() => import('./routes').then((module) => ({ default: module.AppRoutes })));
+const AppRoutes = lazy(() =>
+  import('./routes').then((module) => ({ default: module.AppRoutes })),
+);
 
 const App = () => (
   <ThemeProvider theme={Theme}>

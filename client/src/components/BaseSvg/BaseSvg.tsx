@@ -1,9 +1,7 @@
 import { memo } from 'react';
 
 const BaseSvg = memo((props: any) => {
-  const {
-    id, className, style, fill, width, height,
-  } = props;
+  const { id, className, style, fill, width, height } = props;
 
   return (
     <svg
