@@ -5,9 +5,7 @@ export const ListItemStyled = styled('div')<{
   padding: string;
   secondaryAction: ReactNode;
   disableHover: boolean;
-}>(({
-  theme, padding, secondaryAction, disableHover,
-}) => ({
+}>(({ theme, padding, secondaryAction, disableHover }) => ({
   width: '100%',
   padding,
   '.list-item-btn': {

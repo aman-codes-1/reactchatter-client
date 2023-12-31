@@ -1,0 +1,35 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""chat """
+type Chat {
+  id: ID!
+  message: String!
+  sentBy: String!
+  sentTo: String!
+  creationDate: Date!
+}
+
+"""Date custom scalar type"""
+scalar Date
+
+type Query {
+  chat(id: String!): Chat!
+  chats(skip: Int! = 0, take: Int! = 25): [Chat!]!
+}
+
+type Mutation {
+  newChat(newChatData: NewChatInput!): Chat!
+  removeChat(id: String!): Boolean!
+}
+
+input NewChatInput {
+  message: String!
+  sentBy: String!
+  sentTo: String!
+}
+
+type Subscription {
+  chatAdded: Chat!
+}

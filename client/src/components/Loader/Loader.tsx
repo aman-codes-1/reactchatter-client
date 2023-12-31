@@ -1,12 +1,8 @@
-import {
-  Box, CircularProgress, Grid, Typography,
-} from '@mui/material';
+import { Box, CircularProgress, Grid, Typography } from '@mui/material';
 import { circularProgressClasses } from '@mui/material/CircularProgress';
 import { ILoaderProps } from './ILoaderProps';
 
-const Loader = ({
-  message, center, height, width, color,
-}: ILoaderProps) => (
+const Loader = ({ message, center, height, width, color }: ILoaderProps) => (
   <Grid
     container
     justifyContent="center"
@@ -20,7 +16,8 @@ const Loader = ({
       <CircularProgress
         variant="determinate"
         sx={{
-          color: (theme) => theme.palette.grey[theme.palette.mode === 'light' ? 200 : 800],
+          color: (theme) =>
+            theme.palette.grey[theme.palette.mode === 'light' ? 200 : 800],
         }}
         size={25}
         thickness={4}
@@ -31,8 +28,9 @@ const Loader = ({
         disableShrink
         sx={{
           color:
-            color
-            || ((theme) => (theme.palette.mode === 'light' ? '#1a90ff' : '#0196DA')),
+            color ||
+            ((theme) =>
+              theme.palette.mode === 'light' ? '#1a90ff' : '#0196DA'),
           animationDuration: '550ms',
           position: 'absolute',
           left: 0,

@@ -82,8 +82,8 @@ const SideBar = () => {
                 </div>
               </ListItem>
               <div className="your-chats-chat-wrapper">
-                {toggleChats
-                  && data.map((friend: any) => (
+                {toggleChats &&
+                  data.map((friend: any) => (
                     <UserProfile
                       picture={friend?.friendDetails?.picture}
                       name={friend?.friendDetails?.name}
@@ -116,8 +116,8 @@ const SideBar = () => {
                     padding="0.15rem 0px"
                     dense
                     selected={
-                      idx
-                      === navLinks.findIndex(
+                      idx ===
+                      navLinks.findIndex(
                         (el) => selectedParam === el?.link?.split?.('/')?.[2],
                       )
                     }

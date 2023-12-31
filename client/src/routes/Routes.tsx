@@ -16,9 +16,7 @@ const Routes = () => {
 
   useEffect(() => {
     routesConfig(isLoggedIn).forEach((route: IRouteConfig) => {
-      const {
-        Element, key, path, type,
-      } = route;
+      const { Element, key, path, type } = route;
       if (type === 'private') {
         setPrivateRoutes((prev: ReactNode[]) => [
           ...prev,

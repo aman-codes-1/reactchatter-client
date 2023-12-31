@@ -1,5 +1,8 @@
 import { useContext, useLayoutEffect, useState } from 'react';
-import { FriendRequest as FriendRequestComp, MainLayout } from '../../components';
+import {
+  FriendRequest as FriendRequestComp,
+  MainLayout,
+} from '../../components';
 import { FriendRequest } from '../../../../../libs';
 import { useAuth } from '../../../../../hooks';
 import { FriendsContext, SnackbarContext } from '../../../../../contexts';
@@ -56,7 +59,10 @@ const FriendRequests = () => {
         data: dataCopy,
       }));
       const requestId = data?.[idx]?._id;
-      await friendRequest.respondToFriendRequest({ requestId, status: 'accepted' });
+      await friendRequest.respondToFriendRequest({
+        requestId,
+        status: 'accepted',
+      });
       refetchReceivedRequests();
       refetchFriends();
     } catch (err: any) {
@@ -74,7 +80,10 @@ const FriendRequests = () => {
         data: dataCopy,
       }));
       const requestId = data?.[idx]?._id;
-      await friendRequest.respondToFriendRequest({ requestId, status: 'rejected' });
+      await friendRequest.respondToFriendRequest({
+        requestId,
+        status: 'rejected',
+      });
       refetchReceivedRequests();
     } catch (err: any) {
       refetchReceivedRequests();
