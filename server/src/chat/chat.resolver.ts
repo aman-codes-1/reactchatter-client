@@ -7,11 +7,13 @@ import {
   Resolver,
   Subscription,
 } from '@nestjs/graphql';
-import { PubSub } from 'mercurius';
+import { PubSub } from 'graphql-subscriptions';
 import { NewChatInput } from './dto/new-chat.input';
 import { ChatArgs } from './dto/chat.args';
 import { Chat } from './models/chat.model';
 import { ChatService } from './chat.service';
+
+const pubSub = new PubSub();
 
 @Resolver((of: any) => Chat)
 export class ChatResolver {
@@ -34,12 +36,9 @@ export class ChatResolver {
   }
 
   @Mutation((returns) => Chat)
-  async newChat(
-    @Args('newChatData') newChatData: NewChatInput,
-    @Context('pubsub') pubSub: PubSub,
-  ): Promise<Chat> {
+  async newChat(@Args('newChatData') newChatData: NewChatInput): Promise<Chat> {
     const chat = await this.ChatServices.create(newChatData);
-    pubSub.publish({ topic: 'chatAdded', payload: { chatAdded: chat } });
+    pubSub.publish('chatAdded', { chatAdded: chat });
     return chat;
   }
 
@@ -49,7 +48,7 @@ export class ChatResolver {
   }
 
   @Subscription((returns) => Chat)
-  chatAdded(@Context('pubsub') pubSub: PubSub) {
-    return pubSub.subscribe('chatAdded');
+  chatAdded() {
+    return pubSub.asyncIterator('chatAdded');
   }
 }

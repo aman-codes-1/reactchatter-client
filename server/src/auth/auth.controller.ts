@@ -7,7 +7,7 @@ import {
   Res,
 } from '@nestjs/common';
 import { OAuth2Client } from 'google-auth-library';
-import { FastifyRequest, FastifyReply } from 'fastify';
+import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
@@ -25,7 +25,7 @@ export class AuthController {
   @Post('google')
   async google(
     @Body() body: { code: string },
-    @Res({ passthrough: true }) response: FastifyReply,
+    @Res({ passthrough: true }) response: Response,
   ): Promise<any> {
     const { code } = body;
     const { tokens } = await this.client.getToken(code);
@@ -37,7 +37,7 @@ export class AuthController {
     const { iss, azp, aud, sub, at_hash, ...rest } = ticket.getPayload();
     const ticketData = { ...rest, ...tokens };
     const data = await this.AuthServices.login(ticketData);
-    response.setCookie('auth', JSON.stringify(data), {
+    response.cookie('auth', JSON.stringify(data), {
       httpOnly: true,
       domain: process.env.COOKIE_DOMAIN,
       sameSite: 'none',
@@ -62,8 +62,8 @@ export class AuthController {
 
   @Post('google/verifyToken')
   async verifyToken(
-    @Req() request: FastifyRequest,
-    @Res({ passthrough: true }) response: FastifyReply,
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
   ): Promise<any> {
     const authCookie = request?.cookies?.auth;
     if (!authCookie) {
@@ -84,7 +84,7 @@ export class AuthController {
         ...data,
       });
       auth = { ...auth, ...data };
-      response.setCookie('auth', JSON.stringify(auth), {
+      response.cookie('auth', JSON.stringify(auth), {
         httpOnly: true,
         domain: process.env.COOKIE_DOMAIN,
         sameSite: 'none',
@@ -110,9 +110,7 @@ export class AuthController {
   }
 
   @Post('google/logout')
-  async logout(
-    @Res({ passthrough: true }) response: FastifyReply,
-  ): Promise<any> {
+  async logout(@Res({ passthrough: true }) response: Response): Promise<any> {
     response.clearCookie('auth', {
       httpOnly: true,
       domain: process.env.COOKIE_DOMAIN,
