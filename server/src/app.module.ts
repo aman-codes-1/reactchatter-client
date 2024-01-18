@@ -6,7 +6,6 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ChatModule } from './chat/chat.module';
 import { FriendModule } from './friend/friend.module';
-import { PusherModule } from './pusher/pusher.module';
 import { RequestModule } from './request/request.module';
 
 @Module({
@@ -14,7 +13,6 @@ import { RequestModule } from './request/request.module';
     AuthModule,
     ChatModule,
     FriendModule,
-    PusherModule,
     RequestModule,
     ConfigModule.forRoot({
       isGlobal: true,

@@ -3,7 +3,6 @@ import { styled } from '@mui/system';
 export const SideBarStyled = styled('div')(({ theme }) => ({
   width: '100%',
   maxWidth: '20rem',
-  height: '100vh',
   borderRight: '1px solid #E5E7EB',
   [theme.breakpoints.down('sm')]: {
     display: 'none',
@@ -24,9 +23,10 @@ export const SideBarStyled = styled('div')(({ theme }) => ({
       justifyContent: 'flex-start',
       width: '100%',
       maxWidth: '17rem',
-      height: '100%',
       gap: '1.45rem',
       '.your-chats-menu-wrapper': {
+        maxHeight: '320px',
+        overflowY: 'scroll',
         width: '100%',
         '.your-chats-chat-wrapper': {
           width: '100%',

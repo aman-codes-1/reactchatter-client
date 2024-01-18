@@ -14,8 +14,10 @@ const UserProfile = ({
   avatarWidth,
   avatarHeight,
   disableHover = false,
+  disabled = false,
   secondaryAction,
   dense = false,
+  selected = false,
   onClick,
 }: UserProfileProps) => {
   const [avatar, setAvatar] = useState<ReactNode>();
@@ -53,6 +55,8 @@ const UserProfile = ({
         secondaryAction={secondaryAction}
         disableHover={disableHover}
         dense={dense}
+        selected={selected}
+        disabled={disabled}
         listItemIcon={
           <ListItemAvatar className="list-item-avatar">
             {avatar || <Avatar width={avatarWidth} height={avatarHeight} />}

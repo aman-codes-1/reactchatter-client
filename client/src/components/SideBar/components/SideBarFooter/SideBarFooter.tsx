@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { googleLogout } from '@react-oauth/google';
 import { CircularProgress, IconButton } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { Authentication } from '../../../../libs';
-import { useAuth } from '../../../../hooks';
 import { UserProfile } from '../../..';
-import { SideBarFooterStyled } from './SideBarFooter.styled';
+import { Authentication } from '../../../../libs';
 import { SnackbarContext } from '../../../../contexts';
+import { useAuth } from '../../../../hooks';
+import { SideBarFooterStyled } from './SideBarFooter.styled';
 
 const SideBarFooter = () => {
   const authentication = new Authentication();

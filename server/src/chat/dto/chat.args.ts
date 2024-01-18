@@ -4,11 +4,11 @@ import { Max, Min } from 'class-validator';
 @ArgsType()
 export class ChatArgs {
   @Field((type) => Int)
-  @Min(0)
-  skip = 0;
-
-  @Field((type) => Int)
   @Min(1)
   @Max(50)
-  take = 25;
+  limit = 25;
+
+  @Field((type) => Int)
+  @Min(0)
+  skip = 0;
 }

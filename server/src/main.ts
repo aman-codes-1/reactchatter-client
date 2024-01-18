@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
@@ -18,6 +18,11 @@ async function bootstrap() {
     credentials: true,
   });
   app.use(cookieParser());
-  await app.listen(8000);
+  await app.listen(process.env.PORT, async () => {
+    const logger = new Logger();
+    const appUri = await app.getUrl();
+    logger.log(`Server started at ${appUri}`);
+    logger.log(`GraphQL URL ${`${appUri}/graphql`}`);
+  });
 }
 bootstrap();

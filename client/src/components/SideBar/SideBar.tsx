@@ -1,5 +1,5 @@
 import { MouseEvent, useContext, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Typography } from '@mui/material';
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
@@ -9,9 +9,10 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { SideBarFooter } from './components';
 import { ListItem, NavBar, UserProfile } from '..';
 import { FriendsContext } from '../../contexts';
-import { useAuth } from '../../hooks';
+import { useAuth, useChats } from '../../hooks';
 import { chatHrefConstructor } from '../../helpers';
 import { SideBarStyled } from './SideBar.styled';
+import { CHATS_QUERY } from '../../hooks/useChats/gql';
 
 const SideBar = () => {
   const navigate = useNavigate();
@@ -19,7 +20,11 @@ const SideBar = () => {
   const [toggleChats, setToggleChats] = useState(true);
   const selectedParam = pathname?.split?.('/')?.[2];
   const { state: { data = [] } = {} } = useContext(FriendsContext);
+  const { client, getChats, makeMessageGroups } = useChats();
   const { auth: { _id = '' } = {} } = useAuth();
+  const params = useParams();
+  const idArr = params?.['*']?.split?.('--');
+  const friendId = idArr?.filter((id) => !id.includes(_id))?.toString();
 
   const navLinks = [
     {
@@ -43,8 +48,39 @@ const SideBar = () => {
     navigate(link);
   };
 
-  const handleClickChat = (_: MouseEvent, friendId: string) => {
-    navigate(`/dashboard/chats/${chatHrefConstructor(_id, friendId)}`);
+  const handleClickChat = async (_: MouseEvent, friend: any) => {
+    try {
+      const cachedData = await client.readQuery({
+        query: CHATS_QUERY,
+        variables: {
+          channelId: friend?._id,
+        },
+      });
+      if (!cachedData) {
+        await getChats({
+          variables: {
+            channelId: friend?._id,
+          },
+          onCompleted: (res: any) => {
+            const messageGroups = makeMessageGroups(res?.chats, _id);
+            navigate(`/dashboard/chats/${friend?._id}`, {
+              state: {
+                messageGroups,
+              },
+            });
+          },
+        });
+      } else {
+        const messageGroups = makeMessageGroups(cachedData?.chats, _id);
+        navigate(`/dashboard/chats/${friend?._id}`, {
+          state: {
+            messageGroups,
+          },
+        });
+      }
+    } catch (e) {
+      // maybe you can safely swallow the error
+    }
   };
 
   return (
@@ -83,7 +119,7 @@ const SideBar = () => {
               </ListItem>
               <div className="your-chats-chat-wrapper">
                 {toggleChats &&
-                  data.map((friend: any) => (
+                  data.map((friend: any, idx: number) => (
                     <UserProfile
                       picture={friend?.friendDetails?.picture}
                       name={friend?.friendDetails?.name}
@@ -92,7 +128,11 @@ const SideBar = () => {
                       avatarWidth={30}
                       avatarHeight={30}
                       dense
-                      onClick={(_) => handleClickChat(_, friend?._id)}
+                      onClick={(_) => handleClickChat(_, friend)}
+                      selected={
+                        idx ===
+                        data.findIndex((el: any) => friendId?.includes(el?._id))
+                      }
                     />
                   ))}
               </div>

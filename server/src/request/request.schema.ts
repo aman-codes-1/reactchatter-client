@@ -8,10 +8,10 @@ class DocumentResult<T> {
 @Schema()
 export class Request extends DocumentResult<Request> {
   @Prop()
-  sentToUserId: MongooseSchema.Types.ObjectId;
+  sentByUserId: MongooseSchema.Types.ObjectId;
 
   @Prop()
-  sentByUserId: MongooseSchema.Types.ObjectId;
+  sentToUserId: MongooseSchema.Types.ObjectId;
 
   @Prop()
   status: string;

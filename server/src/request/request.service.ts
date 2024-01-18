@@ -27,7 +27,6 @@ export class RequestService {
     } else {
       const { _id } = (user as any) || {};
       const _idObjectId = new ObjectId(_id);
-      const _idToString = _idObjectId.toString();
       const duplicateRequestSent = await this.RequestModel.findOne({
         $and: [{ sentToUserId: _id }, { sentByUserId: sentByUserObjectId }],
         $or: [{ status: 'pending' }, { status: 'accepted' }],
@@ -36,7 +35,7 @@ export class RequestService {
         $and: [{ sentToUserId: sentByUserObjectId }, { sentByUserId: _id }],
         $or: [{ status: 'pending' }, { status: 'accepted' }],
       }).lean();
-      if (_idToString === sentByUserId) {
+      if (sentByUserObjectId.equals(_idObjectId)) {
         throw new BadRequestException(
           'Please send a friend request to a different user.',
         );

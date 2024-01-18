@@ -7,6 +7,7 @@ export type ListItemProps = {
   secondaryText?: string;
   padding?: string;
   disableHover?: boolean;
+  disabled?: boolean;
   secondaryAction?: ReactNode;
   dense?: boolean;
   selected?: boolean;
