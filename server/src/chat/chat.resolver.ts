@@ -1,17 +1,11 @@
 import { NotFoundException } from '@nestjs/common';
-import {
-  Args,
-  Context,
-  Mutation,
-  Query,
-  Resolver,
-  Subscription,
-} from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
-import { NewChatInput } from './dto/new-chat.input';
+import { ChatInput } from './dto/chat.input';
 import { ChatArgs } from './dto/chat.args';
-import { Chat } from './models/chat.model';
+import { Chat, ChatData, ChatsData } from './models/chat.model';
 import { ChatService } from './chat.service';
+import { Chat as Chats } from './chat.schema';
 
 const pubSub = new PubSub();
 
@@ -31,15 +25,35 @@ export class ChatResolver {
   }
 
   @Query((returns) => [Chat])
-  chats(@Args() chatArgs: ChatArgs): Promise<Chat[]> {
-    return this.ChatServices.findAll(chatArgs);
+  async chats(
+    @Args('chatData') chatData: ChatInput,
+    @Args() chatArgs: ChatArgs,
+  ): Promise<Chat[]> {
+    const chats = await this.ChatServices.findAll(chatData, chatArgs);
+    return chats;
   }
 
   @Mutation((returns) => Chat)
-  async newChat(@Args('newChatData') newChatData: NewChatInput): Promise<Chat> {
-    const chat = await this.ChatServices.create(newChatData);
-    pubSub.publish('chatAdded', { chatAdded: chat });
-    return chat;
+  async newChat(
+    @Args('chatData') chatData: ChatInput,
+    @Args() chatArgs: ChatArgs,
+  ): Promise<Chats> {
+    const { channelId } = chatData;
+    const newChat = await this.ChatServices.create(chatData);
+    const chats = await this.ChatServices.findAll(chatData, chatArgs);
+    pubSub.publish('chatAdded', {
+      chatAdded: {
+        channelId,
+        data: newChat,
+      },
+    });
+    pubSub.publish('chatUpdated', {
+      chatUpdated: {
+        channelId,
+        data: chats,
+      },
+    });
+    return newChat;
   }
 
   @Mutation((returns) => Boolean)
@@ -47,8 +61,13 @@ export class ChatResolver {
     return this.ChatServices.remove(id);
   }
 
-  @Subscription((returns) => Chat)
+  @Subscription((returns) => ChatData)
   chatAdded() {
     return pubSub.asyncIterator('chatAdded');
+  }
+
+  @Subscription((returns) => ChatsData)
+  chatUpdated() {
+    return pubSub.asyncIterator('chatUpdated');
   }
 }

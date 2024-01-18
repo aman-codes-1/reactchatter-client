@@ -1,6 +1,7 @@
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useLayoutEffect, useState } from 'react';
 import { Friend } from '../../libs';
 import { useAuth } from '../../hooks';
+import { Loader } from '../../components';
 
 export const FriendsContext = createContext<any>({
   auth: {},
@@ -38,13 +39,17 @@ export const FriendsProvider = ({ children }: any) => {
     }
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     fetchFriends();
   }, [refetch]);
 
   const refetchFriends = () => {
     setRefetch((prev) => !prev);
   };
+
+  if (state?.loading) {
+    return <Loader center />;
+  }
 
   return (
     <FriendsContext.Provider value={{ state, setState, refetchFriends }}>

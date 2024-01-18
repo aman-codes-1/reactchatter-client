@@ -1,15 +1,54 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+  split,
+  HttpLink,
+} from '@apollo/client';
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { createClient } from 'graphql-ws';
+import { getMainDefinition } from '@apollo/client/utilities';
 import reportWebVitals from './reportWebVitals';
+import App from './App';
+import './index.css';
+
+const httpLink = new HttpLink({
+  uri: `${process.env.REACT_APP_BACKEND_URI}/graphql`,
+});
+
+const wsLink = new GraphQLWsLink(
+  createClient({
+    url: `${process.env.REACT_APP_GRAPHQL_URI}`,
+  }),
+);
+
+const splitLink = split(
+  ({ query }) => {
+    const definition = getMainDefinition(query);
+    return (
+      definition.kind === 'OperationDefinition' &&
+      definition.operation === 'subscription'
+    );
+  },
+  wsLink,
+  httpLink,
+);
+
+const client = new ApolloClient({
+  link: splitLink,
+  cache: new InMemoryCache(),
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
 );
 root.render(
   // <React.StrictMode>
-  <App />,
+  <ApolloProvider client={client}>
+    <App />
+  </ApolloProvider>,
   // </React.StrictMode>,
 );
 

@@ -38,9 +38,9 @@
     "google-auth-library": "^9.4.1",
     "graphql": "^16.8.1",
     "graphql-subscriptions": "^2.0.0",
+    "graphql-ws": "^5.14.3",
     "mongodb": "^6.3.0",
     "mongoose": "^8.0.3",
-    "pusher": "^5.2.0",
     "reflect-metadata": "^0.1.14",
     "rxjs": "^7.8.1"
   },

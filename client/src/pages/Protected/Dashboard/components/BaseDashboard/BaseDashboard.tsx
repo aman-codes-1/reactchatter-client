@@ -3,13 +3,13 @@ import { FriendsProvider } from '../../../../../contexts';
 import { BaseDashboardStyled } from './BaseDashboard.styled';
 
 const BaseDashboard = ({ children }: any) => (
-  <BaseDashboardStyled>
-    <FriendsProvider>
+  <FriendsProvider>
+    <BaseDashboardStyled>
       <SideBar />
       <NavBar className="navbar" />
       {children}
-    </FriendsProvider>
-  </BaseDashboardStyled>
+    </BaseDashboardStyled>
+  </FriendsProvider>
 );
 
 export default BaseDashboard;

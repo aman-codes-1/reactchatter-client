@@ -1,19 +1,46 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
 
-@ObjectType({ description: 'chat ' })
+@ObjectType({ description: 'chat' })
 export class Chat {
-  @Field((type) => ID)
-  id: string;
+  @Field()
+  _id: string;
 
   @Field()
   message: string;
 
   @Field()
-  sentBy: string;
+  status: string;
 
   @Field()
-  sentTo: string;
+  channelId: string;
 
   @Field()
-  creationDate: Date;
+  sentByUserId: string;
+
+  @Field()
+  sentToUserId: string;
+
+  @Field()
+  creationDateShort: string;
+
+  @Field()
+  creationDateLong: string;
+}
+
+@ObjectType({ description: 'chatData' })
+export class ChatData {
+  @Field()
+  channelId: string;
+
+  @Field()
+  data: Chat;
+}
+
+@ObjectType({ description: 'chatsData' })
+export class ChatsData {
+  @Field()
+  channelId: string;
+
+  @Field()
+  data: Chat[];
 }

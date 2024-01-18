@@ -45,7 +45,25 @@ const Dashboard = () => (
               />
             }
           />
-          <Route path="/chats/:id" element={<>Chats</>} />
+          <Route
+            path="/chats"
+            element={
+              <SuspenseWrapper
+                path="pages/Protected/Dashboard/pages/ChatMessages"
+                compName="ChatMessages"
+              />
+            }
+          >
+            <Route
+              path=":id"
+              element={
+                <SuspenseWrapper
+                  path="pages/Protected/Dashboard/pages/ChatMessages"
+                  compName="ChatMessages"
+                />
+              }
+            />
+          </Route>
         </Route>
       </Routes>
     </DashboardStyled>

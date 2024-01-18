@@ -24,7 +24,8 @@ const Home = () => (
           >
             A simple real-time chat application built using
             <br />
-            React.js v18, Material UI, Typescript, Nest.js and Pusher.
+            React.js v18, Material UI, Typescript, Nest.js, and GraphQL
+            Subscriptions.
           </Typography>
           <Link to="/login">
             <Button size="large" variant="contained" className="home-login-btn">

@@ -13,6 +13,7 @@ const ListItem = ({
   secondaryText,
   padding = '',
   disableHover = false,
+  disabled = false,
   secondaryAction,
   dense = false,
   selected = false,
@@ -33,6 +34,7 @@ const ListItem = ({
           selected={selected}
           className="list-item-btn"
           onClick={onClick}
+          disabled={disabled}
           sx={btnSx}
         >
           {children}

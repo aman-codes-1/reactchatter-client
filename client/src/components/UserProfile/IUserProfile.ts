@@ -9,7 +9,9 @@ export type UserProfileProps = {
   avatarWidth?: number;
   avatarHeight?: number;
   disableHover?: boolean;
+  disabled?: boolean;
   secondaryAction?: ReactNode;
   dense?: boolean;
+  selected?: boolean;
   onClick?: ListItemButtonProps['onClick'];
 };
