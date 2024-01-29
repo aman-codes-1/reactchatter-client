@@ -2,21 +2,27 @@ import { Field, InputType } from '@nestjs/graphql';
 import { IsOptional, MaxLength } from 'class-validator';
 
 @InputType()
-export class ChatInput {
-  @Field({ nullable: true })
+export class NewChatInput {
+  @Field()
   @MaxLength(4096)
   @IsOptional()
   message: string;
 
-  @Field({ nullable: true })
+  @Field()
   status: string;
 
   @Field()
   channelId: string;
 
-  @Field({ nullable: true })
+  @Field()
   sentByUserId: string;
 
-  @Field({ nullable: true })
+  @Field()
   sentToUserId: string;
+}
+
+@InputType()
+export class ChatQueryInput {
+  @Field()
+  channelId: string;
 }

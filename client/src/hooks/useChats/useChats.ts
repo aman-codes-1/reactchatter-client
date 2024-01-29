@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { useLazyQuery, useMutation, useSubscription } from '@apollo/client';
 import { useAuth } from '..';
 import { CHATS_QUERY, CHAT_MUTATION, CHAT_UPDATED_SUBSCRIPTION } from './gql';
@@ -31,12 +31,7 @@ const makeMessageGroups = (Data: any, _id: string) => {
   return finalResult;
 };
 
-export const useChats = (
-  channelId?: string,
-  message?: string,
-  sentByUserId?: string,
-  sentToUserId?: string,
-) => {
+export const useChats = (channelId?: string) => {
   const [messageGroups, setMessageGroups] = useState<any>([]);
   const { auth: { _id = '' } = {} } = useAuth();
 
@@ -81,14 +76,7 @@ export const useChats = (
     },
   });
 
-  const [newChat] = useMutation(CHAT_MUTATION, {
-    variables: {
-      message,
-      channelId,
-      sentByUserId,
-      sentToUserId,
-    },
-  });
+  const [newChat] = useMutation(CHAT_MUTATION);
 
   return {
     called,

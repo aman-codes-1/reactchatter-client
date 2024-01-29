@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ObjectId } from 'mongodb';
-import { ChatInput } from './dto/chat.input';
+import { ChatQueryInput, NewChatInput } from './dto/chat.input';
 import { ChatArgs } from './dto/chat.args';
 import { Chat } from './models/chat.model';
 import { Chat as Chats, ChatDocument } from './chat.schema';
@@ -17,7 +17,7 @@ export class ChatService {
     //
   }
 
-  async create(data: ChatInput): Promise<Chats> {
+  async create(data: NewChatInput): Promise<Chats> {
     const { channelId, sentByUserId, sentToUserId } = data;
     const channelObjectId = new ObjectId(channelId);
     const sentByUserObjectId = new ObjectId(sentByUserId);
@@ -74,7 +74,7 @@ export class ChatService {
     return {} as any;
   }
 
-  async findAll(data: ChatInput, chatArgs: ChatArgs): Promise<Chat[]> {
+  async findAll(data: ChatQueryInput, chatArgs: ChatArgs): Promise<Chat[]> {
     const { channelId } = data;
     const channelObjectId = new ObjectId(channelId);
     const { limit, skip } = chatArgs;

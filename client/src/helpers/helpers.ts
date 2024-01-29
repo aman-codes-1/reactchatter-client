@@ -75,6 +75,12 @@ export const chatHrefConstructor = (id1: string, id2: string) => {
   return `${sortedIds[0]}--${sortedIds[1]}`;
 };
 
+export const handleKeyPress = (event: KeyboardEvent, handler: any) => {
+  if (event.key === 'Enter') {
+    handler();
+  }
+};
+
 export const regex = {
   validateEmail:
     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,

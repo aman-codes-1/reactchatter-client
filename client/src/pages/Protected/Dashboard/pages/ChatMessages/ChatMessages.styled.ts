@@ -1,8 +1,22 @@
 import { styled } from '@mui/system';
 
 export const ChatMessagesStyled = styled('div')(({ theme }) => ({
-  height: '80vh',
-  overflowY: 'scroll',
+  display: 'flex',
+  height: '100%',
+  width: '100%',
+  flexDirection: 'column',
+  justifyContent: 'space-between',
+  gap: '1.5rem',
+  '.chat-wrapper': {
+    overflowY: 'scroll',
+    marginTop: 'auto',
+  },
+  '.no-messages-wrapper': {
+    display: 'flex',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   '.avatar': {
     width: 32,
     height: 32,
@@ -14,7 +28,6 @@ export const ChatMessagesStyled = styled('div')(({ theme }) => ({
     display: 'inline-block',
     wordBreak: 'break-all',
     fontFamily:
-      // eslint-disable-next-line max-len
       '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
   },
   '.leftRow': {
