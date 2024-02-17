@@ -18,7 +18,7 @@ import { RequestModule } from './request/request.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    MongooseModule.forRoot(process.env.MONGO_URI),
+    MongooseModule.forRoot(process.env.MONGO_URI, { dbName: 'ReactChatter' }),
   ],
   controllers: [AppController],
   providers: [AppService],

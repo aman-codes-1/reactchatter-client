@@ -18,7 +18,7 @@ export class ChatService {
   }
 
   async create(data: NewChatInput): Promise<Chats> {
-    const { channelId, sentByUserId, sentToUserId } = data;
+    const { channelId, sentByUserId, sentToUserId, timestamp } = data;
     const channelObjectId = new ObjectId(channelId);
     const sentByUserObjectId = new ObjectId(sentByUserId);
     const sentToUserObjectId = new ObjectId(sentToUserId);
@@ -45,16 +45,7 @@ export class ChatService {
     }
     const newChatData = {
       ...data,
-      creationDateShort: new Date().toLocaleTimeString('en-GB', {
-        weekday: 'short',
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-        hourCycle: 'h12',
-      }),
-      creationDateLong: new Date().toLocaleTimeString('en-GB', {
+      sentDateLong: new Date(timestamp).toLocaleTimeString('en-GB', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
@@ -62,6 +53,15 @@ export class ChatService {
         hour: 'numeric',
         minute: 'numeric',
         second: 'numeric',
+        hourCycle: 'h12',
+      }),
+      sentDateShort: new Date(timestamp).toLocaleTimeString('en-GB', {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
         hourCycle: 'h12',
       }),
     };

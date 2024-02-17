@@ -4,21 +4,24 @@ import { IsOptional, MaxLength } from 'class-validator';
 @InputType()
 export class NewChatInput {
   @Field()
+  channelId: string;
+
+  @Field()
   @MaxLength(4096)
   @IsOptional()
   message: string;
-
-  @Field()
-  status: string;
-
-  @Field()
-  channelId: string;
 
   @Field()
   sentByUserId: string;
 
   @Field()
   sentToUserId: string;
+
+  @Field()
+  status: string;
+
+  @Field()
+  timestamp: number;
 }
 
 @InputType()

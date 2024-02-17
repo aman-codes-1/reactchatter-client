@@ -50,6 +50,16 @@ export const formatDate = (dateValue: string | number | Date) => {
 
 export const getCurrentYear = () => new Date().getFullYear();
 
+export const getTime = (timestamp: number) => {
+  const date = new Date(timestamp);
+  const time = date.toLocaleString('en-US', {
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true,
+  });
+  return time;
+};
+
 export const checkIfImageExists = (
   url: string,
   callback: (exists: boolean) => void,

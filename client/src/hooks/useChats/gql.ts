@@ -4,11 +4,14 @@ const CHATS_QUERY = gql`
   query chats($channelId: String!) {
     chats(chatData: { channelId: $channelId }) {
       _id
-      creationDateLong
-      creationDateShort
+      channelId
       message
       sentByUserId
       sentToUserId
+      sentDateLong
+      sentDateShort
+      status
+      timestamp
     }
   }
 `;
@@ -20,6 +23,7 @@ const CHAT_MUTATION = gql`
     $sentByUserId: String!
     $sentToUserId: String!
     $status: String!
+    $timestamp: Float!
   ) {
     newChat(
       chatData: {
@@ -28,18 +32,12 @@ const CHAT_MUTATION = gql`
         sentByUserId: $sentByUserId
         sentToUserId: $sentToUserId
         status: $status
+        timestamp: $timestamp
       }
       limit: 25
       skip: 0
     ) {
       _id
-      channelId
-      creationDateLong
-      creationDateShort
-      message
-      sentByUserId
-      sentToUserId
-      status
     }
   }
 `;
@@ -47,12 +45,17 @@ const CHAT_MUTATION = gql`
 const CHAT_ADDED_SUBSCRIPTION = gql`
   subscription chatAdded {
     chatAdded {
-      _id
-      creationDateLong
-      creationDateShort
-      message
-      sentByUserId
-      sentToUserId
+      channelId
+      data {
+        _id
+        message
+        sentByUserId
+        sentToUserId
+        sentDateLong
+        sentDateShort
+        status
+        timestamp
+      }
     }
   }
 `;
@@ -63,11 +66,13 @@ const CHAT_UPDATED_SUBSCRIPTION = gql`
       channelId
       data {
         _id
-        creationDateLong
-        creationDateShort
         message
         sentByUserId
         sentToUserId
+        sentDateLong
+        sentDateShort
+        status
+        timestamp
       }
     }
   }

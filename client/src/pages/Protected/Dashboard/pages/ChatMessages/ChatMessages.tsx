@@ -1,7 +1,6 @@
 import {
   ChangeEvent,
   useContext,
-  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -16,20 +15,27 @@ import {
   Typography,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import DoneIcon from '@mui/icons-material/Done';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
 import { FriendsContext } from '../../../../../contexts';
-import { useAuth, useChats } from '../../../../../hooks';
-import { handleKeyPress } from '../../../../../helpers';
+import { useAuth, useChats, useResize } from '../../../../../hooks';
+import { getTime, handleKeyPress } from '../../../../../helpers';
 import { ChatMessagesStyled } from './ChatMessages.styled';
 
 const ChatMessages = () => {
   const params = useParams();
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { messageGroups: chatData } = state || {};
+  const { messages: msgs, messageGroups: msgGroups } = state || {};
   const { auth: { _id = '' } = {} } = useAuth();
   const { state: { data = [] } = {} } = useContext(FriendsContext);
   const scrollRef = useRef<any>(null);
   const [message, setMessage] = useState('');
+  const [messagesQueue, setMessagesQueue] = useState<any[]>([]);
+  const [heights, setHeights] = useState<any[]>([]);
+  const [heights2, setHeights2] = useState<any[]>([]);
+  const { height, width } = useResize();
   const id = params?.id;
   const friend = data?.length ? data?.find((el: any) => el?._id === id) : {};
   const channelId = friend?._id || '';
@@ -38,80 +44,156 @@ const ChatMessages = () => {
   const {
     getChats,
     loadingQuery,
+    messages,
+    setMessages,
     makeMessageGroups,
     messageGroups,
     setMessageGroups,
     newChat,
-  } = useChats(channelId);
+  } = useChats(channelId, setMessagesQueue);
+
+  const useArrayRef = () => {
+    const refs: any[] = [];
+    return [refs, (el: any) => el && refs.push(el)];
+  };
+
+  const [elements, ref]: any = useArrayRef();
+  const [elements2, ref2]: any = useArrayRef();
 
   useLayoutEffect(() => {
+    setMessages([]);
     setMessageGroups([]);
-    if (chatData) {
-      setMessageGroups(chatData);
+    if (msgs) {
+      setMessages(msgs);
+    }
+    if (msgGroups) {
+      setMessageGroups(msgGroups);
     }
   }, [id]);
 
   useLayoutEffect(() => {
-    if (
-      (chatData && chatData?.length) ||
-      (messageGroups && messageGroups?.length)
-    ) {
+    if (messages?.length) {
+      setHeights([]);
+      setHeights(
+        elements.map((element: any, idx: number) => ({
+          msgId: messages?.[idx]?._id,
+          height: element?.clientHeight,
+        })),
+      );
+    }
+  }, [messages, width, height]);
+
+  useLayoutEffect(() => {
+    if (messagesQueue?.length) {
+      setHeights2([]);
+      setHeights2(
+        elements2.map((element: any, idx: number) => ({
+          msgTimestamp: messagesQueue?.[idx]?.timestamp,
+          height: element?.clientHeight,
+        })),
+      );
+    }
+  }, [messagesQueue, width, height]);
+
+  useLayoutEffect(() => {
+    if (heights?.length || heights2?.length || messageGroups?.length) {
       scrollRef?.current?.scrollIntoView({
         behavior: 'instant',
         block: 'end',
       });
     }
-  }, [chatData, messageGroups]);
+  }, [heights, heights2, messageGroups, width, height]);
 
   const fetchChats = async () => {
     await getChats({
       variables: {
         channelId,
       },
+      fetchPolicy: 'network-only',
       onCompleted: (res: any) => {
-        const messageGroupsData = makeMessageGroups(res?.chats, _id);
+        const chats = res?.chats;
+        setMessagesQueue((prev: any[]) => {
+          if (prev?.length && chats?.length) {
+            const queue = prev?.filter(
+              (el: any) =>
+                !chats?.some((el2: any) => el?.timestamp === el2?.timestamp),
+            );
+            return queue;
+          }
+          return prev;
+        });
+        setMessages(chats);
+        const messageGroupsData = makeMessageGroups(chats, _id);
         setMessageGroups(messageGroupsData);
       },
     });
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (
       window.performance.getEntriesByType('navigation')[0].type === 'reload' ||
-      !chatData
+      !msgs ||
+      !msgGroups
     ) {
       fetchChats();
     }
   }, []);
 
-  if (loadingQuery) {
-    return null;
-  }
-
   if (!channelId) {
     navigate('/dashboard');
   }
 
-  const attachClass = (messages: any, index: number, side: string) => {
+  const attachClass = (chats: any, index: number, side: string) => {
     if (index === 0) {
       return `${side}First`;
     }
-    if (index === messages.length - 1) {
+    if (chats && index === chats.length - 1) {
       return `${side}Last`;
     }
     return '';
   };
 
-  const renderChat = (msg: any, messages: any, side: string, index: number) => (
-    <div className={`${side}Row`} key={msg?._id}>
-      <Typography
-        align="left"
-        className={`msg ${side} ${attachClass(messages, index, side)}`}
-      >
-        {msg?.message}
-      </Typography>
-    </div>
-  );
+  const renderChat = (msg: any, index: number, chats: any, side: string) => {
+    const msgHeight = heights?.length
+      ? heights?.find((el: any) => el?.msgId === msg?._id)?.height || 0
+      : 0;
+    return (
+      <div className={`${side}Row`} key={msg?._id} ref={ref}>
+        <Typography
+          align="left"
+          className={`msg ${side} ${attachClass(chats, index, side)}`}
+          sx={{
+            gap: msgHeight > 50 ? '' : '1.2rem',
+            alignItems: msgHeight > 50 ? 'flex-start' : 'center',
+            flexDirection: msgHeight > 50 ? 'column' : 'row',
+          }}
+        >
+          {msg?.message}
+          <div
+            style={{
+              display: 'flex',
+              gap: '0.2rem',
+              marginTop: '0.875rem',
+              alignItems: 'center',
+              alignSelf: 'flex-end',
+            }}
+          >
+            {msg?.timestamp ? (
+              <Typography variant="caption">
+                {getTime(msg?.timestamp)}
+              </Typography>
+            ) : null}
+            {side === 'right' && msg?.status === 'sent' ? (
+              <DoneIcon sx={{ fontSize: 16, p: '2px' }} />
+            ) : null}
+            {side === 'right' && msg?.status === 'read' ? (
+              <DoneAllIcon sx={{ fontSize: 16, p: '2px' }} />
+            ) : null}
+          </div>
+        </Typography>
+      </div>
+    );
+  };
 
   const handleChangeMessage = (
     e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
@@ -121,50 +203,111 @@ const ChatMessages = () => {
 
   const handleSendMessage = () => {
     if (!message) return;
+    const timestamp = Date.now();
+    setMessagesQueue((prev: any) => [
+      ...prev,
+      {
+        timestamp,
+        message,
+      },
+    ]);
+    setMessage('');
     newChat({
       variables: {
+        channelId,
         message,
         status: 'sent',
-        channelId,
         sentByUserId: _id,
         sentToUserId: friendId,
-      },
-      onCompleted: () => {
-        setMessage('');
+        timestamp,
       },
     });
   };
 
   return (
     <ChatMessagesStyled>
-      {messageGroups?.length ? (
+      {loadingQuery && null}
+      {!loadingQuery && (messageGroups?.length || messagesQueue.length) ? (
         <div className="chat-wrapper">
-          {messageGroups.map((messages: any) => (
+          {messageGroups?.map((messageGroup: any) => (
             <Grid
               container
               spacing={2}
               justifyContent={
-                messages?.side === 'right' ? 'flex-end' : 'flex-start'
+                messageGroup?.side === 'right' ? 'flex-end' : 'flex-start'
               }
             >
-              {messages?.side === 'left' && (
+              {messageGroup?.side === 'left' && (
                 <Grid item>
                   <Avatar className="avatar" src={friendAvatarSrc} />
                 </Grid>
               )}
               <Grid item xs={8}>
-                {messages?.data?.length
-                  ? messages?.data?.map((msg: any, index: number) =>
-                      renderChat(msg, messages?.data, messages?.side, index),
+                {messageGroup?.data?.length
+                  ? messageGroup?.data?.map((msg: any, index: number) =>
+                      renderChat(
+                        msg,
+                        index,
+                        messageGroup?.data,
+                        messageGroup?.side,
+                      ),
                     )
                   : null}
               </Grid>
             </Grid>
           ))}
+          {messagesQueue?.map((messageQueue: any, i: number) => {
+            const msgHeight2 = heights2?.length
+              ? heights2?.find(
+                  (el: any) => el?.msgTimestamp === messageQueue?.timestamp,
+                )?.height || 0
+              : 0;
+            return (
+              <Grid container spacing={2} justifyContent="flex-end">
+                <Grid item xs={8}>
+                  <div
+                    className="rightRow"
+                    key={messageQueue?.timestamp}
+                    ref={ref2}
+                  >
+                    <Typography
+                      align="left"
+                      className="msg right"
+                      sx={{
+                        gap: msgHeight2 > 50 ? '' : '1.2rem',
+                        alignItems: msgHeight2 > 50 ? 'flex-start' : 'center',
+                        flexDirection: msgHeight2 > 50 ? 'column' : 'row',
+                      }}
+                    >
+                      {messageQueue?.message}
+                      <div
+                        style={{
+                          display: 'flex',
+                          gap: '0.2rem',
+                          marginTop: '0.875rem',
+                          alignItems: 'center',
+                          alignSelf: 'flex-end',
+                        }}
+                      >
+                        {messageQueue?.timestamp ? (
+                          <Typography variant="caption">
+                            {getTime(messageQueue?.timestamp)}
+                          </Typography>
+                        ) : null}
+                        <AccessTimeIcon sx={{ fontSize: 14, p: '3px' }} />
+                      </div>
+                    </Typography>
+                  </div>
+                </Grid>
+              </Grid>
+            );
+          })}
           <div ref={scrollRef} />
         </div>
       ) : (
-        <div className="no-messages-wrapper">No Messages</div>
+        <div className="no-messages-wrapper">
+          {!loadingQuery && !messagesQueue?.length ? 'No Messages' : null}
+        </div>
       )}
       <TextField
         fullWidth

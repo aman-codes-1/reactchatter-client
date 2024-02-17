@@ -8,13 +8,10 @@ class DocumentResult<T> {
 @Schema()
 export class Chat extends DocumentResult<Chat> {
   @Prop()
-  message: string;
-
-  @Prop()
-  status: string;
-
-  @Prop()
   channelId: MongooseSchema.Types.ObjectId;
+
+  @Prop()
+  message: string;
 
   @Prop()
   sentByUserId: MongooseSchema.Types.ObjectId;
@@ -23,10 +20,16 @@ export class Chat extends DocumentResult<Chat> {
   sentToUserId: MongooseSchema.Types.ObjectId;
 
   @Prop()
-  creationDateShort: string;
+  sentDateLong: string;
 
   @Prop()
-  creationDateLong: string;
+  sentDateShort: string;
+
+  @Prop()
+  status: string;
+
+  @Prop()
+  timestamp: number;
 }
 
 export const ChatSchema = SchemaFactory.createForClass(Chat);
