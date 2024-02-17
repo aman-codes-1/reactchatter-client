@@ -6,13 +6,10 @@ export class Chat {
   _id: string;
 
   @Field()
-  message: string;
-
-  @Field()
-  status: string;
-
-  @Field()
   channelId: string;
+
+  @Field()
+  message: string;
 
   @Field()
   sentByUserId: string;
@@ -21,10 +18,16 @@ export class Chat {
   sentToUserId: string;
 
   @Field()
-  creationDateShort: string;
+  sentDateLong: string;
 
   @Field()
-  creationDateLong: string;
+  sentDateShort: string;
+
+  @Field()
+  status: string;
+
+  @Field()
+  timestamp: number;
 }
 
 @ObjectType({ description: 'chatData' })

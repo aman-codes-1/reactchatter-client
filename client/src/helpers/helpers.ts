@@ -50,6 +50,16 @@ export const formatDate = (dateValue: string | number | Date) => {
 
 export const getCurrentYear = () => new Date().getFullYear();
 
+export const getTime = (timestamp: number) => {
+  const date = new Date(timestamp);
+  const time = date.toLocaleString('en-US', {
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true,
+  });
+  return time;
+};
+
 export const checkIfImageExists = (
   url: string,
   callback: (exists: boolean) => void,
@@ -73,6 +83,12 @@ export const checkIfImageExists = (
 export const chatHrefConstructor = (id1: string, id2: string) => {
   const sortedIds = [id1, id2].sort();
   return `${sortedIds[0]}--${sortedIds[1]}`;
+};
+
+export const handleKeyPress = (event: KeyboardEvent, handler: any) => {
+  if (event.key === 'Enter') {
+    handler();
+  }
 };
 
 export const regex = {

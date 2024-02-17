@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { useLazyQuery, useMutation, useSubscription } from '@apollo/client';
 import { useAuth } from '..';
 import { CHATS_QUERY, CHAT_MUTATION, CHAT_UPDATED_SUBSCRIPTION } from './gql';
@@ -33,85 +33,59 @@ const makeMessageGroups = (Data: any, _id: string) => {
 
 export const useChats = (
   channelId?: string,
-  message?: string,
-  sentByUserId?: string,
-  sentToUserId?: string,
+  setMessagesQueue?: Dispatch<SetStateAction<string[]>>,
 ) => {
+  const [messages, setMessages] = useState<any>([]);
   const [messageGroups, setMessageGroups] = useState<any>([]);
   const { auth: { _id = '' } = {} } = useAuth();
 
-  const [
-    getChats,
-    {
-      called,
-      client,
-      data,
-      fetchMore,
-      loading: loadingQuery,
-      networkStatus,
-      observable,
-      refetch,
-      reobserve,
-      startPolling,
-      stopPolling,
-      subscribeToMore,
-      updateQuery,
-      variables,
-      error,
-      previousData,
-    },
-  ] = useLazyQuery(CHATS_QUERY);
+  const [getChats, { client, loading: loadingQuery, error: errorQuery }] =
+    useLazyQuery(CHATS_QUERY);
 
-  const {
-    loading: loadingSubscription,
-    data: dataSubscription,
-    error: errorSubscription,
-  } = useSubscription(CHAT_UPDATED_SUBSCRIPTION, {
-    onData: (res) => {
-      client.clearStore();
-      const chatUpdated = res?.data?.data?.chatUpdated;
-      const channelID = chatUpdated?.channelId;
-      if (channelID === channelId) {
-        const chatsData = makeMessageGroups(
-          res?.data?.data?.chatUpdated?.data,
-          _id,
-        );
-        setMessageGroups(chatsData);
-      }
-    },
-  });
+  const { loading: loadingSubscription, error: errorSubscription } =
+    useSubscription(CHAT_UPDATED_SUBSCRIPTION, {
+      onData: (res) => {
+        client?.clearStore();
+        const chatUpdated = res?.data?.data?.chatUpdated;
+        const channelID = chatUpdated?.channelId;
+        const chatUpdatedData = res?.data?.data?.chatUpdated?.data;
+        if (channelID === channelId) {
+          setMessagesQueue?.((prev) => {
+            if (prev?.length && chatUpdatedData?.length) {
+              const queue = prev?.filter(
+                (el: any) =>
+                  !chatUpdatedData?.some(
+                    (el2: any) => el?.timestamp === el2?.timestamp,
+                  ),
+              );
+              return queue;
+            }
+            return prev;
+          });
+          setMessages(chatUpdatedData);
+          const messageGroupsData = makeMessageGroups(chatUpdatedData, _id);
+          setMessageGroups(messageGroupsData);
+        }
+      },
+    });
 
-  const [newChat] = useMutation(CHAT_MUTATION, {
-    variables: {
-      message,
-      channelId,
-      sentByUserId,
-      sentToUserId,
-    },
-  });
+  const [newChat, { loading: loadingMutation, error: errorMutation }] =
+    useMutation(CHAT_MUTATION);
 
   return {
-    called,
-    client,
-    data,
-    fetchMore,
-    loading: loadingQuery,
-    networkStatus,
-    observable,
-    refetch,
-    reobserve,
-    startPolling,
-    stopPolling,
-    subscribeToMore,
-    updateQuery,
-    variables,
-    error,
-    previousData,
-    loadingQuery,
     getChats,
+    newChat,
+    client,
+    loadingQuery,
+    loadingSubscription,
+    loadingMutation,
+    errorQuery,
+    errorSubscription,
+    errorMutation,
+    messages,
+    setMessages,
     makeMessageGroups,
     messageGroups,
     setMessageGroups,
-    newChat,
   };
 };

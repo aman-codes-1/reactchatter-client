@@ -10,7 +10,6 @@ import { SideBarFooter } from './components';
 import { ListItem, NavBar, UserProfile } from '..';
 import { FriendsContext } from '../../contexts';
 import { useAuth, useChats } from '../../hooks';
-import { chatHrefConstructor } from '../../helpers';
 import { SideBarStyled } from './SideBar.styled';
 import { CHATS_QUERY } from '../../hooks/useChats/gql';
 
@@ -62,18 +61,22 @@ const SideBar = () => {
             channelId: friend?._id,
           },
           onCompleted: (res: any) => {
+            const messages = res?.chats;
             const messageGroups = makeMessageGroups(res?.chats, _id);
             navigate(`/dashboard/chats/${friend?._id}`, {
               state: {
+                messages,
                 messageGroups,
               },
             });
           },
         });
       } else {
+        const messages = cachedData?.chats;
         const messageGroups = makeMessageGroups(cachedData?.chats, _id);
         navigate(`/dashboard/chats/${friend?._id}`, {
           state: {
+            messages,
             messageGroups,
           },
         });

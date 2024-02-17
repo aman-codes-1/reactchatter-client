@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ObjectId } from 'mongodb';
-import { ChatInput } from './dto/chat.input';
+import { ChatQueryInput, NewChatInput } from './dto/chat.input';
 import { ChatArgs } from './dto/chat.args';
 import { Chat } from './models/chat.model';
 import { Chat as Chats, ChatDocument } from './chat.schema';
@@ -17,8 +17,8 @@ export class ChatService {
     //
   }
 
-  async create(data: ChatInput): Promise<Chats> {
-    const { channelId, sentByUserId, sentToUserId } = data;
+  async create(data: NewChatInput): Promise<Chats> {
+    const { channelId, sentByUserId, sentToUserId, timestamp } = data;
     const channelObjectId = new ObjectId(channelId);
     const sentByUserObjectId = new ObjectId(sentByUserId);
     const sentToUserObjectId = new ObjectId(sentToUserId);
@@ -45,16 +45,7 @@ export class ChatService {
     }
     const newChatData = {
       ...data,
-      creationDateShort: new Date().toLocaleTimeString('en-GB', {
-        weekday: 'short',
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-        hourCycle: 'h12',
-      }),
-      creationDateLong: new Date().toLocaleTimeString('en-GB', {
+      sentDateLong: new Date(timestamp).toLocaleTimeString('en-GB', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
@@ -62,6 +53,15 @@ export class ChatService {
         hour: 'numeric',
         minute: 'numeric',
         second: 'numeric',
+        hourCycle: 'h12',
+      }),
+      sentDateShort: new Date(timestamp).toLocaleTimeString('en-GB', {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
         hourCycle: 'h12',
       }),
     };
@@ -74,7 +74,7 @@ export class ChatService {
     return {} as any;
   }
 
-  async findAll(data: ChatInput, chatArgs: ChatArgs): Promise<Chat[]> {
+  async findAll(data: ChatQueryInput, chatArgs: ChatArgs): Promise<Chat[]> {
     const { channelId } = data;
     const channelObjectId = new ObjectId(channelId);
     const { limit, skip } = chatArgs;
