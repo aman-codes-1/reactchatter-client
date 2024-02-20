@@ -1,4 +1,4 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
+import { Field, Float, InputType } from '@nestjs/graphql';
 import { IsOptional, MaxLength } from 'class-validator';
 
 @InputType({ description: 'newChatInput' })
@@ -20,7 +20,7 @@ export class NewChatInput {
   @Field((type) => String)
   status: string;
 
-  @Field((type) => Int)
+  @Field((type) => Float)
   timestamp: number;
 }
 

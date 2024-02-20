@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ObjectType } from '@nestjs/graphql';
 
 @ObjectType({ description: 'chat' })
 export class Chat {
@@ -26,7 +26,7 @@ export class Chat {
   @Field((type) => String)
   status: string;
 
-  @Field((type) => Int)
+  @Field((type) => Float)
   timestamp: number;
 }
 
