@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { ObjectId } from 'mongodb';
 import { ChatsInput, NewChatInput } from './dto/chat.input';
 import { ChatArgs } from './dto/chat.args';
-import { Chat, ChatInput } from './models/chat.model';
+import { Chat } from './models/chat.model';
 import { Chat as Chats, ChatDocument } from './chat.schema';
 import { Friend, FriendDocument } from '../friend/friend.schema';
 
@@ -70,11 +70,11 @@ export class ChatService {
     return newChat?._doc ? newChat?._doc : newChat;
   }
 
-  async findOneById(id: string): Promise<ChatInput> {
+  async findOneById(id: string): Promise<Chat> {
     return {} as any;
   }
 
-  async findAll(data: ChatsInput, chatArgs: ChatArgs): Promise<ChatInput[]> {
+  async findAll(data: ChatsInput, chatArgs: ChatArgs): Promise<Chat[]> {
     const { channelId } = data;
     const channelObjectId = new ObjectId(channelId);
     const { limit, skip } = chatArgs;

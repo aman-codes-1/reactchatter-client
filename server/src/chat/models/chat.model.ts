@@ -1,36 +1,7 @@
 import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
 
-@InputType({ description: 'chatInput' })
-export class ChatInput {
-  @Field((type) => String)
-  _id: string;
-
-  @Field((type) => String)
-  channelId: string;
-
-  @Field((type) => String)
-  message: string;
-
-  @Field((type) => String)
-  sentByUserId: string;
-
-  @Field((type) => String)
-  sentToUserId: string;
-
-  @Field((type) => String)
-  sentDateLong: string;
-
-  @Field((type) => String)
-  sentDateShort: string;
-
-  @Field((type) => String)
-  status: string;
-
-  @Field((type) => Int)
-  timestamp: number;
-}
-
-@ObjectType({ description: 'chat' })
+@ObjectType({ isAbstract: true, description: 'chatObject' })
+@InputType({ isAbstract: true, description: 'chatInput' })
 export class Chat {
   @Field((type) => String)
   _id: string;
@@ -60,13 +31,16 @@ export class Chat {
   timestamp: number;
 }
 
+@ObjectType()
+export class ChatObject extends Chat {}
+
 @ObjectType({ description: 'chatData' })
 export class ChatData {
   @Field((type) => String)
   channelId: string;
 
-  @Field((type) => Chat)
-  data: Chat;
+  @Field((type) => ChatObject)
+  data: ChatObject;
 }
 
 @ObjectType({ description: 'chatsData' })
@@ -74,6 +48,6 @@ export class ChatsData {
   @Field((type) => String)
   channelId: string;
 
-  @Field((type) => [Chat])
-  data: Chat[];
+  @Field((type) => [ChatObject])
+  data: ChatObject[];
 }
