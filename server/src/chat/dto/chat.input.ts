@@ -25,7 +25,7 @@ export class NewChatInput {
 }
 
 @InputType()
-export class ChatQueryInput {
+export class ChatsInput {
   @Field()
   channelId: string;
 }
