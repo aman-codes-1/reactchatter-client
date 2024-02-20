@@ -1,5 +1,4 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { GraphQLJSONObject } from 'graphql-type-json';
 
 @ObjectType({ description: 'chat' })
 export class Chat {
@@ -45,6 +44,6 @@ export class ChatsData {
   @Field((type) => String)
   channelId: string;
 
-  @Field((type) => GraphQLJSONObject)
-  data: Chat[];
+  @Field((type) => [Chat], { nullable: true })
+  data?: Chat[];
 }
