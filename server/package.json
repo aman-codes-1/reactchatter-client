@@ -38,7 +38,6 @@
     "google-auth-library": "^9.6.3",
     "graphql": "^16.8.1",
     "graphql-subscriptions": "^2.0.0",
-    "graphql-type-json": "^0.3.2",
     "graphql-ws": "^5.15.0",
     "mongodb": "^6.3.0",
     "mongoose": "^8.1.3",
