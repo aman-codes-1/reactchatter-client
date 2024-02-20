@@ -1,9 +1,9 @@
 import { NotFoundException } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
-import { ChatsInput } from './dto/chat.input';
+import { ChatsInput, NewChatInput } from './dto/chat.input';
 import { ChatArgs } from './dto/chat.args';
-import { Chat, ChatData, ChatInput, ChatsData } from './models/chat.model';
+import { Chat, ChatData, ChatsData } from './models/chat.model';
 import { ChatService } from './chat.service';
 import { Chat as Chats } from './chat.schema';
 
@@ -35,7 +35,7 @@ export class ChatResolver {
 
   @Mutation((returns) => Chat)
   async newChat(
-    @Args('chatData') chatData: ChatInput,
+    @Args('chatData') chatData: NewChatInput,
     @Args() chatArgs: ChatArgs,
   ): Promise<Chats> {
     const { channelId } = chatData;
