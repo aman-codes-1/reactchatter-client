@@ -45,5 +45,5 @@ export class ChatsData {
   channelId: string;
 
   @Field((type) => [Chat])
-  data: any[];
+  data: Chat[];
 }
