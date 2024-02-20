@@ -1,8 +1,6 @@
-import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
 
-@ObjectType({ isAbstract: true })
-@InputType({ isAbstract: true })
-// @ObjectType({ description: 'chat' })
+@ObjectType({ description: 'chat' })
 export class Chat {
   @Field((type) => String)
   _id: string;
@@ -32,19 +30,13 @@ export class Chat {
   timestamp: number;
 }
 
-@ObjectType()
-export class ChatObject extends Chat {}
-
-@InputType()
-export class ChatInput extends Chat {}
-
 @ObjectType({ description: 'chatData' })
 export class ChatData {
   @Field((type) => String)
   channelId: string;
 
-  @Field((type) => ChatObject)
-  data: ChatObject;
+  @Field((type) => Chat)
+  data: Chat;
 }
 
 @ObjectType({ description: 'chatsData' })
@@ -52,6 +44,6 @@ export class ChatsData {
   @Field((type) => String)
   channelId: string;
 
-  @Field((type) => [ChatObject])
-  data: ChatObject[];
+  @Field((type) => [Chat])
+  data: Chat[];
 }
