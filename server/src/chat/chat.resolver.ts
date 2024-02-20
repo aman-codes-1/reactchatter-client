@@ -9,7 +9,7 @@ import { Chat as Chats } from './chat.schema';
 
 const pubSub = new PubSub();
 
-@Resolver((of: any) => Chat)
+@Resolver(() => Chat)
 export class ChatResolver {
   constructor(private readonly ChatServices: ChatService) {
     //
@@ -37,7 +37,7 @@ export class ChatResolver {
   async newChat(
     @Args('chatData') chatData: NewChatInput,
     @Args() chatArgs: ChatArgs,
-  ): Promise<Chats> {
+  ): Promise<any> {
     const { channelId } = chatData;
     const newChat = await this.ChatServices.create(chatData);
     const chats = await this.ChatServices.findAll(chatData, chatArgs);
