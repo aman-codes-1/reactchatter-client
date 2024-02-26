@@ -48,42 +48,7 @@ const SideBar = () => {
   };
 
   const handleClickChat = async (_: MouseEvent, friend: any) => {
-    try {
-      const cachedData = await client.readQuery({
-        query: CHATS_QUERY,
-        variables: {
-          channelId: friend?._id,
-        },
-      });
-      if (!cachedData) {
-        await getChats({
-          variables: {
-            channelId: friend?._id,
-          },
-          onCompleted: (res: any) => {
-            const messages = res?.chats;
-            const messageGroups = makeMessageGroups(res?.chats, _id);
-            navigate(`/dashboard/chats/${friend?._id}`, {
-              state: {
-                messages,
-                messageGroups,
-              },
-            });
-          },
-        });
-      } else {
-        const messages = cachedData?.chats;
-        const messageGroups = makeMessageGroups(cachedData?.chats, _id);
-        navigate(`/dashboard/chats/${friend?._id}`, {
-          state: {
-            messages,
-            messageGroups,
-          },
-        });
-      }
-    } catch (e) {
-      // maybe you can safely swallow the error
-    }
+    navigate(`/dashboard/chats/${friend?._id}`);
   };
 
   return (

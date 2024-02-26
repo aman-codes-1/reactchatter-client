@@ -16,7 +16,7 @@ export class RequestService {
     //
   }
 
-  async sendRequest(requestData: any): Promise<any> {
+  async sendRequest(requestData: { [key: string]: string }): Promise<Request> {
     const { sentByUserId, sendToEmail } = requestData || {};
     const sentByUserObjectId = new ObjectId(sentByUserId);
     const user = await this.UserModel.findOne({
@@ -67,7 +67,9 @@ export class RequestService {
     }
   }
 
-  async respondToRequest(requestData: any): Promise<any> {
+  async respondToRequest(requestData: {
+    [key: string]: string;
+  }): Promise<Request> {
     const { requestId, status } = requestData;
     const request = await this.RequestModel.findById(requestId);
     let newFriend: any = {};
@@ -82,7 +84,9 @@ export class RequestService {
     return { ...updatedRequest, ...newFriend };
   }
 
-  async sentRequests(requestData: any): Promise<any> {
+  async sentRequests(requestData: {
+    [key: string]: string;
+  }): Promise<Request[]> {
     const { sentByUserId } = requestData || {};
     const sentByUserObjectId = new ObjectId(sentByUserId);
     const sentToUsers = await this.RequestModel.aggregate([
@@ -136,7 +140,9 @@ export class RequestService {
     return sentToUsers;
   }
 
-  async receiveRequests(requestData: any): Promise<any> {
+  async receiveRequests(requestData: {
+    [key: string]: string;
+  }): Promise<Request[]> {
     const { sentByUserId } = requestData || {};
     const sentByUserObjectId = new ObjectId(sentByUserId);
     const receivedByUsers = await this.RequestModel.aggregate([

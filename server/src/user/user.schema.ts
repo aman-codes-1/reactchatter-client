@@ -5,7 +5,7 @@ class DocumentResult<T> {
   _doc: T;
 }
 
-@Schema()
+@Schema({ timestamps: true })
 export class User extends DocumentResult<User> {
   @Prop()
   name: string;

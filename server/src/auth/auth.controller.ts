@@ -9,6 +9,7 @@ import {
 import { OAuth2Client } from 'google-auth-library';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
+import { User } from '../user/user.schema';
 
 @Controller('auth')
 export class AuthController {
@@ -35,7 +36,7 @@ export class AuthController {
       audience: process.env.GOOGLE_CLIENT_ID,
     });
     const { iss, azp, aud, sub, at_hash, ...rest } = ticket.getPayload();
-    const ticketData = { ...rest, ...tokens };
+    const ticketData = { ...rest, ...tokens } as User;
     const data = await this.AuthServices.login(ticketData);
     response.cookie('auth', JSON.stringify(data), {
       httpOnly: true,

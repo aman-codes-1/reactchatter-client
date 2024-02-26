@@ -10,8 +10,6 @@ export const ListItemStyled = styled('div')<{
   padding,
   '.list-item-btn': {
     borderRadius: '10px',
-    // paddingLeft: '1.5rem',
-    // paddingRight: '1.5rem',
     gap: '17px',
     '.MuiListItemText-root': {
       wordWrap: 'break-word',

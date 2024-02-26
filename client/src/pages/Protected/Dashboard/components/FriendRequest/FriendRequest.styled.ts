@@ -24,7 +24,6 @@ export const FriendRequestStyled = styled('div')(({ theme }) => ({
         color: theme.palette.grey[600],
       },
       '.sent-requests-email': {
-        // marginTop: '-0.2rem',
         lineHeight: '1.75rem',
         fontSize: '1.125rem',
         wordBreak: 'break-all',

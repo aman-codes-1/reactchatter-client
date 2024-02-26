@@ -1,17 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 class DocumentResult<T> {
   _doc: T;
 }
 
-@Schema()
+@Schema({ timestamps: true })
 export class Request extends DocumentResult<Request> {
   @Prop()
-  sentByUserId: MongooseSchema.Types.ObjectId;
+  sentByUserId: Types.ObjectId;
 
   @Prop()
-  sentToUserId: MongooseSchema.Types.ObjectId;
+  sentToUserId: Types.ObjectId;
 
   @Prop()
   status: string;
