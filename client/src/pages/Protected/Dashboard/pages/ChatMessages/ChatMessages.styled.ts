@@ -1,13 +1,9 @@
 import { styled } from '@mui/system';
 
 export const ChatMessagesStyled = styled('div')(({ theme }) => ({
-  display: 'flex',
   height: '100%',
-  width: '100%',
-  flexDirection: 'column',
-  justifyContent: 'space-between',
-  gap: '1.5rem',
   '.chat-wrapper': {
+    padding: '0rem 4rem 0rem 3.25rem',
     overflowY: 'scroll',
     marginTop: 'auto',
   },

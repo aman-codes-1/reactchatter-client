@@ -6,14 +6,7 @@ import {
   useState,
 } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import {
-  Avatar,
-  Grid,
-  IconButton,
-  InputAdornment,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Avatar, Grid, IconButton, TextField, Typography } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import DoneIcon from '@mui/icons-material/Done';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -22,12 +15,12 @@ import { FriendsContext } from '../../../../../contexts';
 import { useAuth, useChats, useResize } from '../../../../../hooks';
 import { getTime, handleKeyPress } from '../../../../../helpers';
 import { ChatMessagesStyled } from './ChatMessages.styled';
+import { CHATS_QUERY } from '../../../../../hooks/useChats/gql';
 
 const ChatMessages = () => {
   const params = useParams();
   const navigate = useNavigate();
-  const { state } = useLocation();
-  const { messages: msgs, messageGroups: msgGroups } = state || {};
+  const { state, key } = useLocation();
   const { auth: { _id = '' } = {} } = useAuth();
   const { state: { data = [] } = {} } = useContext(FriendsContext);
   const scrollRef = useRef<any>(null);
@@ -35,22 +28,25 @@ const ChatMessages = () => {
   const [messagesQueue, setMessagesQueue] = useState<any[]>([]);
   const [heights, setHeights] = useState<any[]>([]);
   const [heights2, setHeights2] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const { height, width } = useResize();
   const id = params?.id;
   const friend = data?.length ? data?.find((el: any) => el?._id === id) : {};
-  const channelId = friend?._id || '';
-  const friendId = friend?.friendDetails?._id || '';
+  const friendId = friend?._id || '';
+  const chattingWithFriendId = friend?.friendDetails?._id || '';
   const friendAvatarSrc = friend?.friendDetails?.picture || '';
   const {
     getChats,
-    loadingQuery,
+    createChat,
+    client,
+    chatsData,
+    loadingChatsQuery,
     messages,
-    setMessages,
-    makeMessageGroups,
     messageGroups,
-    setMessageGroups,
-    newChat,
-  } = useChats(channelId, setMessagesQueue);
+    chatsWithQueue,
+  } = useChats(friendId, setMessagesQueue);
+  const inputRef = useRef<any>(null);
+  const setFocus = () => inputRef?.current && inputRef?.current?.focus();
 
   const useArrayRef = () => {
     const refs: any[] = [];
@@ -60,16 +56,45 @@ const ChatMessages = () => {
   const [elements, ref]: any = useArrayRef();
   const [elements2, ref2]: any = useArrayRef();
 
+  if (!friendId) {
+    navigate('/dashboard');
+  }
+
+  const fetchChats = async () => {
+    await getChats({
+      variables: {
+        friendId,
+      },
+    });
+  };
+
   useLayoutEffect(() => {
-    setMessages([]);
-    setMessageGroups([]);
-    if (msgs) {
-      setMessages(msgs);
+    if (friendId) {
+      setFocus();
+      fetchChats();
     }
-    if (msgGroups) {
-      setMessageGroups(msgGroups);
+  }, [friendId]);
+
+  const getCachedData = async () => {
+    setLoading(true);
+    const cachedData = await client?.readQuery({
+      query: CHATS_QUERY,
+      variables: {
+        friendId,
+      },
+    });
+    if (!cachedData) {
+      chatsWithQueue(chatsData?.chats);
+      setLoading(false);
+    } else {
+      chatsWithQueue(cachedData?.chats);
+      setLoading(false);
     }
-  }, [id]);
+  };
+
+  useLayoutEffect(() => {
+    getCachedData();
+  }, [chatsData, friendId]);
 
   useLayoutEffect(() => {
     if (messages?.length) {
@@ -103,45 +128,6 @@ const ChatMessages = () => {
       });
     }
   }, [heights, heights2, messageGroups, width, height]);
-
-  const fetchChats = async () => {
-    await getChats({
-      variables: {
-        channelId,
-      },
-      fetchPolicy: 'network-only',
-      onCompleted: (res: any) => {
-        const chats = res?.chats;
-        setMessagesQueue((prev: any[]) => {
-          if (prev?.length && chats?.length) {
-            const queue = prev?.filter(
-              (el: any) =>
-                !chats?.some((el2: any) => el?.timestamp === el2?.timestamp),
-            );
-            return queue;
-          }
-          return prev;
-        });
-        setMessages(chats);
-        const messageGroupsData = makeMessageGroups(chats, _id);
-        setMessageGroups(messageGroupsData);
-      },
-    });
-  };
-
-  useLayoutEffect(() => {
-    if (
-      window.performance.getEntriesByType('navigation')[0].type === 'reload' ||
-      !msgs ||
-      !msgGroups
-    ) {
-      fetchChats();
-    }
-  }, []);
-
-  if (!channelId) {
-    navigate('/dashboard');
-  }
 
   const attachClass = (chats: any, index: number, side: string) => {
     if (index === 0) {
@@ -178,15 +164,15 @@ const ChatMessages = () => {
               alignSelf: 'flex-end',
             }}
           >
-            {msg?.timestamp ? (
+            {msg?.sender?.sentStatus?.timestamp ? (
               <Typography variant="caption">
-                {getTime(msg?.timestamp)}
+                {getTime(msg?.sender?.sentStatus?.timestamp)}
               </Typography>
             ) : null}
-            {side === 'right' && msg?.status === 'sent' ? (
+            {side === 'right' && msg?.sender?.sentStatus?.isSent === true ? (
               <DoneIcon sx={{ fontSize: 16, p: '2px' }} />
             ) : null}
-            {side === 'right' && msg?.status === 'read' ? (
+            {side === 'right' && msg?.receiver?.readStatus?.isRead === true ? (
               <DoneAllIcon sx={{ fontSize: 16, p: '2px' }} />
             ) : null}
           </div>
@@ -201,7 +187,7 @@ const ChatMessages = () => {
     setMessage(e?.target?.value);
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!message) return;
     const timestamp = Date.now();
     setMessagesQueue((prev: any) => [
@@ -212,118 +198,156 @@ const ChatMessages = () => {
       },
     ]);
     setMessage('');
-    newChat({
+    setFocus();
+    await createChat({
       variables: {
-        channelId,
+        friendId,
         message,
-        status: 'sent',
-        sentByUserId: _id,
-        sentToUserId: friendId,
-        timestamp,
+        senderId: _id,
+        isSent: true,
+        sentTimestamp: timestamp,
+        receiverId: chattingWithFriendId,
       },
     });
   };
 
   return (
     <ChatMessagesStyled>
-      {loadingQuery && null}
-      {!loadingQuery && (messageGroups?.length || messagesQueue.length) ? (
-        <div className="chat-wrapper">
-          {messageGroups?.map((messageGroup: any) => (
-            <Grid
-              container
-              spacing={2}
-              justifyContent={
-                messageGroup?.side === 'right' ? 'flex-end' : 'flex-start'
-              }
-            >
-              {messageGroup?.side === 'left' && (
-                <Grid item>
-                  <Avatar className="avatar" src={friendAvatarSrc} />
-                </Grid>
-              )}
-              <Grid item xs={8}>
-                {messageGroup?.data?.length
-                  ? messageGroup?.data?.map((msg: any, index: number) =>
-                      renderChat(
-                        msg,
-                        index,
-                        messageGroup?.data,
-                        messageGroup?.side,
-                      ),
-                    )
-                  : null}
-              </Grid>
-            </Grid>
-          ))}
-          {messagesQueue?.map((messageQueue: any, i: number) => {
-            const msgHeight2 = heights2?.length
-              ? heights2?.find(
-                  (el: any) => el?.msgTimestamp === messageQueue?.timestamp,
-                )?.height || 0
-              : 0;
-            return (
-              <Grid container spacing={2} justifyContent="flex-end">
+      <div
+        style={{
+          display: 'flex',
+          height: '100%',
+          width: '100%',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          gap: '1.5rem',
+        }}
+      >
+        <span />
+        {loadingChatsQuery && loading && null}
+        {!loadingChatsQuery &&
+        !loading &&
+        !(messageGroups?.length || messagesQueue.length) ? (
+          <div className="no-messages-wrapper">No Messages</div>
+        ) : null}
+        {!loadingChatsQuery &&
+        !loading &&
+        (messageGroups?.length || messagesQueue.length) ? (
+          <div className="chat-wrapper">
+            {messageGroups?.map((messageGroup: any) => (
+              <Grid
+                container
+                spacing={2}
+                justifyContent={
+                  messageGroup?.side === 'right' ? 'flex-end' : 'flex-start'
+                }
+              >
+                {messageGroup?.side === 'left' && (
+                  <Grid item>
+                    <Avatar className="avatar" src={friendAvatarSrc} />
+                  </Grid>
+                )}
                 <Grid item xs={8}>
-                  <div
-                    className="rightRow"
-                    key={messageQueue?.timestamp}
-                    ref={ref2}
-                  >
-                    <Typography
-                      align="left"
-                      className="msg right"
-                      sx={{
-                        gap: msgHeight2 > 50 ? '' : '1.2rem',
-                        alignItems: msgHeight2 > 50 ? 'flex-start' : 'center',
-                        flexDirection: msgHeight2 > 50 ? 'column' : 'row',
-                      }}
+                  {messageGroup?.data?.length
+                    ? messageGroup?.data?.map((msg: any, index: number) =>
+                        renderChat(
+                          msg,
+                          index,
+                          messageGroup?.data,
+                          messageGroup?.side,
+                        ),
+                      )
+                    : null}
+                </Grid>
+              </Grid>
+            ))}
+            {messagesQueue?.map((messageQueue: any, i: number) => {
+              const msgHeight2 = heights2?.length
+                ? heights2?.find(
+                    (el: any) => el?.msgTimestamp === messageQueue?.timestamp,
+                  )?.height || 0
+                : 0;
+              return (
+                <Grid container spacing={2} justifyContent="flex-end">
+                  <Grid item xs={8}>
+                    <div
+                      className="rightRow"
+                      key={messageQueue?.timestamp}
+                      ref={ref2}
                     >
-                      {messageQueue?.message}
-                      <div
-                        style={{
-                          display: 'flex',
-                          gap: '0.2rem',
-                          marginTop: '0.875rem',
-                          alignItems: 'center',
-                          alignSelf: 'flex-end',
+                      <Typography
+                        align="left"
+                        className="msg right"
+                        sx={{
+                          gap: msgHeight2 > 50 ? '' : '1.2rem',
+                          alignItems: msgHeight2 > 50 ? 'flex-start' : 'center',
+                          flexDirection: msgHeight2 > 50 ? 'column' : 'row',
                         }}
                       >
-                        {messageQueue?.timestamp ? (
-                          <Typography variant="caption">
-                            {getTime(messageQueue?.timestamp)}
-                          </Typography>
-                        ) : null}
-                        <AccessTimeIcon sx={{ fontSize: 14, p: '3px' }} />
-                      </div>
-                    </Typography>
-                  </div>
+                        {messageQueue?.message}
+                        <div
+                          style={{
+                            display: 'flex',
+                            gap: '0.25rem',
+                            marginTop: '0.875rem',
+                            alignItems: 'center',
+                            alignSelf: 'flex-end',
+                          }}
+                        >
+                          {messageQueue?.timestamp ? (
+                            <Typography variant="caption">
+                              {getTime(messageQueue?.timestamp)}
+                            </Typography>
+                          ) : null}
+                          <AccessTimeIcon sx={{ fontSize: 14, p: '3px' }} />
+                        </div>
+                      </Typography>
+                    </div>
+                  </Grid>
                 </Grid>
-              </Grid>
-            );
-          })}
-          <div ref={scrollRef} />
+              );
+            })}
+            <div ref={scrollRef} />
+          </div>
+        ) : null}
+        <div
+          style={{
+            display: 'flex',
+            gap: '0.5rem',
+            alignItems: 'center',
+            padding: '0.8rem 1rem 0.8rem 3.25rem',
+            background: 'rgba(1, 150, 218, 0.08)',
+          }}
+        >
+          <TextField
+            fullWidth
+            value={message}
+            onKeyUp={(_: any) => handleKeyPress(_, handleSendMessage)}
+            onChange={handleChangeMessage}
+            InputProps={{
+              style: {
+                borderRadius: '10px',
+                background: 'white',
+                height: 44,
+              },
+            }}
+            placeholder=" Type a message"
+            inputRef={inputRef}
+          />
+          <IconButton
+            onClick={handleSendMessage}
+            disabled={!message}
+            disableFocusRipple
+            disableRipple
+            disableTouchRipple
+          >
+            <SendIcon
+              color="info"
+              sx={!message ? { color: 'rgba(1, 150, 218, 0)' } : {}}
+            />
+          </IconButton>
         </div>
-      ) : (
-        <div className="no-messages-wrapper">
-          {!loadingQuery && !messagesQueue?.length ? 'No Messages' : null}
-        </div>
-      )}
-      <TextField
-        fullWidth
-        value={message}
-        onKeyUp={(_: any) => handleKeyPress(_, handleSendMessage)}
-        onChange={handleChangeMessage}
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton onClick={handleSendMessage}>
-                <SendIcon color="info" />
-              </IconButton>
-            </InputAdornment>
-          ),
-        }}
-      />
+      </div>
     </ChatMessagesStyled>
   );
 };

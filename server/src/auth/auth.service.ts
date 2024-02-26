@@ -9,7 +9,7 @@ export class AuthService {
     //
   }
 
-  async login(ticketData: any): Promise<any> {
+  async login(ticketData: User): Promise<User> {
     const { email } = ticketData || {};
     const user = await this.UserModel.findOne({ email }).lean();
     if (!user) {

@@ -2,6 +2,7 @@ import { ObjectId } from 'mongodb';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { Request } from '../request/request.schema';
 import { Friend, FriendDocument } from './friend.schema';
 
 @Injectable()
@@ -12,7 +13,7 @@ export class FriendService {
     //
   }
 
-  async addFriend(addFriendData: any): Promise<any> {
+  async addFriend(addFriendData: Request): Promise<Friend> {
     const { sentByUserId, sentToUserId } = addFriendData;
     const sentByUserObjectId = new ObjectId(sentByUserId);
     const sentToUserObjectId = new ObjectId(sentToUserId);
@@ -43,7 +44,9 @@ export class FriendService {
     }
   }
 
-  async getAllFriends(getAllFriendsData: any): Promise<any> {
+  async getAllFriends(getAllFriendsData: {
+    [key: string]: string;
+  }): Promise<Friend[]> {
     const { userId } = getAllFriendsData;
     const userObjectId = new ObjectId(userId);
     const friends = await this.FriendModel.aggregate([
@@ -109,7 +112,6 @@ export class FriendService {
         },
       },
       { $project: { userId: false, addedByUserId: false } },
-      // { $replaceRoot: { newRoot: "$receivedByUser" } },
     ]);
     return friends;
   }

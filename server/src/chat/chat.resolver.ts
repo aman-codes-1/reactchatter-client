@@ -1,11 +1,10 @@
-import { NotFoundException } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
-import { ChatsInput, NewChatInput } from './dto/chat.input';
 import { ChatArgs } from './dto/chat.args';
+import { ChatsInput } from './dto/chat.input';
 import { Chat, ChatData, ChatsData } from './models/chat.model';
 import { ChatService } from './chat.service';
-import { Chat as Chats } from './chat.schema';
+import { Chat as ChatSchema } from './chat.schema';
 
 const pubSub = new PubSub();
 
@@ -16,11 +15,8 @@ export class ChatResolver {
   }
 
   @Query((returns) => Chat)
-  async chat(@Args('id') id: string): Promise<Chat> {
-    const chat = await this.ChatServices.findOneById(id);
-    if (!chat) {
-      throw new NotFoundException(id);
-    }
+  async chat(@Args('chatId') chatId: string): Promise<ChatSchema> {
+    const chat = await this.ChatServices.findOneById(chatId);
     return chat;
   }
 
@@ -34,26 +30,49 @@ export class ChatResolver {
   }
 
   @Mutation((returns) => Chat)
-  async newChat(
-    @Args('chatData') chatData: NewChatInput,
+  async createChat(
+    @Args('chatData') chatData: Chat,
     @Args() chatArgs: ChatArgs,
-  ): Promise<Chats> {
-    const { channelId } = chatData;
+  ): Promise<ChatSchema> {
+    const { friendId } = chatData;
     const newChat = await this.ChatServices.create(chatData);
     const chats = await this.ChatServices.findAll(chatData, chatArgs);
-    pubSub.publish('chatAdded', {
-      chatAdded: {
-        channelId,
+    pubSub.publish('OnChatAdded', {
+      OnChatAdded: {
+        friendId,
         data: newChat,
       },
     });
-    pubSub.publish('chatUpdated', {
-      chatUpdated: {
-        channelId,
+    pubSub.publish('OnChatsAdded', {
+      OnChatsAdded: {
+        friendId,
         data: chats,
       },
     });
     return newChat;
+  }
+
+  @Mutation((returns) => Chat)
+  async updateChat(
+    @Args('chatData') chatData: Chat,
+    @Args() chatArgs: ChatArgs,
+  ): Promise<ChatSchema> {
+    const { friendId } = chatData;
+    const updatedChat = await this.ChatServices.create(chatData);
+    const chats = await this.ChatServices.findAll(chatData, chatArgs);
+    pubSub.publish('OnChatUpdated', {
+      OnChatUpdated: {
+        friendId,
+        data: updatedChat,
+      },
+    });
+    pubSub.publish('OnChatUpdated', {
+      OnChatsUpdated: {
+        friendId,
+        data: chats,
+      },
+    });
+    return updatedChat;
   }
 
   @Mutation((returns) => Boolean)
@@ -62,12 +81,22 @@ export class ChatResolver {
   }
 
   @Subscription((returns) => ChatData)
-  chatAdded() {
-    return pubSub.asyncIterator('chatAdded');
+  OnChatAdded() {
+    return pubSub.asyncIterator('OnChatAdded');
   }
 
   @Subscription((returns) => ChatsData)
-  chatUpdated() {
-    return pubSub.asyncIterator('chatUpdated');
+  OnChatsAdded() {
+    return pubSub.asyncIterator('OnChatsAdded');
+  }
+
+  @Subscription((returns) => ChatData)
+  OnChatUpdated() {
+    return pubSub.asyncIterator('OnChatUpdated');
+  }
+
+  @Subscription((returns) => ChatsData)
+  OnChatsUpdated() {
+    return pubSub.asyncIterator('OnChatsUpdated');
   }
 }
