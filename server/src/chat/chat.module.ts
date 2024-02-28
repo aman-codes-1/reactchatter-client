@@ -23,7 +23,7 @@ import { Friend, FriendSchema } from '../friend/friend.schema';
       sortSchema: true,
       fieldResolverEnhancers: ['interceptors'] as Enhancer[],
       autoTransformHttpErrors: true,
-      introspection: true,
+      introspection: process.env.NODE_ENV !== 'production',
       context: (context: any) => context,
       subscriptions: {
         'graphql-ws': true,
