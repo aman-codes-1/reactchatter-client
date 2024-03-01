@@ -1,31 +1,45 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# Node artifact files
+node_modules/
+dist/
+
 # dependencies
-/client/node_modules
+/node_modules
 /server/node_modules
 
 # testing
-/client/coverage
+/coverage
 /server/coverage
 
 # build
-/client/build
+/build
 /server/build
 
 # dist
-/client/dist
+/dist
 /server/dist
 
 # misc
-/client/.env
-/client/.DS_Store
-/server/.env
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 /server/.DS_Store
+/server/.env
+/server/.env.local
+/server/.env.development.local
+/server/.env.test.local
+/server/.env.production.local
 
 # log
-/client/npm-debug.log*
-/client/yarn-debug.log*
-/client/yarn-error.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+__snapshots__
 /server/npm-debug.log*
 /server/yarn-debug.log*
 /server/yarn-error.log*
+/server/__snapshots__
