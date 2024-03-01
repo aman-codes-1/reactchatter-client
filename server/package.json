@@ -20,8 +20,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
-    "rimraf": "./node_modules/rimraf/bin.js"
+    "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
     "@apollo/server": "^4.10.0",
@@ -43,6 +42,7 @@
     "mongodb": "^6.4.0",
     "mongoose": "^8.2.0",
     "reflect-metadata": "^0.2.1",
+    "rimraf": "^5.0.5",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
