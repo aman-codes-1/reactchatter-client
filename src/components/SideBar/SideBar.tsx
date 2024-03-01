@@ -9,9 +9,8 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { SideBarFooter } from './components';
 import { ListItem, NavBar, UserProfile } from '..';
 import { FriendsContext } from '../../contexts';
-import { useAuth, useChats } from '../../hooks';
+import { useAuth } from '../../hooks';
 import { SideBarStyled } from './SideBar.styled';
-import { CHATS_QUERY } from '../../hooks/useChats/gql';
 
 const SideBar = () => {
   const navigate = useNavigate();
@@ -19,7 +18,6 @@ const SideBar = () => {
   const [toggleChats, setToggleChats] = useState(true);
   const selectedParam = pathname?.split?.('/')?.[2];
   const { state: { data = [] } = {} } = useContext(FriendsContext);
-  const { client, getChats, makeMessageGroups } = useChats();
   const { auth: { _id = '' } = {} } = useAuth();
   const params = useParams();
   const idArr = params?.['*']?.split?.('--');

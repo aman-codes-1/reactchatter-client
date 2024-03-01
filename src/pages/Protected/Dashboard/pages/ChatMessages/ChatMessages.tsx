@@ -5,7 +5,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Avatar, Grid, IconButton, TextField, Typography } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import DoneIcon from '@mui/icons-material/Done';
@@ -18,9 +18,9 @@ import { ChatMessagesStyled } from './ChatMessages.styled';
 import { CHATS_QUERY } from '../../../../../hooks/useChats/gql';
 
 const ChatMessages = () => {
+  console.log('here');
   const params = useParams();
   const navigate = useNavigate();
-  const { state, key } = useLocation();
   const { auth: { _id = '' } = {} } = useAuth();
   const { state: { data = [] } = {} } = useContext(FriendsContext);
   const scrollRef = useRef<any>(null);
@@ -47,6 +47,7 @@ const ChatMessages = () => {
   } = useChats(friendId, setMessagesQueue);
   const inputRef = useRef<any>(null);
   const setFocus = () => inputRef?.current && inputRef?.current?.focus();
+  setFocus();
 
   const useArrayRef = () => {
     const refs: any[] = [];
@@ -70,7 +71,6 @@ const ChatMessages = () => {
 
   useLayoutEffect(() => {
     if (friendId) {
-      setFocus();
       fetchChats();
     }
   }, [friendId]);
@@ -170,10 +170,10 @@ const ChatMessages = () => {
               </Typography>
             ) : null}
             {side === 'right' && msg?.sender?.sentStatus?.isSent === true ? (
-              <DoneIcon sx={{ fontSize: 16, p: '2px' }} />
+              <DoneIcon sx={{ fontSize: 16, p: '0px 2px' }} />
             ) : null}
             {side === 'right' && msg?.receiver?.readStatus?.isRead === true ? (
-              <DoneAllIcon sx={{ fontSize: 16, p: '2px' }} />
+              <DoneAllIcon sx={{ fontSize: 16, p: '0px 2px' }} />
             ) : null}
           </div>
         </Typography>
@@ -198,7 +198,6 @@ const ChatMessages = () => {
       },
     ]);
     setMessage('');
-    setFocus();
     await createChat({
       variables: {
         friendId,
@@ -299,7 +298,7 @@ const ChatMessages = () => {
                               {getTime(messageQueue?.timestamp)}
                             </Typography>
                           ) : null}
-                          <AccessTimeIcon sx={{ fontSize: 14, p: '3px' }} />
+                          <AccessTimeIcon sx={{ fontSize: 14, p: '0px 2.6px' }} />
                         </div>
                       </Typography>
                     </div>
