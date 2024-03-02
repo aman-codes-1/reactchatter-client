@@ -155,7 +155,6 @@ const ChatMessages = () => {
           }}
         >
           {msg?.message}
-          ""
           <div
             style={{
               display: 'flex',
