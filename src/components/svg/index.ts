@@ -1,0 +1,1 @@
+export { BaseSvg } from './BaseSvg';

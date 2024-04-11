@@ -1,28 +1,26 @@
 import { Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { Loader, SuspenseWrapper } from '../components';
+import { SuspenseWrapper } from '../components';
+import { Home } from '../pages';
 
-export const routesConfig = (isLoggedIn: boolean) => [
+export const routesConfig = () => [
   {
     key: '1',
     type: 'default',
-    path: '/',
-    Element: () =>
-      isLoggedIn ? (
-        <Navigate replace to="/dashboard" />
-      ) : (
-        <SuspenseWrapper
-          path="pages/Public/Home"
-          compName="Home"
-          fallback={<Loader center />}
-        />
-      ),
+    path: '*',
+    Element: () => <Navigate replace to="/" />,
   },
   {
     key: '2',
-    type: 'default',
-    path: '*',
-    Element: () => <Navigate replace to="/" />,
+    type: 'public',
+    path: '/',
+    Element: () => (
+      <SuspenseWrapper
+        path="pages/Public/Home"
+        compName="Home"
+        fallback={<Home />}
+      />
+    ),
   },
   {
     key: '3',
@@ -39,12 +37,52 @@ export const routesConfig = (isLoggedIn: boolean) => [
   {
     key: '4',
     type: 'private',
-    path: '/dashboard/*',
+    path: '/',
     Element: () => (
       <SuspenseWrapper
-        path="pages/Protected/Dashboard"
-        compName="Dashboard"
-        fallback={<Loader center />}
+        path="pages/Protected/RecentChats"
+        compName="RecentChats"
+      />
+    ),
+  },
+  {
+    key: '5',
+    type: 'private',
+    path: '/chat',
+    Element: () => (
+      <SuspenseWrapper
+        path="pages/Protected/ChatMessages"
+        compName="ChatMessages"
+      />
+    ),
+  },
+  {
+    key: '6',
+    type: 'private',
+    path: '/addFriend',
+    Element: () => (
+      <SuspenseWrapper path="pages/Protected/AddFriend" compName="AddFriend" />
+    ),
+  },
+  {
+    key: '7',
+    type: 'private',
+    path: '/friendRequests',
+    Element: () => (
+      <SuspenseWrapper
+        path="pages/Protected/FriendRequests"
+        compName="FriendRequests"
+      />
+    ),
+  },
+  {
+    key: '8',
+    type: 'private',
+    path: '/sentRequests',
+    Element: () => (
+      <SuspenseWrapper
+        path="pages/Protected/SentRequests"
+        compName="SentRequests"
       />
     ),
   },

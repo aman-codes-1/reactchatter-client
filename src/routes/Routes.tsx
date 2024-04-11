@@ -1,12 +1,11 @@
-import { ReactNode, useEffect, useState } from 'react';
-import { Route, useLocation } from 'react-router-dom';
+import { ReactNode, useLayoutEffect, useState } from 'react';
+import { Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks';
-import { ScrollToTop } from '../components';
 import { routesConfig } from './config';
 import { IRouteConfig } from './IRoutes';
-import { AppRoute } from '.';
+import { BaseProtected } from '../pages';
 
-const Routes = () => {
+const AppRoutes = () => {
   const location = useLocation();
   const { pathname } = location || {};
   const { auth: { isLoggedIn = false } = {} } = useAuth();
@@ -14,8 +13,8 @@ const Routes = () => {
   const [privateRoutes, setPrivateRoutes] = useState<ReactNode[]>([]);
   const [publicRoutes, setPublicRoutes] = useState<ReactNode[]>([]);
 
-  useEffect(() => {
-    routesConfig(isLoggedIn).forEach((route: IRouteConfig) => {
+  useLayoutEffect(() => {
+    routesConfig().forEach((route: IRouteConfig) => {
       const { Element, key, path, type } = route;
       if (type === 'private') {
         setPrivateRoutes((prev: ReactNode[]) => [
@@ -34,16 +33,28 @@ const Routes = () => {
         ]);
       }
     });
-  }, [isLoggedIn]);
+  }, []);
+
+  useLayoutEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth',
+    });
+  }, [pathname]);
+
+  window.addEventListener('storage', () => {
+    window.location.reload();
+  });
 
   return (
-    <ScrollToTop pathname={pathname}>
-      <AppRoute
-        defaultRoutes={defaultRoutes}
-        routes={isLoggedIn ? privateRoutes : publicRoutes}
-      />
-    </ScrollToTop>
+    <Routes>
+      <Route path="/" element={isLoggedIn ? <BaseProtected /> : <Outlet />}>
+        {defaultRoutes}
+        {isLoggedIn ? privateRoutes : publicRoutes}
+      </Route>
+    </Routes>
   );
 };
 
-export default Routes;
+export default AppRoutes;

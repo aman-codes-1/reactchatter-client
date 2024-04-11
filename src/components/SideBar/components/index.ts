@@ -1,1 +1,0 @@
-export { SideBarFooter } from './SideBarFooter';

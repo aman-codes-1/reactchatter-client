@@ -32,7 +32,7 @@ export const callApi = async ({
       });
     setTimeout(() => {
       source.cancel();
-    }, 10000);
+    }, 40000);
   }) as any;
 };
 
@@ -73,7 +73,6 @@ export const checkIfImageExists = (
     img.onload = () => {
       callback(true);
     };
-
     img.onerror = () => {
       callback(false);
     };
@@ -117,13 +116,4 @@ export const apiRoutes = {
   AuthGoogleLogin: '/auth/google',
   AuthGoogleVerifyToken: '/auth/google/verifyToken',
   AuthGoogleLogout: '/auth/google/logout',
-
-  // Friend Request
-  SendFriendRequest: '/request/send',
-  RespondToFriendRequest: '/request/respond',
-  SentFriendRequests: '/request/sent',
-  ReceivedFriendRequests: '/request/received',
-
-  // Friends
-  GetAllFriends: '/friend/all',
 };

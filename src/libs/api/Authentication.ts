@@ -36,7 +36,7 @@ class Authentication {
           resolve(data);
         })
         .catch(async (err) => {
-          await this.googleLogout();
+          localStorage.removeItem('isGoogle');
           reject(err);
         });
     });
@@ -53,6 +53,7 @@ class Authentication {
           resolve(data);
         })
         .catch((err) => {
+          localStorage.removeItem('isGoogle');
           reject(err);
         });
     });
