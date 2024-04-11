@@ -1,24 +1,23 @@
-import { useContext, useLayoutEffect, useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
 import { CircularProgress, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { LoginStyled } from './Login.styled';
 import { Authentication } from '../../../libs';
-import { SnackbarContext } from '../../../contexts';
-import { useAuth } from '../../../hooks';
+import { useAuth, useSnackbar } from '../../../hooks';
 import { BaseSvg } from '../../../components';
 
 const Login = () => {
   const [searchParams] = useSearchParams();
   const code = searchParams.get('code');
   const navigate = useNavigate();
-  const authentication = new Authentication();
   const [isLoading, setIsLoading] = useState(false);
   const { setAuth } = useAuth();
-  const { openSnackbar } = useContext(SnackbarContext);
+  const { openSnackbar } = useSnackbar();
 
   useLayoutEffect(() => {
+    const authentication = new Authentication();
     const googleLogin = async () => {
       setIsLoading(true);
       try {
@@ -31,7 +30,7 @@ const Login = () => {
           isLoggedIn: true,
           ...data?.data,
         });
-        navigate('/dashboard', { replace: true });
+        navigate('/', { replace: true });
         setIsLoading(false);
       } catch (err: any) {
         openSnackbar({

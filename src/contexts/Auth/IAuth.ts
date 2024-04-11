@@ -1,7 +1,7 @@
-import { ReactNode } from 'react';
+import { ReactElement } from 'react';
 
 export type AuthProviderProps = {
-  children: ReactNode;
+  children: ReactElement;
 };
 
 export type Auth = any;

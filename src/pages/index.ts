@@ -1,2 +1,12 @@
 export { Home, Login } from './Public';
-export { Dashboard } from './Protected';
+export {
+  BaseProtected,
+  FriendRequest,
+  MainLayout,
+  MainLayoutLoader,
+  AddFriend,
+  ChatMessages,
+  FriendRequests,
+  RecentChats,
+  SentRequests,
+} from './Protected';

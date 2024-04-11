@@ -1,11 +1,6 @@
-export { Avatar } from './Avatar';
-export { BaseSvg } from './BaseSvg';
-export { ConnectionTester } from './ConnectionTester';
+export { Loader, SuspenseWrapper } from './load';
+export { BaseSideBar, NavBar, SideBarFooter } from './nav';
+export { Avatar, UserProfile } from './profile';
+export { BaseSvg } from './svg';
 export { ListItem } from './ListItem';
-export { Loader } from './Loader';
-export { NavBar } from './NavBar';
-export { ScrollToTop } from './ScrollToTop';
-export { SideBar } from './SideBar';
 export { SuccessErrorMessage } from './SuccessErrorMessage';
-export { SuspenseWrapper } from './SuspenseWrapper';
-export { UserProfile } from './UserProfile';
