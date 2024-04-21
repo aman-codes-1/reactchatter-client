@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "PORT=3001 react-scripts start",
+    "start:mac": "PORT=3001 react-scripts start",
+    "start:win": "set PORT=3001 && react-scripts start",
     "build": "react-scripts build",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "lint:fix": "npm run lint -- --fix",

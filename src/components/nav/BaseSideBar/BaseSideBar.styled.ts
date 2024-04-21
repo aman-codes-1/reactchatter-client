@@ -26,14 +26,14 @@ export const BaseSideBarStyled = styled('div')(({ theme }) => ({
       display: 'flex',
       flexDirection: 'column',
       // maxHeight: 'calc(90vh - 150px)',
-      overflowY: 'scroll',
+      overflowY: 'auto',
       gap: '0.5rem',
       '.chats-menu-wrapper': {
         width: '100%',
         '.chats-wrapper': {
           width: '100%',
           maxHeight: '320px',
-          overflowY: 'scroll',
+          overflowY: 'auto',
         },
         '.heading': {
           fontSize: '1.25rem',
@@ -44,7 +44,7 @@ export const BaseSideBarStyled = styled('div')(({ theme }) => ({
         '.friends-wrapper': {
           width: '100%',
           maxHeight: '320px',
-          overflowY: 'scroll',
+          overflowY: 'auto',
         },
       },
       '.overview-menu-wrapper': {
