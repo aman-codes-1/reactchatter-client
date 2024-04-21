@@ -4,7 +4,7 @@ export const ChatMessagesStyled = styled('div')(({ theme }) => ({
   height: '100%',
   '.chat-wrapper': {
     padding: '0rem 4rem 0rem 3.25rem',
-    overflowY: 'scroll',
+    overflowY: 'auto',
     marginTop: 'auto',
   },
   '.no-messages-wrapper': {
