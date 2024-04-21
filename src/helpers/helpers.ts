@@ -15,7 +15,7 @@ export const callApi = async ({
     method,
     url,
     data,
-    baseURL: baseURL || process.env.REACT_APP_BACKEND_URI,
+    baseURL: baseURL || process.env.REACT_APP_BACKEND_URI || 'http://localhost:8000',
     headers,
     responseType,
     withCredentials,

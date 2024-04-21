@@ -5,7 +5,7 @@ import { CircularProgress, IconButton } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { UserProfile } from '../..';
 import { Authentication } from '../../../libs';
-import { useAuth, useSnackbar, useSocket } from '../../../hooks';
+import { useAuth, useSocket } from '../../../hooks';
 import { SideBarFooterStyled } from './SideBarFooter.styled';
 
 const SideBarFooter = ({ sx }: any) => {
@@ -14,7 +14,6 @@ const SideBarFooter = ({ sx }: any) => {
   const [isLoading, setIsLoading] = useState(false);
   const { auth: { name = '', email = '', picture = '' } = {}, setAuth } =
     useAuth();
-  const { openSnackbar } = useSnackbar();
   const { socket } = useSocket();
 
   const handleLogout = async () => {
@@ -23,10 +22,7 @@ const SideBarFooter = ({ sx }: any) => {
       googleLogout();
       await authentication.googleLogout();
     } catch (err: any) {
-      openSnackbar({
-        message: err?.response?.data?.message,
-        type: 'error',
-      });
+      //
     } finally {
       localStorage.removeItem('isGoogle');
       setAuth(undefined);
