@@ -1,7 +1,7 @@
 import { apiRoutes, callApi } from '../../helpers';
 
 type Auth = {
-  code?: string;
+  code?: string | null;
 };
 
 class Authentication {

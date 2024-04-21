@@ -5,11 +5,11 @@ import { SubscriptionClient } from 'subscriptions-transport-ws';
 
 export const createApolloClient = (auth: any) => {
   const httpLink = new HttpLink({
-    uri: `${process.env.REACT_APP_BACKEND_URI}/graphql`,
+    uri: `${process.env.REACT_APP_BACKEND_URI || 'http://localhost:8000'}/graphql`,
   });
 
   const wsLink = new WebSocketLink(
-    new SubscriptionClient(`${process.env.REACT_APP_GRAPHQL_URI}`, {
+    new SubscriptionClient(process.env.REACT_APP_GRAPHQL_URI || 'wss://localhost:8000/graphql', {
       reconnect: true,
       lazy: true,
     }),
@@ -17,7 +17,7 @@ export const createApolloClient = (auth: any) => {
 
   // const wsLink = new GraphQLWsLink(
   //   createClient({
-  //     url: `${process.env.REACT_APP_GRAPHQL_URI}`,
+  //     url: process.env.REACT_APP_GRAPHQL_URI || 'wss://localhost:8000/graphql',
   //     lazy: true,
   //   }),
   // );

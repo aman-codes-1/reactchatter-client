@@ -21,14 +21,13 @@ const Login = () => {
     const googleLogin = async () => {
       setIsLoading(true);
       try {
-        const { data }: any =
-          (await authentication.googleLogin({
-            code: code || '',
-          })) || {};
+        const res: any = await authentication.googleLogin({
+          code,
+        });
         localStorage.setItem('isGoogle', 'true');
         setAuth({
           isLoggedIn: true,
-          ...data?.data,
+          ...res?.data?.data,
         });
         navigate('/', { replace: true });
         setIsLoading(false);
@@ -48,7 +47,9 @@ const Login = () => {
   const login = useGoogleLogin({
     flow: 'auth-code',
     ux_mode: 'redirect',
-    redirect_uri: `${process.env.REACT_APP_CLIENT_URI}/login` || '',
+    redirect_uri:
+      `${process.env.REACT_APP_CLIENT_URI}/login` ||
+      'http://localhost:3001/login',
     include_granted_scopes: true,
     select_account: isLoading,
   });

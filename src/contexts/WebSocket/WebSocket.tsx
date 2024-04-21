@@ -48,7 +48,7 @@ export const WebSocketProvider = ({ children }: any) => {
 
   useLayoutEffect(() => {
     if (user) {
-      const socket = io(`${process.env.REACT_APP_BACKEND_URI}`, {
+      const socket = io(process.env.REACT_APP_BACKEND_URI || 'http://localhost:8000', {
         auth: user,
       });
       const initializeSocket = async () => {
