@@ -3,11 +3,7 @@ import { AvatarStyled } from './Avatar.styled';
 
 const Avatar = ({ alt, src, width, height, slotProps, children }: any) => (
   <AvatarStyled width={width} height={height}>
-    <MuiAvatar
-      alt={alt}
-      src={src}
-      slotProps={slotProps}
-    >
+    <MuiAvatar alt={alt} src={src} slotProps={slotProps}>
       {children}
     </MuiAvatar>
   </AvatarStyled>

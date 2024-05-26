@@ -7,12 +7,12 @@ import { UserProfileStyled } from './UserProfile.styled';
 import { UserProfileProps } from './IUserProfile';
 
 const UserProfile = ({
-  picture,
-  name,
-  email,
+  picture = '',
+  name = '',
+  email = '',
   padding = '',
-  avatarWidth,
-  avatarHeight,
+  avatarWidth = 0,
+  avatarHeight = 0,
   disableHover = false,
   disabled = false,
   secondaryAction,
@@ -51,7 +51,9 @@ const UserProfile = ({
     <UserProfileStyled>
       <ListItem
         primaryText={name}
-        secondaryText={email}
+        secondaryText={
+          email && email?.length > 27 ? `${email?.substring(0, 27)}...` : email
+        }
         padding={padding}
         secondaryAction={secondaryAction}
         disableHover={disableHover}

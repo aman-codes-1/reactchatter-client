@@ -1,10 +1,11 @@
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { googleLogout } from '@react-oauth/google';
 import { AuthProviderProps, Context } from './IAuth';
 import { Loader } from '../../components';
 import { Authentication } from '../../libs';
 import { useSocket } from '../../hooks';
+import { ConnectionContext } from '../Connection';
 
 export const AuthContext = createContext<Context>({
   auth: {},
@@ -14,25 +15,30 @@ export const AuthContext = createContext<Context>({
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const navigate = useNavigate();
   const [auth, setAuth] = useState();
-  const isGoogle = Boolean(localStorage.getItem('isGoogle'));
-  const [isLoading, setIsLoading] = useState(isGoogle ? true : false);
+  const isAuthenticated = Boolean(localStorage.getItem('isAuthenticated'));
+  const [isLoading, setIsLoading] = useState(!!isAuthenticated);
   const { socket } = useSocket();
+  const { isLoading: isConnectionLoading } = useContext(ConnectionContext);
 
   useEffect(() => {
     const authentication = new Authentication();
     const verifyLogin = async () => {
       setIsLoading(true);
       try {
-        const { data }: any = await authentication.googleVerifyToken();
+        const { data }: any = await authentication.profile();
         setAuth({
           isLoggedIn: true,
           ...data?.data,
         });
         setIsLoading(false);
       } catch (err: any) {
-        googleLogout();
-        await authentication.googleLogout();
-        localStorage.removeItem('isGoogle');
+        try {
+          googleLogout();
+          await authentication.logout();
+        } catch (error) {
+          //
+        }
+        localStorage.removeItem('isAuthenticated');
         setAuth(undefined);
         navigate('/', { replace: true });
         if (socket) {
@@ -41,10 +47,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setIsLoading(false);
       }
     };
-    if (!auth && isGoogle === true) {
+    if (!auth && isAuthenticated === true) {
+      if (isConnectionLoading) return;
       verifyLogin();
     }
-  }, [auth, isGoogle, navigate, socket]);
+  }, [auth, isAuthenticated, socket, isConnectionLoading]);
 
   if (isLoading) {
     return <Loader center />;

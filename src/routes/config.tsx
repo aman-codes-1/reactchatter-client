@@ -1,7 +1,14 @@
 import { Navigate } from 'react-router-dom';
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import { SuspenseWrapper } from '../components';
-import { Home } from '../pages';
+import {
+  AddFriend,
+  ChatMessages,
+  FriendRequests,
+  Home,
+  Login,
+  RecentChats,
+  SentRequests,
+} from '../pages';
 
 export const routesConfig = () => [
   {
@@ -27,11 +34,11 @@ export const routesConfig = () => [
     type: 'public',
     path: '/login',
     Element: () => (
-      <GoogleOAuthProvider
-        clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || ''}
-      >
-        <SuspenseWrapper path="pages/Public/Login" compName="Login" />
-      </GoogleOAuthProvider>
+      <SuspenseWrapper
+        path="pages/Public/Login"
+        compName="Login"
+        fallback={<Login />}
+      />
     ),
   },
   {
@@ -42,6 +49,7 @@ export const routesConfig = () => [
       <SuspenseWrapper
         path="pages/Protected/RecentChats"
         compName="RecentChats"
+        fallback={<RecentChats />}
       />
     ),
   },
@@ -53,6 +61,7 @@ export const routesConfig = () => [
       <SuspenseWrapper
         path="pages/Protected/ChatMessages"
         compName="ChatMessages"
+        fallback={<ChatMessages />}
       />
     ),
   },
@@ -61,7 +70,11 @@ export const routesConfig = () => [
     type: 'private',
     path: '/addFriend',
     Element: () => (
-      <SuspenseWrapper path="pages/Protected/AddFriend" compName="AddFriend" />
+      <SuspenseWrapper
+        path="pages/Protected/AddFriend"
+        compName="AddFriend"
+        fallback={<AddFriend />}
+      />
     ),
   },
   {
@@ -72,6 +85,7 @@ export const routesConfig = () => [
       <SuspenseWrapper
         path="pages/Protected/FriendRequests"
         compName="FriendRequests"
+        fallback={<FriendRequests />}
       />
     ),
   },
@@ -83,6 +97,7 @@ export const routesConfig = () => [
       <SuspenseWrapper
         path="pages/Protected/SentRequests"
         compName="SentRequests"
+        fallback={<SentRequests />}
       />
     ),
   },

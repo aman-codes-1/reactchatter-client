@@ -2,6 +2,7 @@ import { Avatar, Icon, IconButton, Skeleton, Typography } from '@mui/material';
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
+import { useAuth } from '../../../../hooks';
 import { FriendRequestStyled } from './FriendRequest.styled';
 
 const FriendRequest = ({
@@ -13,6 +14,7 @@ const FriendRequest = ({
   acceptBtnProps,
   cancelBtnProps,
 }: any) => {
+  const { auth: { _id = '' } = {} } = useAuth();
   const isAcceptBtn = !!Object.keys(acceptBtnProps || {})?.length;
   const isCancelBtn = !!Object.keys(cancelBtnProps || {})?.length;
 
@@ -57,7 +59,11 @@ const FriendRequest = ({
                   fontFamily="unset"
                   fontWeight={600}
                 >
-                  {obj?.[userObj]?.[emailKey]}
+                  {obj?.members?.length
+                    ? obj.members?.find((member: any) => member?._id !== _id)?.[
+                        userObj
+                      ]?.[emailKey]
+                    : null}
                 </Typography>
               </div>
               <div className="sent-requests-btn-wrapper">
@@ -65,7 +71,9 @@ const FriendRequest = ({
                   <IconButton
                     size="small"
                     className="sent-requests-accept-btn"
-                    onClick={(_) => acceptBtnProps?.handleClickAccept(_, idx)}
+                    onClick={(_) =>
+                      acceptBtnProps?.handleClickAccept(_, idx, obj)
+                    }
                   >
                     <CheckCircleIcon
                       fontSize="large"
@@ -77,7 +85,9 @@ const FriendRequest = ({
                   <IconButton
                     size="small"
                     className="sent-requests-cancel-btn"
-                    onClick={(_) => cancelBtnProps?.handleClickCancel(_, idx)}
+                    onClick={(_) =>
+                      cancelBtnProps?.handleClickCancel(_, idx, obj)
+                    }
                   >
                     <CancelIcon
                       fontSize="large"

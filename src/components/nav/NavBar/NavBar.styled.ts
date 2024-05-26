@@ -8,8 +8,8 @@ export const NavBarStyled = styled('div')(({ theme }) => ({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: '0.5rem 1rem',
-    backgroundColor: '#FAFAFA',
-    borderBottom: '1px solid #E4E4E7',
+    backgroundColor: theme.palette.grey[50],
+    borderBottom: `1px solid ${theme.palette.grey[200]}`,
   },
   '.nav-logo': {
     display: 'flex',
@@ -25,7 +25,7 @@ export const NavBarStyled = styled('div')(({ theme }) => ({
     '.nav-logo-svg': {
       width: '32px',
       height: '32px',
-      color: '#4F46E5',
+      color: theme.palette.secondary.main,
       [theme.breakpoints.down('sm')]: {
         width: '24px',
         height: '24px',
@@ -34,7 +34,7 @@ export const NavBarStyled = styled('div')(({ theme }) => ({
   },
   '.nav-logo:hover': {
     [theme.breakpoints.down('sm')]: {
-      backgroundColor: '#e8eaf6',
+      backgroundColor: theme.palette.grey[200],
     },
   },
   '.nav-menu-btn': {

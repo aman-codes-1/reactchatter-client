@@ -20,11 +20,11 @@ const SideBarFooter = ({ sx }: any) => {
     setIsLoading(true);
     try {
       googleLogout();
-      await authentication.googleLogout();
+      await authentication.logout();
     } catch (err: any) {
       //
     } finally {
-      localStorage.removeItem('isGoogle');
+      localStorage.removeItem('isAuthenticated');
       setAuth(undefined);
       navigate('/', { replace: true });
       if (socket) {
@@ -38,7 +38,7 @@ const SideBarFooter = ({ sx }: any) => {
     <SideBarFooterStyled sx={sx}>
       <UserProfile
         name={name}
-        email={email?.length > 27 ? email?.substring(0, 27) + '...' : email}
+        email={email}
         picture={picture}
         disableHover
         secondaryAction={

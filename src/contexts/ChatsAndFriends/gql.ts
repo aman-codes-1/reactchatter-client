@@ -24,11 +24,19 @@ const CHATS_QUERY = gql(/* GraphQL */ `
 
 const CREATE_CHAT_MUTATION = gql(/* GraphQL */ `
   mutation createChat(
+    $userId: String!
     $friendId: String!
     $type: String!
-    $members: [MemberInput!]!
+    $friendUserId: String!
   ) {
-    createChat(input: { friendId: $friendId, type: $type, members: $members }) {
+    createChat(
+      input: {
+        userId: $userId
+        friendId: $friendId
+        type: $type
+        friendUserId: $friendUserId
+      }
+    ) {
       _id
     }
   }
@@ -147,6 +155,116 @@ const FRIEND_ADDED_SUBSCRIPTION = gql(/* GraphQL */ `
   }
 `) as DocumentNode;
 
+const PENDING_REQUESTS_QUERY = gql(/* GraphQL */ `
+  query pendingRequests($userId: String!) {
+    pendingRequests(input: { userId: $userId }, limit: 25, skip: 0) {
+      data {
+        _id
+        members {
+          _id
+          hasSent
+          memberDetails {
+            _id
+            name
+            email
+            email_verified
+            picture
+            given_name
+            family_name
+          }
+        }
+      }
+      totalCount
+    }
+  }
+`) as DocumentNode;
+
+const SENT_REQUESTS_QUERY = gql(/* GraphQL */ `
+  query sentRequests($userId: String!) {
+    sentRequests(input: { userId: $userId }, limit: 25, skip: 0) {
+      data {
+        _id
+        members {
+          _id
+          hasSent
+          memberDetails {
+            _id
+            name
+            email
+            email_verified
+            picture
+            given_name
+            family_name
+          }
+        }
+      }
+      totalCount
+    }
+  }
+`) as DocumentNode;
+
+const CREATE_REQUEST_MUTATION = gql(/* GraphQL */ `
+  mutation createRequest($userId: String!, $sendToEmail: String!) {
+    createRequest(input: { userId: $userId, sendToEmail: $sendToEmail }) {
+      _id
+    }
+  }
+`) as DocumentNode;
+
+const UPDATE_REQUEST_MUTATION = gql(/* GraphQL */ `
+  mutation updateRequest($requestId: String!, $status: String!) {
+    updateRequest(input: { requestId: $requestId, status: $status }) {
+      _id
+    }
+  }
+`) as DocumentNode;
+
+const REQUEST_ADDED_SUBSCRIPTION = gql(/* GraphQL */ `
+  subscription OnRequestAdded {
+    OnRequestAdded {
+      request {
+        _id
+        members {
+          _id
+          hasSent
+          memberDetails {
+            _id
+            name
+            email
+            email_verified
+            picture
+            given_name
+            family_name
+          }
+        }
+      }
+    }
+  }
+`) as DocumentNode;
+
+const REQUEST_UPDATED_SUBSCRIPTION = gql(/* GraphQL */ `
+  subscription OnRequestUpdated {
+    OnRequestUpdated {
+      request {
+        _id
+        members {
+          _id
+          hasSent
+          memberDetails {
+            _id
+            name
+            email
+            email_verified
+            picture
+            given_name
+            family_name
+          }
+        }
+      }
+    }
+  }
+`) as DocumentNode;
+
 export {
   CHATS_QUERY,
   CREATE_CHAT_MUTATION,
@@ -155,4 +273,10 @@ export {
   FRIENDS_QUERY,
   OTHER_FRIENDS_QUERY,
   FRIEND_ADDED_SUBSCRIPTION,
+  PENDING_REQUESTS_QUERY,
+  SENT_REQUESTS_QUERY,
+  CREATE_REQUEST_MUTATION,
+  UPDATE_REQUEST_MUTATION,
+  REQUEST_ADDED_SUBSCRIPTION,
+  REQUEST_UPDATED_SUBSCRIPTION,
 };

@@ -1,27 +1,21 @@
 import { createTheme } from '@mui/material/styles';
 
-export const Theme = createTheme({
+export const theme = createTheme({
   palette: {
     primary: {
       main: '#0196DA',
+      light: '#ECF7FC',
+      dark: 'rgba(1, 150, 218, 0.28)',
     },
-    common: {
-      black: '#000000',
-      white: '#FFFFFF',
-    },
-    error: {
-      main: '#a94442',
-      contrastText: '#f2dede',
-      light: '#FEE2E2',
-      dark: '#DC2626',
-      900: '#bd2020',
-    },
-    warning: {
-      main: '#F17602',
-      contrastText: '#fff',
+    secondary: {
+      main: '#4F46E5',
     },
     info: {
       main: '#0288d1',
+      contrastText: '#fff',
+    },
+    warning: {
+      main: '#F17602',
       contrastText: '#fff',
     },
     success: {
@@ -31,15 +25,27 @@ export const Theme = createTheme({
       dark: '#388e3c',
       900: '#2b702e',
     },
+    error: {
+      main: '#a94442',
+      contrastText: '#f2dede',
+      light: '#FEE2E2',
+      dark: '#DC2626',
+      900: '#bd2020',
+    },
+    common: {
+      black: '#000000',
+      white: '#FFFFFF',
+    },
     grey: {
-      50: '#fafafa',
+      50: '#F9FAFB',
       100: '#f5f5f5',
-      200: '#eee',
+      200: '#e8eaf6',
       300: '#e0e0e0',
       400: '#C8C8C8',
       500: '#8E949D',
       600: '#9B9BA3',
       // 9CA3AF
+      700: 'rgba(255, 255, 255, 0.4)',
       800: '#71717A',
       900: '#374151',
     },

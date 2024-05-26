@@ -1,65 +1,57 @@
 import { useLayoutEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useGoogleLogin } from '@react-oauth/google';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
+import { jwtDecode } from 'jwt-decode';
 import { CircularProgress, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { LoginStyled } from './Login.styled';
-import { Authentication } from '../../../libs';
 import { useAuth, useSnackbar } from '../../../hooks';
 import { BaseSvg } from '../../../components';
 
 const Login = () => {
+  const location = useLocation();
+  const from: string =
+    (location?.state?.from?.pathname === '/login'
+      ? '/'
+      : location?.state?.from?.pathname) || '/';
   const [searchParams] = useSearchParams();
-  const code = searchParams.get('code');
+  const token = searchParams.get('token');
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const { setAuth } = useAuth();
   const { openSnackbar } = useSnackbar();
 
   useLayoutEffect(() => {
-    const authentication = new Authentication();
     const googleLogin = async () => {
       setIsLoading(true);
-      try {
-        const res: any = await authentication.googleLogin({
-          code,
-        });
-        localStorage.setItem('isGoogle', 'true');
-        setAuth({
-          isLoggedIn: true,
-          ...res?.data?.data,
-        });
-        navigate('/', { replace: true });
-        setIsLoading(false);
-      } catch (err: any) {
-        openSnackbar({
-          message: err?.response?.data?.message,
-          type: 'error',
-        });
-        setIsLoading(false);
-      }
+      const decoded = jwtDecode(token || '');
+      localStorage.setItem('isAuthenticated', 'true');
+      setAuth({
+        isLoggedIn: true,
+        ...decoded,
+      });
+      navigate('/', { replace: true });
+      setIsLoading(false);
     };
-    if (code) {
+    if (token) {
       googleLogin();
     }
-  }, [code]);
+  }, [token]);
 
-  const login = useGoogleLogin({
-    flow: 'auth-code',
-    ux_mode: 'redirect',
-    redirect_uri:
-      `${process.env.REACT_APP_CLIENT_URI}/login` ||
-      'http://localhost:3001/login',
-    include_granted_scopes: true,
-    select_account: isLoading,
-  });
+  const serverUri =
+    process.env.NODE_ENV === 'development'
+      ? `http://${process.env.REACT_APP_CLIENT_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}`
+      : `${process.env.REACT_APP_SERVER_URI}`;
 
   const handleLogin = async () => {
     try {
-      login();
+      window.open(
+        `${serverUri}/api/auth/google/login/${from.replaceAll('/', '@')}`,
+        '_self',
+      );
     } catch (err) {
       openSnackbar({
-        message: '',
+        message: JSON.stringify(err || ''),
         type: 'error',
       });
     }
@@ -75,23 +67,32 @@ const Login = () => {
       >
         Sign in to your account
       </Typography>
-      <LoadingButton
-        className={`google-login-btn ${
-          isLoading ? 'btn-disabled' : 'btn-active'
-        }`}
-        loading={isLoading}
-        variant="contained"
-        onClick={handleLogin}
-        startIcon={
-          isLoading ? (
-            <CircularProgress className="loading-indicator" size={18} />
-          ) : (
-            <BaseSvg id="google-logo" width="18" height="18" />
-          )
-        }
-      >
-        {isLoading ? 'Signing in with Google' : 'Continue with Google'}
-      </LoadingButton>
+      {!isLoading ? (
+        <GoogleLogin
+          // useOneTap
+          ux_mode="redirect"
+          shape="pill"
+          click_listener={handleLogin}
+          onSuccess={() => {}}
+        />
+      ) : (
+        <LoadingButton
+          className={`google-login-btn ${
+            isLoading ? 'btn-disabled' : 'btn-active'
+          }`}
+          loading={isLoading}
+          variant="contained"
+          startIcon={
+            isLoading ? (
+              <CircularProgress className="loading-indicator" size={18} />
+            ) : (
+              <BaseSvg id="google-logo" width="18" height="18" />
+            )
+          }
+        >
+          Signing in with Google
+        </LoadingButton>
+      )}
     </LoginStyled>
   );
 };
