@@ -1,66 +1,32 @@
-import { MouseEventHandler, useLayoutEffect } from 'react';
+import { MouseEventHandler, useContext } from 'react';
 import { FriendRequest, MainLayout } from '..';
-import {
-  FRIEND_REQUESTS_QUERY,
-  useAuth,
-  useRequests,
-  useSnackbar,
-} from '../../../hooks';
+import { useSnackbar } from '../../../hooks';
+import { ChatsAndFriendsContext } from '../../../contexts';
 
 const FriendRequests = () => {
-  const { auth: { _id = '' } = {} } = useAuth();
   const { openSnackbar } = useSnackbar();
   const {
-    getRequests,
     updateRequest,
-    requestsData: data,
-    requestsLoading: loading,
-    requestsError: error,
-    requestsClient,
-  } = useRequests();
-
-  useLayoutEffect(() => {
-    getRequests({
-      variables: {
-        sentByUserId: _id,
-      },
-    });
-  }, [_id, getRequests]);
+    pendingRequests,
+    pendingRequestsLoading,
+    pendingRequestsCalled,
+    pendingRequestsError,
+  } = useContext(ChatsAndFriendsContext);
 
   const handleClickRequest = async (
     _: MouseEventHandler,
-    idx: number,
+    __: number,
+    request: any,
     status: string,
   ) => {
     try {
-      const dataCopy = [...data];
-      dataCopy.splice(idx, 1);
-      requestsClient.writeQuery({
-        query: FRIEND_REQUESTS_QUERY,
-        data: {
-          requests: dataCopy,
-        },
-        variables: {
-          sentByUserId: _id,
-        },
-      });
-      const requestId = data?.[idx]?._id;
       await updateRequest({
         variables: {
-          requestId,
+          requestId: request?._id,
           status,
         },
       });
     } catch (err: any) {
-      requestsClient.writeQuery({
-        query: FRIEND_REQUESTS_QUERY,
-        data: {
-          requests: data,
-        },
-        variables: {
-          sentByUserId: _id,
-        },
-      });
       openSnackbar({
         message: err?.graphQLErrors?.[0]?.message,
         type: 'error',
@@ -72,23 +38,23 @@ const FriendRequests = () => {
     <MainLayout
       heading="Friend Requests"
       defaultText="You have no friend requests."
-      loading={loading}
-      data={data}
-      error={error?.graphQLErrors?.[0]?.message}
+      loading={pendingRequestsLoading || !pendingRequestsCalled}
+      data={pendingRequests}
+      error={pendingRequestsError?.graphQLErrors?.[0]?.message}
     >
       <FriendRequest
-        loading={loading}
-        data={data}
-        error={error?.graphQLErrors?.[0]?.message}
-        userObj="userDetails"
+        loading={pendingRequestsLoading || !pendingRequestsCalled}
+        data={pendingRequests}
+        error={pendingRequestsError?.graphQLErrors?.[0]?.message}
+        userObj="memberDetails"
         emailKey="email"
         acceptBtnProps={{
-          handleClickAccept: (_: MouseEventHandler, __: number) =>
-            handleClickRequest(_, __, 'accepted'),
+          handleClickAccept: (_: MouseEventHandler, __: number, ___: any) =>
+            handleClickRequest(_, __, ___, 'accepted'),
         }}
         cancelBtnProps={{
-          handleClickCancel: (_: MouseEventHandler, __: number) =>
-            handleClickRequest(_, __, 'rejected'),
+          handleClickCancel: (_: MouseEventHandler, __: number, ___: any) =>
+            handleClickRequest(_, __, ___, 'rejected'),
         }}
       />
     </MainLayout>

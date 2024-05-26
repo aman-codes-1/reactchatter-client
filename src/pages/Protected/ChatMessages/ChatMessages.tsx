@@ -31,11 +31,7 @@ const ChatMessages = () => {
   const { height, width } = useResize();
   const { auth: { _id = '' } = {} } = useAuth();
   const { createChat, chatDetails } = useContext(ChatsAndFriendsContext);
-  const {
-    _id: id = '',
-    chatType = '',
-    friendDetails = {},
-  } = chatDetails || {};
+  const { _id: id = '', chatType = '', friendDetails = {} } = chatDetails || {};
   const {
     getMessages,
     // createMessage,
@@ -160,16 +156,12 @@ const ChatMessages = () => {
     ]);
     setMessage('');
     if (chatType === 'friend') {
-      const memberIds = [_id, friendDetails?._id];
       await createChat({
         variables: {
           userId: _id,
           friendId: id,
           type: 'private',
-          members: memberIds.map((memberId) => ({
-            _id: memberId,
-            hasAdded: memberId === _id,
-          })),
+          friendUserId: friendDetails?._id,
         },
       });
     }
@@ -186,6 +178,7 @@ const ChatMessages = () => {
       // });
     }
     if (chatType === 'group') {
+      //
     }
   };
 
@@ -193,7 +186,7 @@ const ChatMessages = () => {
     if (index === 0) {
       return `${side}First`;
     }
-    if (chats && index === chats.length - 1) {
+    if (chats && Array.isArray(chats) && index === chats.length - 1) {
       return `${side}Last`;
     }
     return '';
@@ -274,7 +267,7 @@ const ChatMessages = () => {
               >
                 {messageGroup?.side === 'left' && (
                   <Grid item>
-                    <Avatar className="avatar" src={''} />
+                    <Avatar className="avatar" src="" />
                   </Grid>
                 )}
                 <Grid item xs={8}>
@@ -342,15 +335,7 @@ const ChatMessages = () => {
             <div ref={scrollRef} />
           </div>
         ) : null}
-        <div
-          style={{
-            display: 'flex',
-            gap: '0.5rem',
-            alignItems: 'center',
-            padding: '0.8rem 1rem 0.8rem 3.25rem',
-            background: 'rgba(1, 150, 218, 0.08)',
-          }}
-        >
+        <div className="text-field-wrapper">
           <TextField
             autoFocus
             fullWidth
@@ -376,7 +361,7 @@ const ChatMessages = () => {
           >
             <SendIcon
               color="info"
-              sx={!message ? { color: 'rgba(1, 150, 218, 0)' } : {}}
+              className={!message ? 'send-icon-disabled' : ''}
             />
           </IconButton>
         </div>

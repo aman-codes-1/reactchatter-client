@@ -9,6 +9,11 @@ export {
   FRIENDS_QUERY,
   OTHER_FRIENDS_QUERY,
   FRIEND_ADDED_SUBSCRIPTION,
+  PENDING_REQUESTS_QUERY,
+  SENT_REQUESTS_QUERY,
+  CREATE_REQUEST_MUTATION,
+  UPDATE_REQUEST_MUTATION,
+  REQUEST_ADDED_SUBSCRIPTION,
 } from './ChatsAndFriends';
 export { ConnectionContext, ConnectionProvider } from './Connection';
 export { SnackbarContext, SnackbarProvider } from './Snackbar';

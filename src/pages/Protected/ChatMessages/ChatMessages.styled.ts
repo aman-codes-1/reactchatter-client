@@ -55,4 +55,14 @@ export const ChatMessagesStyled = styled('div')(({ theme }) => ({
   '.rightLast': {
     borderBottomRightRadius: 20,
   },
+  '.text-field-wrapper': {
+    display: 'flex',
+    gap: '0.5rem',
+    alignItems: 'center',
+    padding: '0.8rem 1rem 0.8rem 3.25rem',
+    background: theme.palette.primary.light,
+  },
+  '.send-icon-disabled': {
+    color: theme.palette.primary.light,
+  },
 }));

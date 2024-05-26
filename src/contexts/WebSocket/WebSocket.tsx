@@ -1,21 +1,24 @@
 import { createContext, useLayoutEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ApolloProvider } from '@apollo/client';
+import { io } from 'socket.io-client';
 import { useAuth } from '../../hooks';
 import { createApolloClient } from './createApolloClient';
-import { io } from 'socket.io-client';
 
 export const WebSocketContext = createContext<any>({});
 
 export const WebSocketProvider = ({ children }: any) => {
+  const navigate = useNavigate();
   const [user, setUser] = useState<any>();
   const [socket, setSocket] = useState<any>(null);
-  const { auth = {} } = useAuth();
+  const { auth = {}, setAuth } = useAuth();
 
   const client: any = useMemo(() => {
     if (auth?.isLoggedIn) {
-      return createApolloClient(auth);
+      return createApolloClient(auth, setAuth, navigate, socket);
     }
-  }, [auth]);
+    return false;
+  }, [auth?.isLoggedIn]);
 
   useLayoutEffect(() => {
     if (client) {
@@ -31,8 +34,7 @@ export const WebSocketProvider = ({ children }: any) => {
         setUser(userOnlineStatus(true));
       };
       const onVisibilityChange = () => {
-        const isTabVisible =
-          document.visibilityState === 'visible' ? true : false;
+        const isTabVisible = document.visibilityState === 'visible';
         setUser(userOnlineStatus(isTabVisible));
       };
       document.addEventListener('visibilitychange', onVisibilityChange);
@@ -44,39 +46,42 @@ export const WebSocketProvider = ({ children }: any) => {
         window.removeEventListener('focus', onWindowFocus);
       };
     }
+    return () => {};
   }, [client]);
 
   useLayoutEffect(() => {
     if (user) {
-      const socket = io(process.env.REACT_APP_BACKEND_URI || 'http://localhost:8000', {
+      const socketUrl =
+        process.env.NODE_ENV === 'development'
+          ? `http://${process.env.REACT_APP_CLIENT_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}`
+          : `${process.env.REACT_APP_SERVER_URI}`;
+      const Socket = io(socketUrl, {
         auth: user,
       });
       const initializeSocket = async () => {
         const socketPromise = new Promise((resolve, reject) => {
-          socket.once('connect', () => {
-            resolve(socket);
+          Socket.once('connect', () => {
+            resolve(Socket);
           });
-          socket.once('connect_error', (error) => {
-            console.error('Socket connection error:', error);
+          Socket.once('connect_error', (error) => {
             reject(error);
           });
         });
         try {
-          const socket = await socketPromise;
-          setSocket(socket);
+          const asyncSocket = await socketPromise;
+          setSocket(asyncSocket);
         } catch (error) {
-          console.error('Error establishing socket connection:', error);
+          //
         }
       };
-
       initializeSocket();
-
       return () => {
-        if (socket) {
-          socket.disconnect();
+        if (Socket) {
+          Socket.disconnect();
         }
       };
     }
+    return () => {};
   }, [user]);
 
   return (

@@ -10,7 +10,7 @@ export const FriendRequestStyled = styled('div')(({ theme }) => ({
     width: 'auto',
     maxWidth: '440px',
     minHeight: '3rem',
-    outline: '1px solid #E5E7EB',
+    outline: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: '8px',
     padding: '0.25rem 0.75rem',
     '.sent-requests-email-wrapper': {

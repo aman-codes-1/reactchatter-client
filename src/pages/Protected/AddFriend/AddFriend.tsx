@@ -1,10 +1,11 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useContext, useState } from 'react';
 import { TextField, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { SuccessErrorMessage } from '../../../components';
 import { MainLayout } from '..';
 import { handleKeyPress, regex } from '../../../helpers';
-import { useAuth, useRequests, useTimeout } from '../../../hooks';
+import { useAuth, useTimeout } from '../../../hooks';
+import { ChatsAndFriendsContext } from '../../../contexts';
 import { AddFriendStyled } from './AddFriend.styled';
 
 const AddFriend = () => {
@@ -22,10 +23,9 @@ const AddFriend = () => {
   const [isTimeoutRunning, setIsTimeoutRunning] = useTimeout(() => {
     setIsTimeoutRunning(false);
   }, 4000);
-  const {
-    createRequest,
-    createRequestLoading: loading,
-  } = useRequests();
+  const { createRequest, createRequestLoading: loading } = useContext(
+    ChatsAndFriendsContext,
+  );
 
   const resetStates = () => {
     setState({
@@ -82,20 +82,20 @@ const AddFriend = () => {
   };
 
   const handleClickAdd = async () => {
-    if (disabled) return;
+    if (disabled || loading) return;
     resetStates();
     const validationCheck = handleCheckEmail();
     if (Object.values(validationCheck).some((x) => x === true)) {
       return;
     }
     try {
-      const res = await createRequest({
+      const { data } = await createRequest({
         variables: {
+          userId: _id,
           sendToEmail: email,
-          sentByUserId: _id,
         },
       });
-      if (res?.data?.createRequest?._id) {
+      if (data?.createRequest?._id) {
         setState({
           message: 'Friend Request Sent.',
           type: 'success',

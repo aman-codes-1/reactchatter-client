@@ -28,7 +28,9 @@ const MainLayout = ({
         {defaultText}
       </Typography>
     ) : null}
-    {error ? <SuccessErrorMessage message={error} type="error" /> : null}
+    {!loading && error ? (
+      <SuccessErrorMessage message={error} type="error" />
+    ) : null}
     {children}
   </MainLayoutStyled>
 );

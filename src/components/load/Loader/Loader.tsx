@@ -27,10 +27,7 @@ const Loader = ({ message, center, height, width, color }: ILoaderProps) => (
         variant="indeterminate"
         disableShrink
         sx={{
-          color:
-            color ||
-            ((theme) =>
-              theme.palette.mode === 'light' ? '#1a90ff' : '#0196DA'),
+          color: color || ((theme) => theme.palette.primary.main),
           animationDuration: '550ms',
           position: 'absolute',
           left: 0,

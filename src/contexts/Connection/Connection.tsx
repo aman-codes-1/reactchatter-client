@@ -1,6 +1,5 @@
 import { ReactElement, createContext } from 'react';
 import { useNavigatorOnLine } from '../../hooks';
-// import { Loader } from '../../components/load';
 
 const containerStyles = {
   display: 'flex',
@@ -17,12 +16,16 @@ const imgStyles = {
 
 export const ConnectionContext = createContext<any>({});
 
-export const ConnectionProvider = ({ children }: { children: ReactElement }) => {
+export const ConnectionProvider = ({
+  children,
+}: {
+  children: ReactElement;
+}) => {
   const { isLoading, isOffline } = useNavigatorOnLine();
 
-  if (isLoading) {
-    return null;
-  }
+  // if (isLoading) {
+  //   return null;
+  // }
 
   if (!isLoading && isOffline) {
     return (

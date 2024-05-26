@@ -1,11 +1,9 @@
-import { ReactNode } from 'react';
 import { styled } from '@mui/system';
 
 export const ListItemStyled = styled('div')<{
   padding: string;
-  secondaryAction: ReactNode;
   disableHover: boolean;
-}>(({ theme, padding, secondaryAction, disableHover }) => ({
+}>(({ theme, padding, disableHover }) => ({
   width: '100%',
   padding,
   '.list-item-btn': {
@@ -13,7 +11,7 @@ export const ListItemStyled = styled('div')<{
     gap: '17px',
     '.MuiListItemText-root': {
       wordWrap: 'break-word',
-      marginRight: secondaryAction ? '18px' : '',
+      // marginRight: secondaryAction ? '18px' : '',
       '.MuiListItemText-primary': {
         fontSize: '0.875rem',
         fontWeight: 600,
@@ -29,25 +27,25 @@ export const ListItemStyled = styled('div')<{
     },
   },
   '.list-item-btn:hover': {
-    background: disableHover ? 'transparent' : '#F9FAFB',
+    background: disableHover ? 'transparent' : theme.palette.grey[50],
     cursor: disableHover ? 'default' : 'pointer',
-    color: '#4F46E5',
+    color: theme.palette.secondary.main,
     '.MuiTypography-root, .Mui-selected': {
-      color: disableHover ? '' : '#4F46E5',
+      color: disableHover ? '' : theme.palette.secondary.main,
     },
     '.list-item-icon': {
-      color: disableHover ? '' : '#4F46E5',
-      outline: disableHover ? '' : '1px solid #4F46E5',
+      color: disableHover ? '' : theme.palette.secondary.main,
+      outline: disableHover ? '' : `1px solid ${theme.palette.secondary.main}`,
       background: disableHover ? '' : theme.palette.common.white,
     },
   },
   '.MuiButtonBase-root.MuiListItemButton-root.Mui-selected': {
     '.MuiTypography-root': {
-      color: '#4F46E5',
+      color: theme.palette.secondary.main,
     },
     '.list-item-icon': {
-      color: '#4F46E5',
-      outline: '1px solid #4F46E5',
+      color: theme.palette.secondary.main,
+      outline: `1px solid ${theme.palette.secondary.main}`,
       background: theme.palette.common.white,
     },
   },

@@ -7,26 +7,24 @@ import {
   SnackbarProvider,
   WebSocketProvider,
 } from './contexts';
-import { Theme } from './style';
+import { theme } from './style';
 
 const AppRoutes = lazy(() =>
   import('./routes').then((module) => ({ default: module.AppRoutes })),
 );
 
 const App = () => (
-  <ThemeProvider theme={Theme}>
+  <ThemeProvider theme={theme}>
     <BrowserRouter>
-      <ConnectionProvider>
-        <Suspense fallback={null}>
-          <SnackbarProvider>
-            <AuthProvider>
-              <WebSocketProvider>
-                <AppRoutes />
-              </WebSocketProvider>
-            </AuthProvider>
-          </SnackbarProvider>
-        </Suspense>
-      </ConnectionProvider>
+      <SnackbarProvider>
+        <ConnectionProvider>
+          <AuthProvider>
+            <WebSocketProvider>
+              <AppRoutes />
+            </WebSocketProvider>
+          </AuthProvider>
+        </ConnectionProvider>
+      </SnackbarProvider>
     </BrowserRouter>
   </ThemeProvider>
 );
