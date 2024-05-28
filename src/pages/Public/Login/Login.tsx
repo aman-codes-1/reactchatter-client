@@ -40,7 +40,7 @@ const Login = () => {
 
   const serverUri =
     process.env.NODE_ENV === 'development'
-      ? `http://${process.env.REACT_APP_CLIENT_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}`
+      ? `http://${process.env.REACT_APP_SERVER_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}`
       : `${process.env.REACT_APP_SERVER_URI}`;
 
   const handleLogin = async () => {

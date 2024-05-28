@@ -11,15 +11,15 @@ export const callApi = async ({
   withCredentials = false,
 }) => {
   const source = axios.CancelToken.source();
-  const URL =
+  const serverUri =
     process.env.NODE_ENV === 'development'
-      ? `http://${process.env.REACT_APP_CLIENT_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}`
+      ? `http://${process.env.REACT_APP_SERVER_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}`
       : `${process.env.REACT_APP_SERVER_URI}`;
   const options = {
     method,
     url,
     data,
-    baseURL: baseURL || URL,
+    baseURL: baseURL || serverUri,
     headers,
     responseType,
     withCredentials,
