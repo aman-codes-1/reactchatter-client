@@ -31,7 +31,7 @@ export const createApolloClient = (
   const subscriptionUri =
     process.env.NODE_ENV === 'development'
       ? `ws://${process.env.REACT_APP_SERVER_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}/graphql`
-      : `${process.env.REACT_APP_GRAPHQL_URI}/graphql`;
+      : `wss://${process.env.REACT_APP_SERVER_DOMAIN}/graphql`;
 
   const wsLink = new WebSocketLink(
     new SubscriptionClient(subscriptionUri, {
