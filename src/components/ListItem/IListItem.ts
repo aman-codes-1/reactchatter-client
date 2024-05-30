@@ -7,8 +7,8 @@ import {
 
 export type ListItemProps = {
   listItemIcon?: ReactNode;
-  primaryText?: ListItemTextProps['primary'];
-  secondaryText?: ListItemTextProps['secondary'];
+  primaryText?: any;
+  secondaryText?: any;
   padding?: string;
   disableHover?: boolean;
   disabled?: ListItemButtonProps['disabled'];

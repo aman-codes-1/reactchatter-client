@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 
 export const useNavigatorOnLine = () => {
   const [url, setUrl] = useState('https://www.google.com/');
@@ -7,22 +7,22 @@ export const useNavigatorOnLine = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isOffline, setIsOffline] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     let controllerTimeout: any = 0;
     const fetchRequest = async () => {
       const controller = new AbortController();
       controllerTimeout = setTimeout(() => controller.abort(), urlTimeout);
       setIsLoading(true);
+      setIsOffline(false);
       try {
         await fetch(url, {
           mode: 'no-cors',
           signal: controller.signal,
         });
         setIsOffline(false);
-        setIsLoading(false);
-        clearTimeout(controllerTimeout);
       } catch (err) {
         setIsOffline(true);
+      } finally {
         setIsLoading(false);
         clearTimeout(controllerTimeout);
       }
@@ -50,7 +50,7 @@ export const useNavigatorOnLine = () => {
   }, [isOffline, url, urlPoll, urlTimeout]);
 
   return {
-    isLoading,
-    isOffline,
+    isLoading: !!isLoading,
+    isOffline: !!isOffline,
   };
 };

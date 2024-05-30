@@ -12,17 +12,8 @@ import { getMainDefinition } from '@apollo/client/utilities';
 import { ErrorResponse, onError } from '@apollo/client/link/error';
 import { RetryLink } from '@apollo/client/link/retry';
 import { GraphQLError } from 'graphql/error/GraphQLError';
-import { googleLogout } from '@react-oauth/google';
-import { Authentication } from '../../libs';
 
-export const createApolloClient = (
-  auth: any,
-  setAuth: any,
-  navigate: any,
-  socket: any,
-) => {
-  const authentication = new Authentication();
-
+export const createApolloClient = (auth: any, logout: any) => {
   const uri =
     process.env.NODE_ENV === 'development'
       ? `http://${process.env.REACT_APP_SERVER_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}/graphql`
@@ -53,19 +44,7 @@ export const createApolloClient = (
         graphQLErrors.map(
           async ({ message, locations, path, extensions }: GraphQLError) => {
             if (extensions?.code === 'UNAUTHENTICATED') {
-              try {
-                googleLogout();
-                await authentication.logout();
-              } catch (err: any) {
-                //
-              } finally {
-                localStorage.removeItem('isAuthenticated');
-                setAuth(undefined);
-                navigate('/', { replace: true });
-                if (socket) {
-                  socket.disconnect();
-                }
-              }
+              logout();
             }
           },
         );

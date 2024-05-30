@@ -2,9 +2,9 @@ import { ReactNode } from 'react';
 import { ListItemButtonProps } from '@mui/material';
 
 export type UserProfileProps = {
+  primaryText: any;
+  secondaryText: any;
   picture: string;
-  name: string;
-  email?: string;
   padding?: string;
   avatarWidth?: number;
   avatarHeight?: number;

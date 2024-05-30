@@ -1,21 +1,20 @@
 import { createContext, useLayoutEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ApolloProvider } from '@apollo/client';
 import { io } from 'socket.io-client';
-import { useAuth } from '../../hooks';
+import { useApi, useAuth } from '../../hooks';
 import { createApolloClient } from './createApolloClient';
 
 export const WebSocketContext = createContext<any>({});
 
 export const WebSocketProvider = ({ children }: any) => {
-  const navigate = useNavigate();
   const [user, setUser] = useState<any>();
   const [socket, setSocket] = useState<any>(null);
-  const { auth = {}, setAuth } = useAuth();
+  const { auth = {} } = useAuth();
+  const { logout } = useApi();
 
   const client: any = useMemo(() => {
     if (auth?.isLoggedIn) {
-      return createApolloClient(auth, setAuth, navigate, socket);
+      return createApolloClient(auth, logout);
     }
     return false;
   }, [auth?.isLoggedIn]);

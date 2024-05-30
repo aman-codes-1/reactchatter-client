@@ -21,7 +21,14 @@ const ListItem = ({
   btnSx,
   children,
 }: ListItemProps) => (
-  <ListItemStyled padding={padding} disableHover={disableHover}>
+  <ListItemStyled
+    padding={padding}
+    disableHover={disableHover}
+    primaryTextFontSize={primaryText?.fontSize}
+    primaryTextFontWeight={primaryText?.fontWeight}
+    secondaryTextFontSize={secondaryText?.fontSize}
+    secondaryTextFontWeight={secondaryText?.fontWeight}
+  >
     <List dense={dense} disablePadding>
       <MuiListItem disablePadding secondaryAction={secondaryAction}>
         <ListItemButton
@@ -37,8 +44,8 @@ const ListItem = ({
           {listItemIcon}
           {primaryText || secondaryText ? (
             <ListItemText
-              primary={primaryText}
-              secondary={secondaryText || null}
+              primary={primaryText?.title}
+              secondary={secondaryText?.title || null}
             />
           ) : null}
         </ListItemButton>

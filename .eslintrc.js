@@ -36,7 +36,7 @@ module.exports = {
     'react/jsx-no-constructed-context-values': 'off',
     'react/jsx-filename-extension': [
       1,
-      { extensions: ['.ts', '.tsx', '.json'] },
+      { extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'] },
     ],
     'import/extensions': [
       'error',

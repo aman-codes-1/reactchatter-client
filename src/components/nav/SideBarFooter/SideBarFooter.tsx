@@ -1,44 +1,32 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { googleLogout } from '@react-oauth/google';
 import { CircularProgress, IconButton } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { UserProfile } from '../..';
-import { Authentication } from '../../../libs';
-import { useAuth, useSocket } from '../../../hooks';
+import { useApi, useAuth } from '../../../hooks';
 import { SideBarFooterStyled } from './SideBarFooter.styled';
 
 const SideBarFooter = ({ sx }: any) => {
-  const authentication = new Authentication();
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const { auth: { name = '', email = '', picture = '' } = {}, setAuth } =
     useAuth();
-  const { socket } = useSocket();
+  const { callLogout } = useApi();
 
   const handleLogout = async () => {
-    setIsLoading(true);
-    try {
-      googleLogout();
-      await authentication.logout();
-    } catch (err: any) {
-      //
-    } finally {
-      localStorage.removeItem('isAuthenticated');
-      setAuth(undefined);
-      navigate('/', { replace: true });
-      if (socket) {
-        socket.disconnect();
-      }
-      setIsLoading(false);
-    }
+    await callLogout(setIsLoading);
   };
 
   return (
     <SideBarFooterStyled sx={sx}>
       <UserProfile
-        name={name}
-        email={email}
+        primaryText={{
+          title: name,
+        }}
+        secondaryText={{
+          title:
+            email && email?.length > 27
+              ? `${email?.substring(0, 27)}...`
+              : email,
+        }}
         picture={picture}
         disableHover
         secondaryAction={
