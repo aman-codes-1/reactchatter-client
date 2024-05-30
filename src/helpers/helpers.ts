@@ -76,6 +76,6 @@ export const regex = {
 
 export const apiRoutes = {
   // Authentication
-  AuthProfile: '/api/auth/profiles',
+  AuthProfile: '/api/auth/profile',
   AuthLogout: '/api/auth/logout',
 };
