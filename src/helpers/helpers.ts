@@ -1,45 +1,4 @@
-import axios, { AxiosRequestConfig } from 'axios';
-
-export const callApi = async ({
-  method = '',
-  url = '',
-  data = {},
-  headers = {},
-  baseURL = '',
-  signal = undefined,
-  responseType = '',
-  withCredentials = false,
-}) => {
-  const source = axios.CancelToken.source();
-  const serverUri =
-    process.env.NODE_ENV === 'development'
-      ? `http://${process.env.REACT_APP_SERVER_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}`
-      : `${process.env.REACT_APP_SERVER_URI}`;
-  const options = {
-    method,
-    url,
-    data,
-    baseURL: baseURL || serverUri,
-    headers,
-    responseType,
-    withCredentials,
-    ...(signal ? { signal } : {}),
-    cancelToken: source.token,
-  } as AxiosRequestConfig;
-  return new Promise((resolve, reject) => {
-    axios(options)
-      .then((res: any) => {
-        resolve(res);
-      })
-      .catch((err: any) => {
-        reject(err);
-      });
-    setTimeout(() => {
-      source.cancel();
-    }, 40000);
-  }) as any;
-};
-
+/* eslint-disable no-unused-vars */
 export const formatDate = (dateValue: string | number | Date) => {
   const date = new Date(dateValue);
   return date
@@ -117,6 +76,6 @@ export const regex = {
 
 export const apiRoutes = {
   // Authentication
-  AuthProfile: '/api/auth/profile',
+  AuthProfile: '/api/auth/profiles',
   AuthLogout: '/api/auth/logout',
 };

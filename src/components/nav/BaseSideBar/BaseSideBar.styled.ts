@@ -2,7 +2,7 @@ import { styled } from '@mui/system';
 
 export const BaseSideBarStyled = styled('div')(({ theme }) => ({
   width: '100%',
-  maxWidth: '20rem',
+  maxWidth: '27rem',
   borderRight: `1px solid ${theme.palette.grey[200]}`,
   [theme.breakpoints.down('sm')]: {
     display: 'none',
@@ -13,7 +13,7 @@ export const BaseSideBarStyled = styled('div')(({ theme }) => ({
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     width: '100%',
-    maxWidth: '20rem',
+    maxWidth: '27rem',
     height: '100%',
     '.sidebar-menu-wrapper': {
       display: 'flex',

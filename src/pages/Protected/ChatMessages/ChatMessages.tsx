@@ -5,7 +5,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Avatar, Grid, IconButton, TextField, Typography } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import DoneIcon from '@mui/icons-material/Done';
@@ -22,6 +22,8 @@ import { ChatMessagesStyled } from './ChatMessages.styled';
 import { ChatsAndFriendsContext } from '../../../contexts';
 
 const ChatMessages = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const chatId = searchParams.get('id');
   const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [messagesQueue, setMessagesQueue] = useState<any[]>([]);
@@ -30,8 +32,12 @@ const ChatMessages = () => {
   const [loading, setLoading] = useState(false);
   const { height, width } = useResize();
   const { auth: { _id = '' } = {} } = useAuth();
-  const { createChat, chatDetails } = useContext(ChatsAndFriendsContext);
-  const { _id: id = '', chatType = '', friendDetails = {} } = chatDetails || {};
+  const {
+    createChat,
+    friendDetails,
+    chats = [],
+  } = useContext(ChatsAndFriendsContext);
+  const { _id: friendId = '', otherFriend = {} } = friendDetails || {};
   const {
     getMessages,
     // createMessage,
@@ -41,7 +47,7 @@ const ChatMessages = () => {
     messages,
     messageGroups,
     messagesWithQueue,
-  } = useMessages(id, setMessagesQueue);
+  } = useMessages(friendId, setMessagesQueue);
   const scrollRef = useRef<any>(null);
   const inputRef = useRef<any>(null);
 
@@ -65,25 +71,31 @@ const ChatMessages = () => {
   };
 
   useLayoutEffect(() => {
+    if ((chatId && !chats?.length) || (!friendDetails && !chatId)) {
+      navigate('/');
+    }
+  }, [chatId, chats, friendDetails]);
+
+  useLayoutEffect(() => {
     const fetchMessages = async () => {
       await getMessages({
         variables: {
-          chatId: id,
+          chatId,
         },
       });
     };
-    if (id && chatType !== 'friend') {
+    if (chatId) {
       resetAllStates();
       fetchMessages();
     }
-  }, [chatType, getMessages, id]);
+  }, [chatId]);
 
   const getCachedData = async () => {
     setLoading(true);
     const cachedData = await client?.readQuery({
       query: MESSAGES_QUERY,
       variables: {
-        chatId: id,
+        chatId,
       },
     });
     if (!cachedData) {
@@ -96,10 +108,10 @@ const ChatMessages = () => {
   };
 
   useLayoutEffect(() => {
-    if (id && chatType !== 'friend') {
+    if (chatId) {
       getCachedData();
     }
-  }, [messagesData, id]);
+  }, [messagesData, chatId]);
 
   useLayoutEffect(() => {
     if (messages?.length) {
@@ -134,10 +146,6 @@ const ChatMessages = () => {
     }
   }, [heights, heights2, messageGroups, width, height]);
 
-  if (!chatDetails) {
-    navigate('/');
-  }
-
   const handleChangeMessage = (
     e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
   ) => {
@@ -155,17 +163,24 @@ const ChatMessages = () => {
       },
     ]);
     setMessage('');
-    if (chatType === 'friend') {
-      await createChat({
+    if (friendId) {
+      const res = await createChat({
         variables: {
           userId: _id,
-          friendId: id,
+          friendId,
           type: 'private',
-          friendUserId: friendDetails?._id,
+          friendUserId: otherFriend?._id,
         },
       });
+      const newChatId = res?.data?.createChat?._id;
+      if (newChatId) {
+        setSearchParams((params) => {
+          params.set('id', newChatId);
+          return params;
+        });
+      }
     }
-    if (chatType === 'private') {
+    if (chatId) {
       // await createMessage({
       //   variables: {
       //     chatId,
@@ -177,22 +192,19 @@ const ChatMessages = () => {
       //   },
       // });
     }
-    if (chatType === 'group') {
-      //
-    }
   };
 
-  const attachClass = (chats: any, index: number, side: string) => {
+  const attachClass = (msgGroup: any, index: number, side: string) => {
     if (index === 0) {
       return `${side}First`;
     }
-    if (chats && Array.isArray(chats) && index === chats.length - 1) {
+    if (msgGroup && Array.isArray(msgGroup) && index === msgGroup.length - 1) {
       return `${side}Last`;
     }
     return '';
   };
 
-  const renderChat = (msg: any, index: number, chats: any, side: string) => {
+  const renderChat = (msg: any, index: number, msgGroup: any, side: string) => {
     const msgHeight = heights?.length
       ? heights?.find((el: any) => el?.msgId === msg?._id)?.height || 0
       : 0;
@@ -200,7 +212,7 @@ const ChatMessages = () => {
       <div className={`${side}Row`} key={msg?._id} ref={ref}>
         <Typography
           align="left"
-          className={`msg ${side} ${attachClass(chats, index, side)}`}
+          className={`msg ${side} ${attachClass(msgGroup, index, side)}`}
           sx={{
             gap: msgHeight > 50 ? '' : '1.2rem',
             alignItems: msgHeight > 50 ? 'flex-start' : 'center',
@@ -284,7 +296,7 @@ const ChatMessages = () => {
                 </Grid>
               </Grid>
             ))}
-            {messagesQueue?.map((messageQueue: any, i: number) => {
+            {messagesQueue?.map((messageQueue: any) => {
               const msgHeight2 = heights2?.length
                 ? heights2?.find(
                     (el: any) => el?.msgTimestamp === messageQueue?.timestamp,

@@ -21,7 +21,7 @@ export const ConnectionProvider = ({
 }: {
   children: ReactElement;
 }) => {
-  const { isLoading, isOffline } = useNavigatorOnLine();
+  const { isLoading, isOffline }: any = useNavigatorOnLine();
 
   // if (isLoading) {
   //   return null;

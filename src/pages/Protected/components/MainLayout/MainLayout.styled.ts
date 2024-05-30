@@ -16,7 +16,7 @@ export const MainLayoutStyled = styled('div')(({ theme }) => ({
   },
 }));
 
-export const MainLayoutLoaderStyled = styled('div')(({ theme }) => ({
+export const MainLayoutLoaderStyled = styled('div')(() => ({
   margin: '1.3rem 1.5rem 3rem 1.5rem',
   '.skeleton-heading': {},
   '.skeleton-default-text': {

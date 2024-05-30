@@ -36,7 +36,7 @@ module.exports = {
     'react/jsx-no-constructed-context-values': 'off',
     'react/jsx-filename-extension': [
       1,
-      { extensions: ['.ts', '.tsx', '.json'] },
+      { extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'] },
     ],
     'import/extensions': [
       'error',
@@ -44,6 +44,8 @@ module.exports = {
       {
         ts: 'never',
         tsx: 'never',
+        js: 'never',
+        jsx: 'never',
       },
     ],
     'import/no-unresolved': [2, { commonjs: true, amd: true }],
@@ -61,7 +63,8 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-unused-vars': 'off',
     '@typescript-eslint/no-var-requires': 'off',
-    'no-unused-vars': 'off',
+    'no-unused-vars': 'error',
+    'import/no-unused-modules': [1, { unusedExports: true }],
     'no-undef': 'off',
     camelcase: 'off',
   },

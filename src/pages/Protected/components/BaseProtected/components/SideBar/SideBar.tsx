@@ -1,5 +1,5 @@
 import { useContext, useLayoutEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Badge, Button, Typography } from '@mui/material';
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
@@ -22,6 +22,8 @@ import { useAuth, useResize } from '../../../../../../hooks';
 import { SideBarStyled } from './SideBar.styled';
 
 const SideBar = () => {
+  const [searchParams] = useSearchParams();
+  const chatId = searchParams.get('id');
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [toggleChats, setToggleChats] = useState(true);
@@ -36,8 +38,8 @@ const SideBar = () => {
     sentRequestsCount = 0,
     otherFriendsClient,
     subscribeChatsToMore,
-    chatDetails,
-    setChatDetails,
+    friendDetails,
+    setFriendDetails,
   } = useContext(ChatsAndFriendsContext);
 
   const navLinks = [
@@ -124,26 +126,56 @@ const SideBar = () => {
     _: React.MouseEvent<HTMLDivElement, MouseEvent>,
     chat: any,
   ) => {
-    const details = {
-      _id: chat?._id,
-      chatType: chat?.type,
-    };
-    setChatDetails(details);
-    navigate('/chat');
+    if (chat?._id) {
+      navigate(`/chat?id=${chat?._id}`);
+    }
   };
 
   const handleClickFriend = async (
     _: React.MouseEvent<HTMLDivElement, MouseEvent>,
     friend: any,
-    friendDetails: any,
+    otherFriend: any,
   ) => {
     const details = {
-      _id: friend?._id,
-      chatType: 'friend',
-      friendDetails,
+      ...friend,
+      otherFriend,
     };
-    setChatDetails(details);
+    setFriendDetails(details);
     navigate('/chat');
+  };
+
+  const renderUserProfile = (obj: any, handleClick: any, selected: boolean) => {
+    const member = obj?.members?.find(
+      (chatMember: any) => chatMember?._id !== _id,
+    );
+    if (member) {
+      const email = member?.memberDetails?.email;
+      return (
+        <UserProfile
+          primaryText={{
+            title: member?.memberDetails?.name,
+            fontSize: '1.06rem',
+            fontWeight: 400,
+          }}
+          secondaryText={{
+            title:
+              email && email?.length > 27
+                ? `${email?.substring(0, 27)}...`
+                : email,
+            fontSize: '0.85rem',
+            fontWeight: 400,
+          }}
+          picture={member?.memberDetails?.picture}
+          padding="0.15rem 0px"
+          avatarWidth={40}
+          avatarHeight={40}
+          dense
+          onClick={(_) => handleClick(_, obj, member)}
+          selected={selected}
+        />
+      );
+    }
+    return null;
   };
 
   return (
@@ -211,32 +243,16 @@ const SideBar = () => {
               </ListItem>
               <div className="chats-wrapper">
                 {toggleChats &&
-                  chats?.map((chat: any, idx: number) => {
-                    if (chat?.type === 'private' && chat?.members?.length) {
-                      const member = chat?.members?.find(
-                        (chatMember: any) => chatMember?._id !== _id,
-                      );
-                      return (
-                        <UserProfile
-                          picture={member?.memberDetails?.picture}
-                          name={member?.memberDetails?.name}
-                          email={member?.memberDetails?.email}
-                          padding="0.15rem 0px"
-                          avatarWidth={30}
-                          avatarHeight={30}
-                          dense
-                          onClick={(_) => handleClickChat(_, chat)}
-                          selected={
-                            idx ===
-                            chats?.findIndex((el: any) =>
-                              chatDetails?._id?.includes(el?._id),
-                            )
-                          }
-                        />
-                      );
-                    }
-                    return true;
-                  })}
+                  chats?.map((chat: any, idx: number) =>
+                    renderUserProfile(
+                      chat,
+                      handleClickChat,
+                      idx ===
+                        chats?.findIndex((el: any) =>
+                          chatId?.includes(el?._id),
+                        ),
+                    ),
+                  )}
               </div>
             </div>
           ) : null}
@@ -257,9 +273,9 @@ const SideBar = () => {
                   }}
                 >
                   <Typography
-                    className="sidebar-heading heading"
+                    className="sidebar-heading"
                     fontFamily="unset"
-                    fontWeight={800}
+                    fontWeight={700}
                   >
                     {chats?.length ? 'Other friends' : 'Your friends'}
                   </Typography>
@@ -272,35 +288,16 @@ const SideBar = () => {
               </ListItem>
               <div className="friends-wrapper">
                 {toggleFriends &&
-                  otherFriends?.map((otherFriend: any, idx: number) => {
-                    if (otherFriend?.members?.length) {
-                      const member = otherFriend?.members?.find(
-                        (otherFriendMember: any) =>
-                          otherFriendMember?._id !== _id,
-                      );
-                      return (
-                        <UserProfile
-                          picture={member?.memberDetails?.picture}
-                          name={member?.memberDetails?.name}
-                          email={member?.memberDetails?.email}
-                          padding="0.15rem 0px"
-                          avatarWidth={30}
-                          avatarHeight={30}
-                          dense
-                          onClick={(_) =>
-                            handleClickFriend(_, otherFriend, member)
-                          }
-                          selected={
-                            idx ===
-                            otherFriends?.findIndex((el: any) =>
-                              chatDetails?._id?.includes(el?._id),
-                            )
-                          }
-                        />
-                      );
-                    }
-                    return true;
-                  })}
+                  otherFriends?.map((otherFriend: any, idx: number) =>
+                    renderUserProfile(
+                      otherFriend,
+                      handleClickFriend,
+                      idx ===
+                        otherFriends?.findIndex((el: any) =>
+                          friendDetails?._id?.includes(el?._id),
+                        ),
+                    ),
+                  )}
               </div>
             </div>
           ) : null}
@@ -309,7 +306,7 @@ const SideBar = () => {
               <Typography
                 className="sidebar-heading"
                 fontFamily="unset"
-                fontWeight={800}
+                fontWeight={700}
               >
                 Overview
               </Typography>
@@ -318,25 +315,27 @@ const SideBar = () => {
                   <ListItem
                     key={navLink?.title}
                     listItemIcon={navLink?.icon}
-                    primaryText={
-                      <div
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <div>{navLink?.title}</div>
-                        {navLink?.count ? (
-                          <div>
-                            <Badge
-                              badgeContent={navLink?.count}
-                              color="secondary"
-                            />
-                          </div>
-                        ) : null}
-                      </div>
-                    }
+                    primaryText={{
+                      title: (
+                        <div
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <div>{navLink?.title}</div>
+                          {navLink?.count ? (
+                            <div>
+                              <Badge
+                                badgeContent={navLink?.count}
+                                color="secondary"
+                              />
+                            </div>
+                          ) : null}
+                        </div>
+                      ),
+                    }}
                     padding="0.15rem 0px"
                     dense
                     selected={

@@ -1,5 +1,5 @@
 import { createContext, useLayoutEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useSubscription } from '@apollo/client';
 import {
   CHATS_QUERY,
@@ -19,8 +19,10 @@ import { Loader } from '../../components';
 export const ChatsAndFriendsContext = createContext<any>({});
 
 export const ChatsAndFriendsProvider = ({ children }: any) => {
+  const [searchParams] = useSearchParams();
+  const chatId = searchParams.get('id');
   const { pathname } = useLocation();
-  const [chatDetails, setChatDetails] = useState();
+  const [friendDetails, setFriendDetails] = useState();
   const { auth: { _id = '' } = {} } = useAuth();
   const { socket } = useSocket();
 
@@ -262,10 +264,10 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   });
 
   useLayoutEffect(() => {
-    if (pathname !== '/chat') {
-      setChatDetails(undefined);
+    if (pathname !== '/chat' || (pathname?.includes('/chat') && chatId)) {
+      setFriendDetails(undefined);
     }
-  }, [pathname]);
+  }, [pathname, chatId]);
 
   if (
     !socket ||
@@ -336,8 +338,8 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         OnRequestUpdatedLoading,
         OnRequestUpdatedError,
         // state
-        chatDetails,
-        setChatDetails,
+        friendDetails,
+        setFriendDetails,
       }}
     >
       {children}

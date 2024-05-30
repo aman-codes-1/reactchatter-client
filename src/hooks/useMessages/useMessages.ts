@@ -91,7 +91,7 @@ export const useMessages = (
       // variables: {
       //   isDelivered: true,
       // },
-      onData: (res) => {
+      onData: () => {
         // const OnMessageAdded = res?.data?.data?.OnMessageAdded;
         // const OnMessagesAddedUserId = OnMessagesAdded?.userId;
         // const OnMessageAddedChatId = OnMessageAdded?.chatId;

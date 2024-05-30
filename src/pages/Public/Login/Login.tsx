@@ -17,7 +17,7 @@ const Login = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { setAuth } = useAuth();
   const { openSnackbar } = useSnackbar();
 
@@ -35,6 +35,8 @@ const Login = () => {
     };
     if (token) {
       googleLogin();
+    } else {
+      setIsLoading(false);
     }
   }, [token]);
 

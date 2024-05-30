@@ -7,9 +7,9 @@ import { UserProfileStyled } from './UserProfile.styled';
 import { UserProfileProps } from './IUserProfile';
 
 const UserProfile = ({
+  primaryText = {},
+  secondaryText = {},
   picture = '',
-  name = '',
-  email = '',
   padding = '',
   avatarWidth = 0,
   avatarHeight = 0,
@@ -24,6 +24,7 @@ const UserProfile = ({
 
   useLayoutEffect(() => {
     const getAvatar = () => {
+      const name = primaryText?.title;
       checkIfImageExists(picture, (exists) => {
         if (exists) {
           setAvatar(
@@ -32,7 +33,6 @@ const UserProfile = ({
               src={picture}
               width={avatarWidth}
               height={avatarHeight}
-              slotProps={{ img: { referrerPolicy: 'no-referrer' } }}
             />,
           );
         } else {
@@ -45,15 +45,13 @@ const UserProfile = ({
       });
     };
     getAvatar();
-  }, [avatarHeight, avatarWidth, name, picture]);
+  }, [avatarHeight, avatarWidth, picture]);
 
   return (
     <UserProfileStyled>
       <ListItem
-        primaryText={name}
-        secondaryText={
-          email && email?.length > 27 ? `${email?.substring(0, 27)}...` : email
-        }
+        primaryText={primaryText}
+        secondaryText={secondaryText}
         padding={padding}
         secondaryAction={secondaryAction}
         disableHover={disableHover}

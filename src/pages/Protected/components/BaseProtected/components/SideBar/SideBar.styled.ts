@@ -15,7 +15,7 @@ export const SideBarStyled = styled('div')(({ theme }) => ({
         overflowY: 'auto',
       },
       '.heading': {
-        fontSize: '1.25rem',
+        fontSize: '1.7rem',
       },
     },
     '.your-friends-menu-wrapper': {
@@ -41,6 +41,7 @@ export const SideBarStyled = styled('div')(({ theme }) => ({
       paddingLeft: '0.45rem',
       fontSize: '0.8rem',
       color: theme.palette.grey[800],
+      letterSpacing: '0.04rem',
     },
   },
   '.list-item-icon': {

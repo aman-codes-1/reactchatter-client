@@ -2,13 +2,12 @@ import { ReactNode } from 'react';
 import {
   ListItemProps as MuiListItemProps,
   ListItemButtonProps,
-  ListItemTextProps,
 } from '@mui/material';
 
 export type ListItemProps = {
   listItemIcon?: ReactNode;
-  primaryText?: ListItemTextProps['primary'];
-  secondaryText?: ListItemTextProps['secondary'];
+  primaryText?: any;
+  secondaryText?: any;
   padding?: string;
   disableHover?: boolean;
   disabled?: ListItemButtonProps['disabled'];
