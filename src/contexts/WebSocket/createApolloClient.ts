@@ -41,13 +41,11 @@ export const createApolloClient = (auth: any, logout: any) => {
   const errorLink: ApolloLink = onError(
     ({ graphQLErrors, networkError }: ErrorResponse) => {
       if (graphQLErrors) {
-        graphQLErrors.map(
-          async ({ message, locations, path, extensions }: GraphQLError) => {
-            if (extensions?.code === 'UNAUTHENTICATED') {
-              logout();
-            }
-          },
-        );
+        graphQLErrors.map(async ({ extensions }: GraphQLError) => {
+          if (extensions?.code === 'UNAUTHENTICATED') {
+            logout();
+          }
+        });
       }
 
       if (networkError) {

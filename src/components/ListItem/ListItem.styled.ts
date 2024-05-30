@@ -1,4 +1,4 @@
-import { letterSpacing, styled } from '@mui/system';
+import { styled } from '@mui/system';
 
 export const ListItemStyled = styled('div')<{
   padding: string;

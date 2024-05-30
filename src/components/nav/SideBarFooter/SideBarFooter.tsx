@@ -7,8 +7,7 @@ import { SideBarFooterStyled } from './SideBarFooter.styled';
 
 const SideBarFooter = ({ sx }: any) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { auth: { name = '', email = '', picture = '' } = {}, setAuth } =
-    useAuth();
+  const { auth: { name = '', email = '', picture = '' } = {} } = useAuth();
   const { callLogout } = useApi();
 
   const handleLogout = async () => {

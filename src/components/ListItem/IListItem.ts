@@ -2,7 +2,6 @@ import { ReactNode } from 'react';
 import {
   ListItemProps as MuiListItemProps,
   ListItemButtonProps,
-  ListItemTextProps,
 } from '@mui/material';
 
 export type ListItemProps = {

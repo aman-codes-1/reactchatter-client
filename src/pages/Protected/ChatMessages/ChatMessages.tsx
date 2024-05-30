@@ -296,7 +296,7 @@ const ChatMessages = () => {
                 </Grid>
               </Grid>
             ))}
-            {messagesQueue?.map((messageQueue: any, i: number) => {
+            {messagesQueue?.map((messageQueue: any) => {
               const msgHeight2 = heights2?.length
                 ? heights2?.find(
                     (el: any) => el?.msgTimestamp === messageQueue?.timestamp,

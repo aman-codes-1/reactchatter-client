@@ -1,9 +1,9 @@
 import { useLayoutEffect, useState } from 'react';
 
 export const useNavigatorOnLine = () => {
-  const [url, setUrl] = useState('https://www.google.com/');
-  const [urlPoll, setUrlPoll] = useState(10000);
-  const [urlTimeout, setUrlTimeout] = useState(5000);
+  const url = 'https://www.google.com/';
+  const urlPoll = 10000;
+  const urlTimeout = 5000;
   const [isLoading, setIsLoading] = useState(true);
   const [isOffline, setIsOffline] = useState(false);
 

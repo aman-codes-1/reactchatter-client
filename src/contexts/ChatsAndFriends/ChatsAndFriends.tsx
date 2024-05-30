@@ -1,5 +1,5 @@
 import { createContext, useLayoutEffect, useState } from 'react';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useSubscription } from '@apollo/client';
 import {
   CHATS_QUERY,
@@ -21,7 +21,6 @@ export const ChatsAndFriendsContext = createContext<any>({});
 export const ChatsAndFriendsProvider = ({ children }: any) => {
   const [searchParams] = useSearchParams();
   const chatId = searchParams.get('id');
-  const navigate = useNavigate();
   const { pathname } = useLocation();
   const [friendDetails, setFriendDetails] = useState();
   const { auth: { _id = '' } = {} } = useAuth();
