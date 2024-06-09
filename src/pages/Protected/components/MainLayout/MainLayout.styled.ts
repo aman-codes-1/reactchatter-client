@@ -1,25 +1,31 @@
 import { styled } from '@mui/system';
 
 export const MainLayoutStyled = styled('div')(({ theme }) => ({
-  height: '100%',
-  maxHeight: 'calc(100% - 8.6rem)',
-  margin: '4.5rem 4rem',
-  [theme.breakpoints.down('md')]: {
-    margin: '4.5rem 2rem',
-  },
-  '@media(min-width: 600px) and (max-width: 655px)': {
-    margin: '4.5rem 1rem',
+  display: 'flex',
+  flexDirection: 'column',
+  margin: '4.5rem 4rem 2rem 4rem',
+  height: 'calc(100% - 6.5rem)',
+  '@media(min-width: 600px) and (max-width: 800px)': {
+    margin: '4.5rem 2rem 2rem 2rem',
   },
   [theme.breakpoints.down('sm')]: {
-    margin: '2.5rem 2rem',
+    margin: '2.5rem 3rem 2rem 3rem',
+    height: 'calc(100% - 4.5rem)',
+  },
+  [theme.breakpoints.down('xs')]: {
+    margin: '2.5rem 2rem 2rem 2rem',
+    height: 'calc(100% - 4.5rem)',
   },
   '.main-layout-heading': {
     fontSize: '3rem',
     lineHeight: 1,
     marginBottom: '2rem',
     color: theme.palette.text.primary,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '2.7rem',
+    },
     [theme.breakpoints.down('xs')]: {
-      fontSize: '2.75rem',
+      fontSize: '2.5rem',
     },
   },
   '.main-layout-default-text': {
@@ -27,6 +33,10 @@ export const MainLayoutStyled = styled('div')(({ theme }) => ({
     lineHeight: '1.5rem',
     color: theme.palette.grey[800],
     marginBottom: '2.75rem',
+  },
+  '.overflow-wrapper': {
+    width: '100%',
+    overflow: 'auto',
   },
 }));
 

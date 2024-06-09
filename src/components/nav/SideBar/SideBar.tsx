@@ -1,22 +1,12 @@
-import { ReactNode, useContext } from 'react';
-import { NavBar, SearchBar } from '../..';
-import { SideBarFooter } from '..';
-import { ChatsAndFriendsContext } from '../../../contexts';
+import { NavBar, SideBarFooter } from '..';
 import { SideBarStyled } from './SideBar.styled';
 
-const SideBar = ({ children }: { children: ReactNode }) => {
-  const { chats = [], otherFriends = [] } = useContext(ChatsAndFriendsContext);
-
-  return (
-    <SideBarStyled>
-      <NavBar className="sidebar-navbar flex-item" />
-      {chats?.length || otherFriends?.length ? (
-        <SearchBar className="sidebar-search flex-item" />
-      ) : null}
-      {children}
-      <SideBarFooter className="sidebar-footer flex-item" />
-    </SideBarStyled>
-  );
-};
+const SideBar = ({ className, children }: any) => (
+  <SideBarStyled className={className}>
+    <NavBar className="hidden-from-mobile flex-item" />
+    {children}
+    <SideBarFooter />
+  </SideBarStyled>
+);
 
 export default SideBar;

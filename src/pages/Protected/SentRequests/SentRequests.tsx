@@ -1,5 +1,5 @@
 import { MouseEventHandler, useContext } from 'react';
-import { FriendRequest as FriendRequestComp, MainLayout } from '..';
+import { FriendRequest, MainLayout } from '..';
 import { useSnackbar } from '../../../hooks';
 import { ChatsAndFriendsContext } from '../../../contexts';
 
@@ -42,7 +42,7 @@ const SentRequests = () => {
       data={sentRequests}
       error={sentRequestsError?.graphQLErrors?.[0]?.message}
     >
-      <FriendRequestComp
+      <FriendRequest
         loading={sentRequestsLoading || !sentRequestsCalled}
         data={sentRequests}
         error={sentRequestsError?.graphQLErrors?.[0]?.message}

@@ -1,10 +1,10 @@
-import { Icon, IconButton, Skeleton, Typography } from '@mui/material';
+import { IconButton, List, Skeleton } from '@mui/material';
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useAuth } from '../../../../hooks';
 import { FriendRequestStyled } from './FriendRequest.styled';
-import { Avatar } from '../../../../components';
+import { Avatar, ListItem } from '../../../../components';
 
 const FriendRequest = ({
   loading,
@@ -45,54 +45,58 @@ const FriendRequest = ({
       ) : null}
       {!loading && !error && data?.length
         ? data.map((obj: any, idx: number) => (
-            <div className="sent-requests-wrapper">
-              <div className="sent-requests-email-wrapper">
-                <Icon className="sent-requests-email-icon">
-                  <PersonAddAltOutlinedIcon />
-                </Icon>
-                <Typography
-                  className="sent-requests-email"
-                  fontFamily="unset"
-                  fontWeight={600}
-                >
-                  {obj?.members?.length
+            <List dense>
+              <ListItem
+                disableHover
+                disableGutters
+                primaryText={{
+                  title: obj?.members?.length
                     ? obj.members?.find((member: any) => member?._id !== _id)?.[
                         userObj
                       ]?.[emailKey]
-                    : null}
-                </Typography>
-              </div>
-              <div className="sent-requests-btn-wrapper">
-                {isAcceptBtn ? (
-                  <IconButton
-                    size="small"
-                    className="sent-requests-accept-btn"
-                    onClick={(_) =>
-                      acceptBtnProps?.handleClickAccept(_, idx, obj)
-                    }
-                  >
-                    <CheckCircleIcon
-                      fontSize="large"
-                      className="sent-requests-accept-btn-icon"
-                    />
-                  </IconButton>
-                ) : null}
-                {isCancelBtn ? (
-                  <IconButton
-                    size="small"
-                    className="sent-requests-cancel-btn"
-                    onClick={(_) =>
-                      cancelBtnProps?.handleClickCancel(_, idx, obj)
-                    }
-                  >
-                    <CancelIcon
-                      fontSize="large"
-                      className="sent-requests-cancel-btn-icon"
-                    />
-                  </IconButton>
-                ) : null}
-              </div>
-            </div>
+                    : null,
+                  // ellipsesLineClamp: '1',
+                  fontSize: '1rem',
+                }}
+                sx={isAcceptBtn ? { mr: 3 } : {}}
+                className="sent-requests-wrapper"
+                startIcon={<PersonAddAltOutlinedIcon sx={{ mr: 2 }} />}
+                secondaryAction={
+                  <div className="sent-requests-btn-wrapper">
+                    {isAcceptBtn ? (
+                      <IconButton
+                        edge="end"
+                        size="small"
+                        className="sent-requests-accept-btn margin-left-right"
+                        onClick={(_) =>
+                          acceptBtnProps?.handleClickAccept(_, idx, obj)
+                        }
+                      >
+                        <CheckCircleIcon
+                          fontSize="large"
+                          className="sent-requests-accept-btn-icon"
+                        />
+                      </IconButton>
+                    ) : null}
+                    {isCancelBtn ? (
+                      <IconButton
+                        edge="end"
+                        size="small"
+                        className="sent-requests-cancel-btn margin-left-right"
+                        onClick={(_) =>
+                          cancelBtnProps?.handleClickCancel(_, idx, obj)
+                        }
+                      >
+                        <CancelIcon
+                          fontSize="large"
+                          className="sent-requests-cancel-btn-icon"
+                        />
+                      </IconButton>
+                    ) : null}
+                  </div>
+                }
+              />
+            </List>
           ))
         : null}
     </FriendRequestStyled>

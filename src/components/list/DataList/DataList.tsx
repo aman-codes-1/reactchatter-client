@@ -5,12 +5,13 @@ import { ListItem } from '..';
 
 const DataList = ({
   data,
-  sliceDataBy,
+  // sliceDataBy,
   selectedItem,
   handleClickListItem,
   className,
   scrollDependencies = [],
   ellipsesLineClamp = '',
+  btnHeight = '',
 }: any) => {
   const { auth: { _id = '' } = {} } = useAuth();
   const [hasScrollbar, setHasScrollbar] = useState(false);
@@ -79,6 +80,8 @@ const DataList = ({
       return (
         <List dense disablePadding>
           <ListItem
+            // disablePadding
+            disableGutters
             primaryText={{
               title: member?.memberDetails?.name,
               fontSize: '1.08rem',
@@ -92,17 +95,14 @@ const DataList = ({
             }}
             isAvatar
             picture={member?.memberDetails?.picture}
-            padding="0.15rem 0px"
-            avatarWidth={40}
-            avatarHeight={40}
-            dense
             onClick={(_) => handleClick(_, obj, member)}
-            width={hasScrollbar ? '95%' : '100%'}
+            sx={hasScrollbar ? { mr: '1.5rem' } : {}}
             selected={selected}
+            btnHeight={btnHeight}
             // eslint-disable-next-line no-return-assign, no-param-reassign
             ref={itemsRef ? (el) => (itemsRef.current[idx] = el) : null}
           />
-          <Divider sx={{ width: hasScrollbar ? '95%' : '100%' }} />
+          <Divider variant="middle" sx={hasScrollbar ? { mr: '2.5rem' } : {}} />
         </List>
       );
     }
@@ -112,7 +112,7 @@ const DataList = ({
   return (
     <div className={className} ref={listRef}>
       {data
-        ?.slice(0, sliceDataBy)
+        ?.slice(0, undefined)
         ?.map((obj: any, idx: number) =>
           renderList(
             obj,

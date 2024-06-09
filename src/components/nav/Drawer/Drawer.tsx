@@ -1,6 +1,13 @@
 import { Drawer as MuiDrawer, useTheme } from '@mui/material';
 
-const Drawer = ({ anchor, isOpen, onClose, isMobile, children }: any) => {
+const Drawer = ({
+  anchor,
+  isOpen,
+  onClose,
+  isMobile,
+  overlayHeight = 0,
+  children,
+}: any) => {
   const theme = useTheme();
 
   return (
@@ -17,6 +24,9 @@ const Drawer = ({ anchor, isOpen, onClose, isMobile, children }: any) => {
             }
           : {}
       }
+      PaperProps={{
+        sx: { width: '80vw', height: `calc(100% - ${overlayHeight || 0}px)` },
+      }}
     >
       {children}
     </MuiDrawer>

@@ -12,13 +12,11 @@ import {
 
 export const routesConfig = () => [
   {
-    key: '1',
     type: 'default',
     path: '*',
     Element: () => <Navigate replace to="/" />,
   },
   {
-    key: '2',
     type: 'public',
     path: '/',
     Element: () => (
@@ -30,7 +28,6 @@ export const routesConfig = () => [
     ),
   },
   {
-    key: '3',
     type: 'public',
     path: '/login',
     Element: () => (
@@ -42,7 +39,6 @@ export const routesConfig = () => [
     ),
   },
   {
-    key: '4',
     type: 'private',
     path: '/',
     Element: () => (
@@ -54,7 +50,6 @@ export const routesConfig = () => [
     ),
   },
   {
-    key: '5',
     type: 'private',
     path: '/chat',
     Element: () => (
@@ -66,7 +61,6 @@ export const routesConfig = () => [
     ),
   },
   {
-    key: '6',
     type: 'private',
     path: '/addFriend',
     Element: () => (
@@ -78,7 +72,6 @@ export const routesConfig = () => [
     ),
   },
   {
-    key: '7',
     type: 'private',
     path: '/friendRequests',
     Element: () => (
@@ -90,7 +83,6 @@ export const routesConfig = () => [
     ),
   },
   {
-    key: '8',
     type: 'private',
     path: '/sentRequests',
     Element: () => (

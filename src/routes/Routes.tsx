@@ -15,8 +15,9 @@ const AppRoutes = () => {
   const [publicRoutes, setPublicRoutes] = useState<ReactNode[]>([]);
 
   useLayoutEffect(() => {
-    routesConfig().forEach((route: IRouteConfig) => {
-      const { Element, key, path, type } = route;
+    routesConfig().forEach((route: IRouteConfig, index: number) => {
+      const { Element, path, type } = route;
+      const key = `${index + 1}`;
       if (type === 'private') {
         setPrivateRoutes((prev: ReactNode[]) => [
           ...prev,
