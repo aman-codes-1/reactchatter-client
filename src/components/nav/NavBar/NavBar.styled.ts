@@ -1,22 +1,29 @@
 import { styled } from '@mui/system';
 
-export const NavBarStyled = styled('div')(({ theme }) => ({
+export const NavBarStyled = styled('div')(({ theme }: any) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  marginRight: '1.5rem',
+  marginRight: '1.35rem',
   gap: '2rem',
+  '@media(min-width: 600px) and (max-width: 800px)': {
+    marginRight: '0.7rem',
+  },
   [theme.breakpoints.down('sm')]: {
     margin: 0,
     padding: '0.7rem 1rem',
     backgroundColor: theme.palette.grey[50],
-    borderBottom: `1px solid ${theme.palette.grey[200]}`,
+    borderTop: `1px solid ${theme.palette.grey[200]}`,
+    zIndex: theme.zIndex.drawer + 1,
   },
   '.nav-logo': {
     display: 'flex',
     alignItems: 'center',
     flex: '1 1 auto',
-    padding: '1.3rem 0rem 1.3rem 1.5rem',
+    padding: '1.3rem 0rem 1.3rem 1.7rem',
+    '@media(min-width: 600px) and (max-width: 800px)': {
+      padding: '1.5rem 0rem 1.3rem 1.2rem',
+    },
     [theme.breakpoints.down('sm')]: {
       width: '30px',
       flex: '0',
@@ -47,7 +54,7 @@ export const NavBarStyled = styled('div')(({ theme }) => ({
     color: theme.palette.common.white,
     gap: '0.25rem',
     borderRadius: '0.375rem',
-    padding: '0.5rem 1rem',
+    padding: '0.45rem 1rem',
     [theme.breakpoints.up('sm')]: {
       display: 'none',
     },
@@ -66,8 +73,8 @@ export const NavBarStyled = styled('div')(({ theme }) => ({
     fontWeight: 600,
     gap: '0.25rem',
     borderRadius: '0.375rem',
-    padding: '0.45rem 1rem',
-    margin: '1rem 0rem',
+    padding: '0.3rem 1rem',
+    margin: '1.1rem 0rem',
     [theme.breakpoints.down('sm')]: {
       margin: 0,
     },

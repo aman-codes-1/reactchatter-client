@@ -1,6 +1,6 @@
 import { useContext, useLayoutEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Badge, Button, Typography } from '@mui/material';
+import { Badge, Button } from '@mui/material';
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
@@ -148,6 +148,7 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
   ) => {
     e?.preventDefault();
     e?.stopPropagation();
+    toggleDrawer?.();
     if (chat?._id) {
       setSelectedFriend(undefined);
       setActiveMember(undefined);
@@ -163,6 +164,7 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
   ) => {
     e?.preventDefault();
     e?.stopPropagation();
+    toggleDrawer?.();
     if (friend?._id) {
       setSelectedChat(undefined);
       setSelectedFriend(friend);
@@ -183,28 +185,18 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
         {chats?.length ? (
           <>
             <ListItem
-              dense
-              btnSx={{ p: 0 }}
+              denseListItem
+              disablePadding
+              primaryText={{
+                title: 'Chats',
+                className: 'default-heading heading',
+                ellipsesLineClamp: '1',
+              }}
+              endIcon={
+                toggleChats ? <ExpandLessIcon /> : <ExpandCircleDownIcon />
+              }
               onClick={(_) => handleToggle(_, setToggleChats)}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  width: '100%',
-                }}
-              >
-                <Typography
-                  className="default-heading heading"
-                  fontFamily="unset"
-                  fontWeight={800}
-                >
-                  Chats
-                </Typography>
-                {toggleChats ? <ExpandLessIcon /> : <ExpandCircleDownIcon />}
-              </div>
-            </ListItem>
+            />
             {toggleChats ? (
               <DataList
                 data={chats}
@@ -213,6 +205,7 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
                 className="chats-wrapper"
                 scrollDependencies={[toggleChats, toggleFriends]}
                 ellipsesLineClamp="2"
+                btnHeight="5.1rem"
               />
             ) : null}
           </>
@@ -220,40 +213,23 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
         {otherFriends?.length ? (
           <>
             <ListItem
-              dense
-              btnSx={{
-                p: 0,
-                mt: toggleChats && chats?.length ? '1.5rem' : '',
+              denseListItem
+              disablePadding
+              className={toggleChats && chats?.length ? 'margin-top' : ''}
+              primaryText={{
+                title: chats?.length ? 'New Chat' : 'Your Friends',
+                className: 'default-heading',
+                ellipsesLineClamp: '1',
               }}
-              onClick={(_) => handleToggle(_, setToggleFriends)}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  width: '100%',
-                  padding: '0.4rem 0rem',
-                }}
-              >
-                <Typography
-                  className="default-heading"
-                  fontFamily="unset"
-                  fontWeight={700}
-                >
-                  {chats?.length ? 'New Chat' : 'Your Friends'}
-                </Typography>
-                {toggleFriends ? (
-                  <ExpandLessIcon
-                    fontSize={chats?.length ? 'small' : 'medium'}
-                  />
+              endIcon={
+                toggleFriends ? (
+                  <ExpandLessIcon fontSize="small" />
                 ) : (
-                  <ExpandCircleDownIcon
-                    fontSize={chats?.length ? 'small' : 'medium'}
-                  />
-                )}
-              </div>
-            </ListItem>
+                  <ExpandCircleDownIcon fontSize="small" />
+                )
+              }
+              onClick={(_) => handleToggle(_, setToggleFriends)}
+            />
             {toggleFriends ? (
               <>
                 <DataList
@@ -294,61 +270,42 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
         {navLinks?.length ? (
           <>
             <ListItem
-              dense
-              btnSx={{
-                p: 0,
-                mt:
-                  (toggleChats && !otherFriends?.length) ||
-                  (!toggleChats && toggleFriends) ||
-                  (toggleChats && toggleFriends)
-                    ? '1.5rem'
-                    : '',
-              }}
+              denseListItem
+              disablePadding
               disableHover
-            >
-              <div
-                style={{
-                  width: '100%',
-                  padding: '0.4rem 0rem',
-                }}
-              >
-                <Typography
-                  className="default-heading"
-                  fontFamily="unset"
-                  fontWeight={700}
-                >
-                  Overview
-                </Typography>
-              </div>
-            </ListItem>
+              className={
+                (toggleChats && !otherFriends?.length) ||
+                (!toggleChats && toggleFriends) ||
+                (toggleChats && toggleFriends)
+                  ? 'margin-top'
+                  : ''
+              }
+              primaryText={{
+                title: 'Overview',
+                className: 'default-heading',
+                ellipsesLineClamp: '1',
+              }}
+            />
             <div className="overview-wrapper">
               {navLinks.map((navLink, idx) => (
                 <ListItem
+                  disablePadding
+                  denseListItem
+                  sx={{ mb: '0.5rem' }}
                   key={navLink?.title}
-                  listItemIcon={navLink?.icon}
+                  startIcon={navLink?.icon}
                   primaryText={{
-                    title: (
-                      <div
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <div>{navLink?.title}</div>
-                        {navLink?.count ? (
-                          <div>
-                            <Badge
-                              badgeContent={navLink?.count}
-                              color="secondary"
-                            />
-                          </div>
-                        ) : null}
-                      </div>
-                    ),
+                    title: navLink?.title || '',
+                    ellipsesLineClamp: '1',
                   }}
-                  padding="0.15rem 0px"
-                  dense
+                  endIcon={
+                    <Badge
+                      badgeContent={navLink?.count}
+                      color="secondary"
+                      overlap="circular"
+                      sx={{ mr: '0.5rem' }}
+                    />
+                  }
                   selected={
                     idx ===
                     navLinks.findIndex(

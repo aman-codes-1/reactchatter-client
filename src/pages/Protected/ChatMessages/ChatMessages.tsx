@@ -84,7 +84,7 @@ const ChatMessages = () => {
     if ((chatId && !chats?.length) || (!selectedFriend && !chatId)) {
       navigate('/');
     }
-  }, [chatId, chats, selectedFriend]);
+  }, [chatId, chats, selectedFriend, navigate]);
 
   useLayoutEffect(() => {
     if ((selectedFriend && !chatId) || chatId) {

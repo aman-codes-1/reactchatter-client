@@ -1,13 +1,11 @@
-import { useContext, useState } from 'react';
-import { Drawer, NavBar, SearchBar, SideBar } from '../../../../components';
+import { useState } from 'react';
+import { Drawer, NavBar, SideBar } from '../../../../components';
 import { SideBarList } from './components';
 import { Dashboard } from './pages';
-import { ChatsAndFriendsContext } from '../../../../contexts';
 import { BaseProtectedStyled } from './BaseProtected.styled';
 
 const BaseProtected = ({ isLoading }: any) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const { chats = [], otherFriends = [] } = useContext(ChatsAndFriendsContext);
 
   const toggleDrawer = (newOpen: boolean, isSwitch?: boolean) => () => {
     if (isSwitch) {
@@ -19,24 +17,24 @@ const BaseProtected = ({ isLoading }: any) => {
 
   return (
     <BaseProtectedStyled>
-      {chats?.length || otherFriends?.length ? (
-        <SearchBar className="mobile-component mobile-search-bar" />
-      ) : null}
-      <SideBar>
+      <SideBar className="hidden-from-mobile">
         <SideBarList />
       </SideBar>
-      <Dashboard isLoading={isLoading} />
       <Drawer
         isOpen={isDrawerOpen}
         anchor="right"
         onClose={toggleDrawer(false)}
         isMobile
       >
-        <SideBarList toggleDrawer={toggleDrawer(false)} />
+        <SideBar className="mobile-sidebar">
+          <SideBarList toggleDrawer={toggleDrawer(false)} />
+        </SideBar>
       </Drawer>
+      <Dashboard isLoading={isLoading} />
       <NavBar
-        className="mobile-component mobile-navbar"
+        className="hidden-from-web mobile-navbar"
         onMenuClick={toggleDrawer(false, true)}
+        toggleDrawer={toggleDrawer(false)}
       />
     </BaseProtectedStyled>
   );

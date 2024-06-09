@@ -8,6 +8,12 @@ export const SideBarStyled = styled('div')(({ theme }) => ({
   height: '100vh',
   borderRight: `2px solid ${theme.palette.grey[200]}`,
   gap: '1rem',
+  overflow: 'auto',
+  [theme.breakpoints.up('sm')]: {
+    '.flex-item:nth-child(2)': {
+      marginTop: '-1rem',
+    },
+  },
   [theme.breakpoints.down('xl')]: {
     maxWidth: '30%',
   },
@@ -15,23 +21,13 @@ export const SideBarStyled = styled('div')(({ theme }) => ({
     maxWidth: '38%',
   },
   [theme.breakpoints.down('md')]: {
-    maxWidth: '45%',
+    maxWidth: '42%',
   },
   [theme.breakpoints.down('sm')]: {
-    display: 'none',
-  },
-  '.flex-item:nth-child(2)': {
-    marginTop: '-0.6rem',
-  },
-  '.sidebar-navbar': {
-    [theme.breakpoints.down('sm')]: {
+    maxWidth: '100%',
+    border: 'none',
+    '.hidden-from-mobile': {
       display: 'none',
     },
-  },
-  '.sidebar-search': {
-    margin: '0rem 1.5rem',
-  },
-  '.sidebar-footer': {
-    marginTop: 'auto',
   },
 }));

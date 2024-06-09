@@ -2,59 +2,73 @@ import { styled } from '@mui/system';
 
 export const ListItemStyled = styled('div')<{
   width: string;
-  padding: string;
-  minHeight: string;
   disableHover: boolean;
   primaryTextFontSize: string;
   primaryTextFontWeight: number;
+  primaryEllipsesLineClamp: number;
   secondaryTextFontSize: string;
   secondaryTextFontWeight: number;
-  ellipsesLineClamp: number;
+  secondaryEllipsesLineClamp: number;
+  btnHeight: string;
 }>(
   ({
     theme,
     width,
-    padding,
-    minHeight,
     disableHover,
     primaryTextFontSize,
     primaryTextFontWeight,
+    primaryEllipsesLineClamp,
     secondaryTextFontSize,
     secondaryTextFontWeight,
-    ellipsesLineClamp,
+    secondaryEllipsesLineClamp,
+    btnHeight,
   }) => ({
     width: width || '100%',
-    minHeight,
-    padding,
+    cursor: disableHover ? 'default' : 'pointer',
     '.list-item-btn': {
+      height: btnHeight,
       borderRadius: '10px',
-      gap: '17px',
       '.MuiListItemText-root': {
-        wordWrap: 'break-word',
+        wordBreak: 'break-word',
         '.MuiListItemText-primary': {
           fontSize: primaryTextFontSize || '0.9rem',
           fontWeight: primaryTextFontWeight || 600,
           fontFamily: 'Segoe UI',
           color: theme.palette.grey[900],
+          wordBreak: 'break-word',
+          ...(primaryEllipsesLineClamp
+            ? {
+                display: '-webkit-box',
+                '-webkitLineClamp': primaryEllipsesLineClamp,
+                '-webkitBoxOrient': 'vertical',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }
+            : {}),
         },
         '.MuiListItemText-secondary': {
           fontSize: secondaryTextFontSize || '0.75rem',
           fontWeight: secondaryTextFontWeight || 600,
           fontFamily: 'Segoe UI',
           color: theme.palette.grey[500],
+          wordBreak: 'break-word',
           letterSpacing: '0.03rem',
-          display: '-webkit-box',
-          '-webkitLineClamp': ellipsesLineClamp || '1',
-          '-webkitBoxOrient': 'vertical',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
+          ...(secondaryEllipsesLineClamp
+            ? {
+                display: '-webkit-box',
+                '-webkitLineClamp': secondaryEllipsesLineClamp,
+                '-webkitBoxOrient': 'vertical',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }
+            : {}),
         },
       },
     },
     '.list-item-btn:hover': {
       background: disableHover ? 'transparent' : theme.palette.grey[50],
       cursor: disableHover ? 'default' : 'pointer',
-      color: theme.palette.secondary.main,
+      color: disableHover ? '' : theme.palette.secondary.main,
       '.MuiTypography-root, .Mui-selected': {
         color: disableHover ? '' : theme.palette.secondary.main,
       },
@@ -75,9 +89,6 @@ export const ListItemStyled = styled('div')<{
         outline: `1px solid ${theme.palette.secondary.main}`,
         background: theme.palette.common.white,
       },
-    },
-    '.list-item-avatar': {
-      minWidth: 0,
     },
   }),
 );

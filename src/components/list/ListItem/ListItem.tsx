@@ -14,21 +14,25 @@ const ListItem = forwardRef(
     {
       primaryText,
       secondaryText,
-      listItemIcon,
+      startIcon,
+      endIcon,
       isAvatar = false,
       picture = '',
       width = '',
-      padding = '',
-      minHeight = '',
+      btnHeight = '',
       avatarWidth = 0,
       avatarHeight = 0,
+      disableGutters = false,
+      disablePadding = false,
+      denseListItem = false,
+      denseListItemButton = false,
       disableHover = false,
       disabled = false,
       secondaryAction,
-      dense = false,
       selected = false,
       onClick,
-      btnSx,
+      sx,
+      className,
       children,
     }: ListItemProps,
     ref: any,
@@ -59,26 +63,32 @@ const ListItem = forwardRef(
     return (
       <ListItemStyled
         width={width}
-        padding={padding}
-        minHeight={minHeight}
         disableHover={disableHover}
         primaryTextFontSize={primaryText?.fontSize}
         primaryTextFontWeight={primaryText?.fontWeight}
+        primaryEllipsesLineClamp={primaryText?.ellipsesLineClamp}
         secondaryTextFontSize={secondaryText?.fontSize}
         secondaryTextFontWeight={secondaryText?.fontWeight}
-        ellipsesLineClamp={secondaryText?.ellipsesLineClamp}
+        secondaryEllipsesLineClamp={secondaryText?.ellipsesLineClamp}
+        btnHeight={btnHeight}
+        className={className}
       >
-        <MuiListItem disablePadding secondaryAction={secondaryAction}>
+        <MuiListItem
+          dense={denseListItem}
+          disableGutters={disableGutters}
+          disablePadding={disablePadding}
+          secondaryAction={secondaryAction}
+        >
           <ListItemButton
+            dense={denseListItemButton}
             disableRipple={disableHover}
             disableTouchRipple={disableHover}
+            disabled={disabled}
             selected={selected}
             className="list-item-btn"
             onClick={onClick}
-            disabled={disabled}
-            sx={btnSx}
+            sx={sx}
             ref={ref}
-            dense={dense}
           >
             {children}
             {isAvatar && (picture || name) ? (
@@ -86,13 +96,19 @@ const ListItem = forwardRef(
                 {renderAvatar()}
               </ListItemAvatar>
             ) : null}
-            {listItemIcon}
+            {startIcon}
             {primaryText || secondaryText ? (
               <ListItemText
                 primary={primaryText?.title}
                 secondary={secondaryText?.title}
+                primaryTypographyProps={
+                  primaryText?.className
+                    ? { className: primaryText?.className }
+                    : {}
+                }
               />
             ) : null}
+            {endIcon}
           </ListItemButton>
         </MuiListItem>
       </ListItemStyled>

@@ -16,17 +16,17 @@ const AppRoutes = lazy(() =>
 const App = () => (
   <ThemeProvider theme={theme}>
     <BrowserRouter>
-      <SnackbarProvider>
-        <ConnectionProvider>
-          <AuthProvider>
-            <WebSocketProvider>
-              <Suspense fallback={null}>
+      <Suspense fallback={null}>
+        <SnackbarProvider>
+          <ConnectionProvider>
+            <AuthProvider>
+              <WebSocketProvider>
                 <AppRoutes />
-              </Suspense>
-            </WebSocketProvider>
-          </AuthProvider>
-        </ConnectionProvider>
-      </SnackbarProvider>
+              </WebSocketProvider>
+            </AuthProvider>
+          </ConnectionProvider>
+        </SnackbarProvider>
+      </Suspense>
     </BrowserRouter>
   </ThemeProvider>
 );

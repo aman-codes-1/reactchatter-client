@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { CircularProgress, IconButton } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { LoadingButton } from '@mui/lab';
 import { ListItem } from '../..';
 import { useApi, useAuth } from '../../../hooks';
 import { SideBarFooterStyled } from './SideBarFooter.styled';
@@ -21,25 +21,30 @@ const SideBarFooter = ({ className }: any) => {
           title: name,
           fontSize: '1.03rem',
           fontWeight: 600,
+          ellipsesLineClamp: '1',
         }}
         secondaryText={{
           title: email,
           fontSize: '0.79rem',
           fontWeight: 500,
+          ellipsesLineClamp: '1',
         }}
         isAvatar
         picture={picture}
         disableHover
-        minHeight="2.95rem"
-        secondaryAction={
-          <IconButton className="logout-btn" edge="end" onClick={handleLogout}>
-            {isLoading ? (
-              <CircularProgress size={18} />
-            ) : (
-              <LogoutIcon className="logout-icon" />
-            )}
-          </IconButton>
+        btnHeight="4.4rem"
+        endIcon={
+          <LoadingButton
+            loading={isLoading}
+            sx={{ height: '2.95rem', ml: '1.5rem', mb: '0.5rem' }}
+            endIcon={<LogoutIcon />}
+            variant="outlined"
+            onClick={handleLogout}
+          />
         }
+        disablePadding
+        avatarWidth={37}
+        avatarHeight={37}
       />
     </SideBarFooterStyled>
   );

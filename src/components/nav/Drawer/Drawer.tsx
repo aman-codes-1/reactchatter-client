@@ -17,6 +17,9 @@ const Drawer = ({ anchor, isOpen, onClose, isMobile, children }: any) => {
             }
           : {}
       }
+      PaperProps={{
+        sx: { width: '80vw' },
+      }}
     >
       {children}
     </MuiDrawer>

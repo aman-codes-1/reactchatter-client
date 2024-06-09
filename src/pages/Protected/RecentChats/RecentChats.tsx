@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '..';
 import { ChatsAndFriendsContext } from '../../../contexts';
 import { DataList } from '../../../components';
-import { RecentChatsStyled } from './RecentChats.styled';
 
 const RecentChats = () => {
   const navigate = useNavigate();
@@ -38,18 +37,15 @@ const RecentChats = () => {
       loading={chatsLoading || !chatsCalled}
       data={chats}
     >
-      <RecentChatsStyled>
-        {chats?.length ? (
-          <DataList
-            data={chats}
-            sliceDataBy={3}
-            selectedItem={selectedChat}
-            handleClickListItem={handleClickChat}
-            className="recent-chats-wrapper"
-            ellipsesLineClamp="2"
-          />
-        ) : null}
-      </RecentChatsStyled>
+      <DataList
+        data={chats}
+        // sliceDataBy={3}
+        selectedItem={selectedChat}
+        handleClickListItem={handleClickChat}
+        className="overflow-wrapper"
+        ellipsesLineClamp="2"
+        btnHeight="5.1rem"
+      />
     </MainLayout>
   );
 };

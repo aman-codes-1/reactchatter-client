@@ -8,13 +8,20 @@ import { useAuth } from '../../../hooks';
 import { ChatsAndFriendsContext } from '../../../contexts';
 import { NavBarStyled } from './NavBar.styled';
 
-const NavBar = ({ onMenuClick, className }: any) => {
+const NavBar = ({ onMenuClick, toggleDrawer, className }: any) => {
   const { setAuth } = useAuth();
   const { chats = [], otherFriends = [] } = useContext(ChatsAndFriendsContext);
 
   return (
     <NavBarStyled className={className}>
-      <Link to="/" className="nav-logo" onClick={() => setAuth(undefined)}>
+      <Link
+        to="/"
+        className="nav-logo"
+        onClick={() => {
+          toggleDrawer?.();
+          setAuth(undefined);
+        }}
+      >
         <BaseSvg id="logo" className="nav-logo-svg" />
       </Link>
       {chats?.length || otherFriends?.length ? (
@@ -23,6 +30,7 @@ const NavBar = ({ onMenuClick, className }: any) => {
           className="nav-new-chat-btn"
           variant="outlined"
           color="info"
+          onClick={() => toggleDrawer?.()}
         >
           <div className="text-hidden">New Chat</div>
         </Button>
