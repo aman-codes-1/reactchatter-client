@@ -2,9 +2,6 @@ import { styled } from '@mui/system';
 
 export const SideBarFooterStyled = styled('div')(({ theme }) => ({
   marginTop: 'auto',
-  [theme.breakpoints.down('sm')]: {
-    marginBottom: '3.9rem',
-  },
   '.logout-btn': {
     borderRadius: '7px',
   },
