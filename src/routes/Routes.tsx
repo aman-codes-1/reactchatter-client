@@ -4,11 +4,12 @@ import { useAuth } from '../hooks';
 import { routesConfig } from './config';
 import { IRouteConfig } from './IRoutes';
 import { BaseProtected } from '../pages';
+import { ChatsAndFriendsProvider } from '../contexts';
 
 const AppRoutes = () => {
   const location = useLocation();
   const { pathname } = location || {};
-  const { auth: { isLoggedIn = false } = {} } = useAuth();
+  const { auth, isAuthenticated } = useAuth();
   const [defaultRoutes, setDefaultRoutes] = useState<ReactNode[]>([]);
   const [privateRoutes, setPrivateRoutes] = useState<ReactNode[]>([]);
   const [publicRoutes, setPublicRoutes] = useState<ReactNode[]>([]);
@@ -47,11 +48,26 @@ const AppRoutes = () => {
     window.location.reload();
   });
 
+  if (!auth && !!isAuthenticated) {
+    return <BaseProtected />;
+  }
+
   return (
     <Routes>
-      <Route path="/" element={isLoggedIn ? <BaseProtected /> : <Outlet />}>
+      <Route
+        path="/"
+        element={
+          auth?.isLoggedIn ? (
+            <ChatsAndFriendsProvider>
+              <BaseProtected />
+            </ChatsAndFriendsProvider>
+          ) : (
+            <Outlet />
+          )
+        }
+      >
         {defaultRoutes}
-        {isLoggedIn ? privateRoutes : publicRoutes}
+        {auth?.isLoggedIn ? privateRoutes : publicRoutes}
       </Route>
     </Routes>
   );

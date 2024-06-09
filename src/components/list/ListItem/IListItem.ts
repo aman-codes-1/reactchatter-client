@@ -5,10 +5,16 @@ import {
 } from '@mui/material';
 
 export type ListItemProps = {
-  listItemIcon?: ReactNode;
   primaryText?: any;
   secondaryText?: any;
+  listItemIcon?: ReactNode;
+  isAvatar?: boolean;
+  picture?: string;
+  width?: string;
   padding?: string;
+  minHeight?: string;
+  avatarWidth?: number;
+  avatarHeight?: number;
   disableHover?: boolean;
   disabled?: ListItemButtonProps['disabled'];
   secondaryAction?: MuiListItemProps['secondaryAction'];

@@ -15,7 +15,7 @@ export const LoginStyled = styled('div')(({ theme }) => ({
   },
   '.google-login-btn': {
     textTransform: 'none',
-    fontWeight: 'bold',
+    fontWeight: 600,
     width: '400px',
     minHeight: '40px',
     height: 'auto',

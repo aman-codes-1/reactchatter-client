@@ -9,40 +9,44 @@ export const AddFriendStyled = styled('div')(({ theme }) => ({
   '.add-friend-email-wrapper': {
     marginTop: '0.5rem',
     display: 'flex',
-    alignItems: 'center',
     gap: '1rem',
-    '@media(min-width: 0px) and (max-width: 416px)': {
+    '@media(min-width: 0px) and (max-width: 460px)': {
       alignItems: 'flex-start',
       flexDirection: 'column',
       gap: '0.9rem',
     },
-    '.add-friend-email-input': {
+    '.add-friend-text-field-wrapper': {
       width: '18rem',
-      fontSize: '0.875rem',
-      fontWeight: 'bold',
-      '@media(min-width: 0px) and (max-width: 416px)': {
+      '@media(min-width: 0px) and (max-width: 460px)': {
         width: '100%',
       },
-    },
-    '.add-friend-email-input-props': {
-      height: '1.5rem',
-      fontSize: '0.875rem',
-      fontWeight: 'bold',
-    },
-    '.add-friend-email-btn': {
-      height: '2.5rem',
-      textTransform: 'none',
-      fontSize: '0.875rem',
-      fontWeight: 'bold',
-      '@media(min-width: 0px) and (max-width: 416px)': {
-        width: '100%',
+      '.add-friend-email-input': {
+        width: '18rem',
+        fontWeight: 600,
+        '@media(min-width: 0px) and (max-width: 460px)': {
+          width: '100%',
+        },
+      },
+      '.add-friend-email-input-props': {
+        fontWeight: 600,
+        fontFamily: 'Segoe UI',
       },
     },
-    '.add-friend-email-btn:hover': {
-      backgroundColor: theme.palette.action.hover,
+    '.add-friend-email-btn-wrapper': {
+      width: '100%',
+      '.add-friend-email-btn': {
+        textTransform: 'none',
+        fontFamily: 'Segoe UI',
+        fontSize: '0.875rem',
+        fontWeight: 700,
+        '@media(min-width: 0px) and (max-width: 460px)': {
+          width: '100%',
+        },
+      },
     },
+
     '.add-btn-active': {
-      backgroundColor: theme.palette.action.active,
+      backgroundColor: `${theme.palette.action.active} !important`,
     },
   },
 }));

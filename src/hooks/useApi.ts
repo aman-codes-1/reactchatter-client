@@ -8,7 +8,7 @@ import { apiRoutes } from '../helpers';
 export const useApi = () => {
   const navigate = useNavigate();
   const { socket } = useSocket();
-  const { auth = {}, setAuth } = useAuth();
+  const { auth, setAuth } = useAuth();
 
   const serverUri =
     process.env.NODE_ENV === 'development'

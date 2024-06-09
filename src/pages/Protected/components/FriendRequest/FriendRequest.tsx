@@ -1,9 +1,10 @@
-import { Avatar, Icon, IconButton, Skeleton, Typography } from '@mui/material';
+import { Icon, IconButton, Skeleton, Typography } from '@mui/material';
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useAuth } from '../../../../hooks';
 import { FriendRequestStyled } from './FriendRequest.styled';
+import { Avatar } from '../../../../components';
 
 const FriendRequest = ({
   loading,
@@ -19,29 +20,24 @@ const FriendRequest = ({
   const isCancelBtn = !!Object.keys(cancelBtnProps || {})?.length;
 
   return (
-    <FriendRequestStyled>
+    <FriendRequestStyled isAcceptBtn={isAcceptBtn}>
       {loading ? (
         <div style={{ marginTop: 7 }} className="sent-requests-wrapper">
           <div className="sent-requests-email-wrapper">
             <Skeleton variant="circular">
-              <Avatar sx={{ width: 24, height: 24 }} />
+              <Avatar width={24} height={24} />
             </Skeleton>
             <Skeleton width={200} />
           </div>
           <div className="sent-requests-btn-wrapper">
             {isAcceptBtn ? (
               <Skeleton sx={{ mr: '0.875rem' }} variant="circular">
-                <Avatar
-                  sx={{
-                    width: 32,
-                    height: 32,
-                  }}
-                />
+                <Avatar width={32} height={32} />
               </Skeleton>
             ) : null}
             {isCancelBtn ? (
               <Skeleton sx={{ mr: '0.5rem' }} variant="circular">
-                <Avatar sx={{ width: 32, height: 32 }} />
+                <Avatar width={32} height={32} />
               </Skeleton>
             ) : null}
           </div>

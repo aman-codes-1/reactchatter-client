@@ -1,4 +1,4 @@
-import { ChangeEvent, useContext, useState } from 'react';
+import { ChangeEvent, useContext, useRef, useState } from 'react';
 import { TextField, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { SuccessErrorMessage } from '../../../components';
@@ -26,6 +26,7 @@ const AddFriend = () => {
   const { createRequest, createRequestLoading: loading } = useContext(
     ChatsAndFriendsContext,
   );
+  const inputRef = useRef<any>(null);
 
   const resetStates = () => {
     setState({
@@ -117,6 +118,9 @@ const AddFriend = () => {
   const { isRequired, isNotValid } = validation;
   const { message, type } = state;
 
+  const setFocus = () => inputRef?.current && inputRef?.current?.focus();
+  setFocus();
+
   return (
     <MainLayout heading="Add Friend">
       <AddFriendStyled>
@@ -128,40 +132,47 @@ const AddFriend = () => {
           Add friend by email
         </Typography>
         <div className="add-friend-email-wrapper">
-          <TextField
-            inputProps={{ className: 'add-friend-email-input-props' }}
-            className="add-friend-email-input"
-            size="small"
-            placeholder="you@example.com"
-            value={email}
-            onKeyUp={(_: any) => handleKeyPress(_, handleClickAdd)}
-            onChange={handleChangeEmail}
-            onBlur={handleCheckEmail}
-          />
-          <LoadingButton
-            loading={loading}
-            variant="contained"
-            className={`add-friend-email-btn ${
-              loading || disabled ? '' : 'add-btn-active'
-            }`}
-            onClick={handleClickAdd}
-            disabled={disabled}
-          >
-            Add
-          </LoadingButton>
+          <div className="add-friend-text-field-wrapper">
+            <TextField
+              autoFocus
+              inputProps={{ className: 'add-friend-email-input-props' }}
+              className="add-friend-email-input"
+              size="small"
+              placeholder="you@example.com"
+              value={email}
+              onKeyUp={(_: any) => handleKeyPress(_, handleClickAdd)}
+              onChange={handleChangeEmail}
+              // onBlur={handleCheckEmail}
+              inputRef={inputRef}
+            />
+            {isRequired && isTimeoutRunning ? (
+              <SuccessErrorMessage message="Email is required" type="error" />
+            ) : null}
+            {isNotValid && isTimeoutRunning ? (
+              <SuccessErrorMessage
+                message="Please enter a valid email"
+                type="error"
+              />
+            ) : null}
+            {message && isTimeoutRunning ? (
+              <SuccessErrorMessage message={message} type={type} />
+            ) : null}
+          </div>
+          <div className="add-friend-email-btn-wrapper">
+            <LoadingButton
+              loading={loading}
+              variant="contained"
+              className={`add-friend-email-btn ${
+                loading || disabled ? '' : 'add-btn-active'
+              }`}
+              onClick={handleClickAdd}
+              disabled={disabled}
+              size="large"
+            >
+              Add
+            </LoadingButton>
+          </div>
         </div>
-        {isRequired && isTimeoutRunning ? (
-          <SuccessErrorMessage message="Email is required" type="error" />
-        ) : null}
-        {isNotValid && isTimeoutRunning ? (
-          <SuccessErrorMessage
-            message="Please enter a valid email"
-            type="error"
-          />
-        ) : null}
-        {message && isTimeoutRunning ? (
-          <SuccessErrorMessage message={message} type={type} />
-        ) : null}
       </AddFriendStyled>
     </MainLayout>
   );

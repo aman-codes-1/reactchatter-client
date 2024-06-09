@@ -8,7 +8,7 @@ const Loader = ({ message, center, height, width, color }: ILoaderProps) => (
     justifyContent="center"
     alignItems="center"
     direction="column"
-    sx={{ minHeight: center ? '100vh' : height || '25vh' }}
+    sx={{ minHeight: center ? '80vh' : height || '25vh' }}
     spacing={0}
     width={width || '100%'}
   >

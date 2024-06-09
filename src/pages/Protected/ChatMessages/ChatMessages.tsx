@@ -6,20 +6,21 @@ import {
   useState,
 } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Avatar, Grid, IconButton, TextField, Typography } from '@mui/material';
+import { Grid, IconButton, TextField, Typography } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import DoneIcon from '@mui/icons-material/Done';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
+import { Avatar } from '../../../components';
 import {
   MESSAGES_QUERY,
   useAuth,
   useMessages,
   useResize,
 } from '../../../hooks';
+import { ChatsAndFriendsContext } from '../../../contexts';
 import { getTime, handleKeyPress } from '../../../helpers';
 import { ChatMessagesStyled } from './ChatMessages.styled';
-import { ChatsAndFriendsContext } from '../../../contexts';
 
 const ChatMessages = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -33,21 +34,24 @@ const ChatMessages = () => {
   const { height, width } = useResize();
   const { auth: { _id = '' } = {} } = useAuth();
   const {
-    createChat,
-    friendDetails,
     chats = [],
+    chatError,
+    createChat,
+    selectedFriend,
+    activeMember,
   } = useContext(ChatsAndFriendsContext);
-  const { _id: friendId = '', otherFriend = {} } = friendDetails || {};
+  const { _id: friendId = '' } = selectedFriend || {};
   const {
-    getMessages,
-    // createMessage,
+    createMessage,
     client,
     messagesData,
     loadingMessages,
     messages,
+    setMessages,
     messageGroups,
+    setMessageGroups,
     messagesWithQueue,
-  } = useMessages(friendId, setMessagesQueue);
+  } = useMessages(chatId, setMessagesQueue);
   const scrollRef = useRef<any>(null);
   const inputRef = useRef<any>(null);
 
@@ -63,6 +67,8 @@ const ChatMessages = () => {
   const [elements2, ref2]: any = useArrayRef();
 
   const resetAllStates = () => {
+    setMessages([]);
+    setMessageGroups([]);
     setMessage('');
     setMessagesQueue([]);
     setHeights([]);
@@ -70,51 +76,46 @@ const ChatMessages = () => {
     setLoading(false);
   };
 
-  useLayoutEffect(() => {
-    if ((chatId && !chats?.length) || (!friendDetails && !chatId)) {
-      navigate('/');
-    }
-  }, [chatId, chats, friendDetails]);
+  if (chatError) {
+    navigate('/');
+  }
 
   useLayoutEffect(() => {
-    const fetchMessages = async () => {
-      await getMessages({
+    if ((chatId && !chats?.length) || (!selectedFriend && !chatId)) {
+      navigate('/');
+    }
+  }, [chatId, chats, selectedFriend]);
+
+  useLayoutEffect(() => {
+    if ((selectedFriend && !chatId) || chatId) {
+      resetAllStates();
+    }
+  }, [selectedFriend, chatId]);
+
+  useLayoutEffect(() => {
+    const getCachedData = async () => {
+      setLoading(true);
+      const cachedData = await client?.readQuery({
+        query: MESSAGES_QUERY,
         variables: {
           chatId,
         },
       });
+      if (!cachedData) {
+        messagesWithQueue(messagesData?.messages);
+        setLoading(false);
+      } else {
+        messagesWithQueue(cachedData?.messages);
+        setLoading(false);
+      }
     };
-    if (chatId) {
-      resetAllStates();
-      fetchMessages();
-    }
-  }, [chatId]);
-
-  const getCachedData = async () => {
-    setLoading(true);
-    const cachedData = await client?.readQuery({
-      query: MESSAGES_QUERY,
-      variables: {
-        chatId,
-      },
-    });
-    if (!cachedData) {
-      messagesWithQueue(messagesData?.messages);
-      setLoading(false);
-    } else {
-      messagesWithQueue(cachedData?.messages);
-      setLoading(false);
-    }
-  };
-
-  useLayoutEffect(() => {
     if (chatId) {
       getCachedData();
     }
   }, [messagesData, chatId]);
 
   useLayoutEffect(() => {
-    if (messages?.length) {
+    const checkDimensions = () => {
       setHeights([]);
       setHeights(
         elements.map((element: any, idx: number) => ({
@@ -122,7 +123,22 @@ const ChatMessages = () => {
           height: element?.clientHeight,
         })),
       );
+    };
+    if (messages?.length) {
+      checkDimensions();
     }
+    const listRefObserver = new MutationObserver(checkDimensions);
+    const listElement = ref?.current;
+    if (listElement) {
+      listRefObserver?.observe(listElement, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+      });
+    }
+    return () => {
+      listRefObserver?.disconnect();
+    };
   }, [messages, width, height]);
 
   useLayoutEffect(() => {
@@ -169,11 +185,19 @@ const ChatMessages = () => {
           userId: _id,
           friendId,
           type: 'private',
-          friendUserId: otherFriend?._id,
+          friendUserId: activeMember?._id,
         },
       });
       const newChatId = res?.data?.createChat?._id;
       if (newChatId) {
+        await createMessage({
+          variables: {
+            chatId: newChatId,
+            message,
+            senderId: _id,
+            timestamp,
+          },
+        });
         setSearchParams((params) => {
           params.set('id', newChatId);
           return params;
@@ -181,30 +205,29 @@ const ChatMessages = () => {
       }
     }
     if (chatId) {
-      // await createMessage({
-      //   variables: {
-      //     chatId,
-      //     message,
-      //     senderId: _id,
-      //     isSent: true,
-      //     sentTimestamp: timestamp,
-      //     receiverId: '',
-      //   },
-      // });
+      await createMessage({
+        variables: {
+          chatId,
+          message,
+          senderId: _id,
+          timestamp,
+        },
+      });
     }
   };
 
-  const attachClass = (msgGroup: any, index: number, side: string) => {
+  const attachClass = (data: any, index: number, side: string) => {
     if (index === 0) {
       return `${side}First`;
     }
-    if (msgGroup && Array.isArray(msgGroup) && index === msgGroup.length - 1) {
+    if (data && Array.isArray(data) && index === data.length - 1) {
       return `${side}Last`;
     }
     return '';
   };
 
-  const renderChat = (msg: any, index: number, msgGroup: any, side: string) => {
+  const renderChat = (msg: any, index: number, data: any, side: string) => {
+    // eslint-disable-next-line no-unused-vars
     const msgHeight = heights?.length
       ? heights?.find((el: any) => el?.msgId === msg?._id)?.height || 0
       : 0;
@@ -212,11 +235,15 @@ const ChatMessages = () => {
       <div className={`${side}Row`} key={msg?._id} ref={ref}>
         <Typography
           align="left"
-          className={`msg ${side} ${attachClass(msgGroup, index, side)}`}
+          className={`msg ${side} ${attachClass(data, index, side)}`}
+          // sx={{
+          //   gap: msgHeight > 50 ? '' : '1.2rem',
+          //   alignItems: msgHeight > 50 ? 'flex-start' : 'center',
+          //   flexDirection: msgHeight > 50 ? 'column' : 'row',
+          // }}
           sx={{
-            gap: msgHeight > 50 ? '' : '1.2rem',
-            alignItems: msgHeight > 50 ? 'flex-start' : 'center',
-            flexDirection: msgHeight > 50 ? 'column' : 'row',
+            gap: '1.2rem',
+            alignItems: 'center',
           }}
         >
           {msg?.message}
@@ -234,11 +261,15 @@ const ChatMessages = () => {
                 {getTime(msg?.sender?.sentStatus?.timestamp)}
               </Typography>
             ) : null}
-            {side === 'right' && msg?.sender?.sentStatus?.isSent === true ? (
-              <DoneIcon sx={{ fontSize: 16, p: '0px 2px' }} />
-            ) : null}
-            {side === 'right' && msg?.receiver?.readStatus?.isRead === true ? (
-              <DoneAllIcon sx={{ fontSize: 16, p: '0px 2px' }} />
+            {side === 'right' ? (
+              <>
+                {msg?.sender?.sentStatus?.isSent === true ? (
+                  <DoneIcon sx={{ fontSize: 16, p: '0px 2px' }} />
+                ) : null}
+                {msg?.receiver?.readStatus?.isRead === true ? (
+                  <DoneAllIcon sx={{ fontSize: 16, p: '0px 2px' }} />
+                ) : null}
+              </>
             ) : null}
           </div>
         </Typography>
@@ -259,15 +290,15 @@ const ChatMessages = () => {
         }}
       >
         <span />
-        {loadingMessages && loading && null}
+        {(loadingMessages || loading) && null}
         {!loadingMessages &&
         !loading &&
-        !(messageGroups?.length || messagesQueue.length) ? (
+        !(messageGroups?.length || messagesQueue?.length) ? (
           <div className="no-messages-wrapper">No Messages</div>
         ) : null}
         {!loadingMessages &&
         !loading &&
-        (messageGroups?.length || messagesQueue.length) ? (
+        (messageGroups?.length || messagesQueue?.length) ? (
           <div className="chat-wrapper">
             {messageGroups?.map((messageGroup: any) => (
               <Grid
@@ -276,10 +307,11 @@ const ChatMessages = () => {
                 justifyContent={
                   messageGroup?.side === 'right' ? 'flex-end' : 'flex-start'
                 }
+                alignItems="flex-end"
               >
                 {messageGroup?.side === 'left' && (
                   <Grid item>
-                    <Avatar className="avatar" src="" />
+                    <Avatar src="" width={32} height={32} />
                   </Grid>
                 )}
                 <Grid item xs={8}>
@@ -297,6 +329,7 @@ const ChatMessages = () => {
               </Grid>
             ))}
             {messagesQueue?.map((messageQueue: any) => {
+              // eslint-disable-next-line no-unused-vars
               const msgHeight2 = heights2?.length
                 ? heights2?.find(
                     (el: any) => el?.msgTimestamp === messageQueue?.timestamp,
@@ -313,10 +346,14 @@ const ChatMessages = () => {
                       <Typography
                         align="left"
                         className="msg right"
+                        // sx={{
+                        //   gap: msgHeight2 > 50 ? '' : '1.2rem',
+                        //   alignItems: msgHeight2 > 50 ? 'flex-start' : 'center',
+                        //   flexDirection: msgHeight2 > 50 ? 'column' : 'row',
+                        // }}
                         sx={{
-                          gap: msgHeight2 > 50 ? '' : '1.2rem',
-                          alignItems: msgHeight2 > 50 ? 'flex-start' : 'center',
-                          flexDirection: msgHeight2 > 50 ? 'column' : 'row',
+                          gap: '1.2rem',
+                          alignItems: 'center',
                         }}
                       >
                         {messageQueue?.message}
@@ -364,18 +401,11 @@ const ChatMessages = () => {
             placeholder=" Type a message"
             inputRef={inputRef}
           />
-          <IconButton
-            onClick={handleSendMessage}
-            disabled={!message}
-            disableFocusRipple
-            disableRipple
-            disableTouchRipple
-          >
-            <SendIcon
-              color="info"
-              className={!message ? 'send-icon-disabled' : ''}
-            />
-          </IconButton>
+          {message ? (
+            <IconButton onClick={handleSendMessage}>
+              <SendIcon color="info" />
+            </IconButton>
+          ) : null}
         </div>
       </div>
     </ChatMessagesStyled>

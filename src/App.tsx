@@ -1,4 +1,4 @@
-import { lazy } from 'react';
+import { Suspense, lazy } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import {
@@ -20,7 +20,9 @@ const App = () => (
         <ConnectionProvider>
           <AuthProvider>
             <WebSocketProvider>
-              <AppRoutes />
+              <Suspense fallback={null}>
+                <AppRoutes />
+              </Suspense>
             </WebSocketProvider>
           </AuthProvider>
         </ConnectionProvider>
