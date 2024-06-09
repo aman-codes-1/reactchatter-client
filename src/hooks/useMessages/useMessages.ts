@@ -1,53 +1,225 @@
 import { Dispatch, SetStateAction, useState } from 'react';
-import { useLazyQuery, useSubscription } from '@apollo/client';
+import { useMutation, useQuery, useSubscription } from '@apollo/client';
 import { useAuth } from '..';
 import {
   MESSAGES_QUERY,
+  CREATE_MESSAGE_MUTATION,
+  UPDATE_MESSAGE_MUTATION,
   MESSAGE_ADDED_SUBSCRIPTION,
-  MESSAGES_ADDED_SUBSCRIPTION,
-  MESSAGES_UPDATED_SUBSCRIPTION,
-  // CREATE_MESSAGE_MUTATION,
-  // UPDATE_MESSAGE_MUTATION,
+  // MESSAGE_UPDATED_SUBSCRIPTION,
 } from './gql';
 
-const makeMessageGroups = (Data: any, _id: string) => {
-  let finalResult: never[] = [];
-  if (Data && Data?.length) {
-    const result = Data.reduce((acc: any, value: any) => {
-      if (
-        acc &&
-        acc?.length &&
-        acc?.[acc.length - 1]?.[0]?.sender?._id === value?.sender?._id
-      ) {
-        acc?.[acc.length - 1].push(value);
+// const messagesData = {
+//   messages: [
+//     {
+//       _id: '66620c58d54c69d87cd90a9b',
+//       chatId: '6661c6fec5d00b962634723f',
+//       message: 'me 1',
+//       sender: {
+//         _id: '6638fc68b1c5fbdb37b6cdbf',
+//         sentStatus: {
+//           isSent: true,
+//           timestamp: 1717701720498,
+//         },
+//         senderDetails: {},
+//       },
+//       otherMembers: [
+//         {
+//           _id: '66575d714b8681323e597231',
+//           deliveredStatus: null,
+//           readStatus: null,
+//         },
+//         {
+//           _id: '663a576d0adc9be47e830aa5',
+//           deliveredStatus: null,
+//           readStatus: null,
+//         },
+//       ],
+//     },
+//     {
+//       _id: '66620c63d54c69d87cd90aa5',
+//       chatId: '6661c6fec5d00b962634723f',
+//       message: 'me 2',
+//       sender: {
+//         _id: '6638fc68b1c5fbdb37b6cdbf',
+//         sentStatus: {
+//           isSent: true,
+//           timestamp: 1717701731521,
+//         },
+//         senderDetails: {},
+//       },
+//       otherMembers: [
+//         {
+//           _id: '66575d714b8681323e597231',
+//           deliveredStatus: null,
+//           readStatus: null,
+//         },
+//         {
+//           _id: '663a576d0adc9be47e830aa5',
+//           deliveredStatus: null,
+//           readStatus: null,
+//         },
+//       ],
+//     },
+//     {
+//       _id: '66620c8bd54c69d87cd90abd',
+//       chatId: '6661c6fec5d00b962634723f',
+//       message: '2nd person 1',
+//       sender: {
+//         _id: '66575d714b8681323e597231',
+//         sentStatus: {
+//           isSent: true,
+//           timestamp: 1717701770511,
+//         },
+//         senderDetails: {},
+//       },
+//       otherMembers: [
+//         {
+//           _id: '6638fc68b1c5fbdb37b6cdbf',
+//           deliveredStatus: null,
+//           readStatus: null,
+//         },
+//         {
+//           _id: '663a576d0adc9be47e830aa5',
+//           deliveredStatus: null,
+//           readStatus: null,
+//         },
+//       ],
+//     },
+//     {
+//       _id: '66620c8bd54c69d87cd90abd',
+//       chatId: '6661c6fec5d00b962634723f',
+//       message: '2nd person 2',
+//       sender: {
+//         _id: '66575d714b8681323e597231',
+//         sentStatus: {
+//           isSent: true,
+//           timestamp: 1717701770511,
+//         },
+//         senderDetails: {},
+//       },
+//       otherMembers: [
+//         {
+//           _id: '6638fc68b1c5fbdb37b6cdbf',
+//           deliveredStatus: null,
+//           readStatus: null,
+//         },
+//         {
+//           _id: '663a576d0adc9be47e830aa5',
+//           deliveredStatus: null,
+//           readStatus: null,
+//         },
+//       ],
+//     },
+//     {
+//       _id: '66620c8bd54c69d87cd90abd',
+//       chatId: '6661c6fec5d00b962634723f',
+//       message: '2nd person 3',
+//       sender: {
+//         _id: '66575d714b8681323e597231',
+//         sentStatus: {
+//           isSent: true,
+//           timestamp: 1717701770511,
+//         },
+//         senderDetails: {},
+//       },
+//       otherMembers: [
+//         {
+//           _id: '6638fc68b1c5fbdb37b6cdbf',
+//           deliveredStatus: null,
+//           readStatus: null,
+//         },
+//         {
+//           _id: '663a576d0adc9be47e830aa5',
+//           deliveredStatus: null,
+//           readStatus: null,
+//         },
+//       ],
+//     },
+//     {
+//       _id: '666210b97d7fba51c6e174b9',
+//       chatId: '6661c6fec5d00b962634723f',
+//       message: '3rd person',
+//       sender: {
+//         _id: '663a576d0adc9be47e830aa5',
+//         sentStatus: {
+//           isSent: true,
+//           timestamp: 1717701770511,
+//         },
+//       },
+//       otherMembers: [
+//         {
+//           _id: '66575d714b8681323e597231',
+//           deliveredStatus: null,
+//           readStatus: null,
+//         },
+//         {
+//           _id: '6638fc68b1c5fbdb37b6cdbf',
+//           deliveredStatus: null,
+//           readStatus: null,
+//         },
+//       ],
+//     },
+//     {
+//       _id: '66620c63d54c69d87cd90aa5',
+//       chatId: '6661c6fec5d00b962634723f',
+//       message: 'me 3',
+//       sender: {
+//         _id: '6638fc68b1c5fbdb37b6cdbf',
+//         sentStatus: {
+//           isSent: true,
+//           timestamp: 1717701731521,
+//         },
+//         senderDetails: {},
+//       },
+//       otherMembers: [
+//         {
+//           _id: '66575d714b8681323e597231',
+//           deliveredStatus: null,
+//           readStatus: null,
+//         },
+//         {
+//           _id: '663a576d0adc9be47e830aa5',
+//           deliveredStatus: null,
+//           readStatus: null,
+//         },
+//       ],
+//     },
+//   ],
+// };
+
+const groupMessages = (msgs: any, _id: string) => {
+  if (!msgs && !msgs?.length) return [];
+  const groupedMessages = msgs
+    ?.reduce((acc: any, message: any) => {
+      const lastGroup = acc && acc?.length ? acc?.[acc.length - 1] : null;
+      const isSameSender = lastGroup
+        ? lastGroup?.[0]?.sender?._id === message?.sender?._id
+        : false;
+      if (isSameSender) {
+        lastGroup.push(message);
       } else {
-        acc.push([value]);
+        acc.push([message]);
       }
       return acc;
-    }, []);
-    const side1 = result?.[0]?.every((el: any) => el?.sender?._id === _id)
-      ? 'right'
-      : 'left';
-    const side2 = side1 === 'right' ? 'left' : 'right';
-    finalResult = result.map((msgs: any, i: number) => ({
-      side: i % 2 === 0 ? side1 : side2,
-      data: msgs,
+    }, [])
+    .map((msgGroups: any) => ({
+      side: msgGroups?.[0]?.sender?._id === _id ? 'right' : 'left',
+      data: msgGroups,
     }));
-    return finalResult;
-  }
-  return finalResult;
+  return groupedMessages;
 };
 
 export const useMessages = (
-  chatId?: string,
-  setMessagesQueue?: Dispatch<SetStateAction<string[]>>,
+  chatId: string | null,
+  setMessagesQueue: Dispatch<SetStateAction<string[]>>,
 ) => {
   const [messages, setMessages] = useState<any[]>([]);
   const [messageGroups, setMessageGroups] = useState<any[]>([]);
   const { auth: { _id = '' } = {} } = useAuth();
 
   const messagesWithQueue = (msgs: any) => {
-    setMessagesQueue?.((prev: any[]) => {
+    setMessagesQueue((prev: any[]) => {
       if (prev?.length && msgs?.length) {
         const queue = prev?.filter(
           (el: any) =>
@@ -61,30 +233,32 @@ export const useMessages = (
       return prev;
     });
     setMessages(msgs);
-    const messageGroupsData = makeMessageGroups(msgs, _id);
+    const messageGroupsData = groupMessages(msgs, _id);
     setMessageGroups(messageGroupsData);
   };
 
-  const [
-    getMessages,
-    {
-      client,
-      refetch: refetchMessages,
-      data: messagesData,
-      loading: loadingMessages,
-      error: errorMessages,
+  const {
+    client,
+    refetch: refetchMessages,
+    data: messagesData,
+    loading: loadingMessages,
+    error: errorMessages,
+  } = useQuery(MESSAGES_QUERY, {
+    variables: {
+      chatId,
     },
-  ] = useLazyQuery(MESSAGES_QUERY);
+    skip: !chatId,
+  });
 
-  // const [
-  //   createMessage,
-  //   { loading: loadingCreateMessage, error: errorCreateMessage },
-  // ] = useMutation(CREATE_MESSAGE_MUTATION);
+  const [
+    createMessage,
+    { loading: loadingCreateMessage, error: errorCreateMessage },
+  ] = useMutation(CREATE_MESSAGE_MUTATION);
 
-  // const [
-  //   updateMessage,
-  //   { loading: loadingUpdateMessage, error: errorUpdateMessage },
-  // ] = useMutation(UPDATE_MESSAGE_MUTATION);
+  const [
+    updateMessage,
+    { loading: loadingUpdateMessage, error: errorUpdateMessage },
+  ] = useMutation(UPDATE_MESSAGE_MUTATION);
 
   const { loading: loadingOnMessageAdded, error: errorOnMessageAdded } =
     useSubscription(MESSAGE_ADDED_SUBSCRIPTION, {
@@ -111,46 +285,38 @@ export const useMessages = (
       },
     });
 
-  const { loading: loadingOnMessagesAdded, error: errorOnMessagesAdded } =
-    useSubscription(MESSAGES_ADDED_SUBSCRIPTION, {
-      onData: async (res) => {
-        await client?.clearStore();
-        const OnMessagesAdded = res?.data?.data?.OnMessagesAdded;
-        const OnMessagesAddedUserId = OnMessagesAdded?.userId;
-        const OnMessagesAddedChatId = OnMessagesAdded?.chatId;
-        const OnMessagesAddedData = OnMessagesAdded?.data;
-        if (OnMessagesAddedUserId === _id && OnMessagesAddedChatId === chatId) {
-          messagesWithQueue(OnMessagesAddedData);
-        }
-      },
-    });
-
-  const { loading: loadingOnMessagesUpdated, error: errorOnMessagesUpdated } =
-    useSubscription(MESSAGES_UPDATED_SUBSCRIPTION);
+  // const { loading: loadingOnMessagesAdded, error: errorOnMessagesAdded } =
+  //   useSubscription(MESSAGES_ADDED_SUBSCRIPTION, {
+  //     onData: async (res) => {
+  //       await client?.clearStore();
+  //       const OnMessagesAdded = res?.data?.data?.OnMessagesAdded;
+  //       const OnMessagesAddedUserId = OnMessagesAdded?.userId;
+  //       const OnMessagesAddedChatId = OnMessagesAdded?.chatId;
+  //       const OnMessagesAddedData = OnMessagesAdded?.data;
+  //       if (OnMessagesAddedUserId === _id && OnMessagesAddedChatId === chatId) {
+  //         messagesWithQueue(OnMessagesAddedData);
+  //       }
+  //     },
+  //   });
 
   return {
-    getMessages,
-    // createMessage,
-    // updateMessage,
+    createMessage,
+    updateMessage,
     client,
     messagesData,
     loadingMessages,
-    // loadingCreateMessage,
-    // loadingUpdateMessage,
+    loadingCreateMessage,
+    loadingUpdateMessage,
     loadingOnMessageAdded,
-    loadingOnMessagesAdded,
-    loadingOnMessagesUpdated,
     errorMessages,
-    // errorCreateMessage,
-    // errorUpdateMessage,
+    errorCreateMessage,
+    errorUpdateMessage,
     errorOnMessageAdded,
-    errorOnMessagesAdded,
-    errorOnMessagesUpdated,
     messages,
     setMessages,
-    makeMessageGroups,
     messageGroups,
     setMessageGroups,
+    groupMessages,
     messagesWithQueue,
     refetchMessages,
   };

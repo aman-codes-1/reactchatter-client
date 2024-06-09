@@ -4,6 +4,7 @@ export {
 } from './ChatsAndFriends';
 
 export {
+  CHAT_QUERY,
   CHATS_QUERY,
   CREATE_CHAT_MUTATION,
   CHAT_ADDED_SUBSCRIPTION,

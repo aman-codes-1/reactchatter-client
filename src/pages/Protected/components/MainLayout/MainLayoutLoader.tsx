@@ -3,7 +3,7 @@ import { MainLayoutLoaderStyled } from './MainLayout.styled';
 
 const MainLayoutLoader = ({ defaultText, children }: any) => (
   <MainLayoutLoaderStyled>
-    <Skeleton width={370} height={100} className="skeleton-heading" />
+    <Skeleton width={370} height={100} />
     {defaultText ? (
       <Skeleton width={270} height={30} className="skeleton-default-text" />
     ) : null}

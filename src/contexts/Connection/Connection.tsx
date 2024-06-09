@@ -1,5 +1,6 @@
 import { ReactElement, createContext } from 'react';
 import { useNavigatorOnLine } from '../../hooks';
+import { BaseProtected } from '../../pages';
 
 const containerStyles = {
   display: 'flex',
@@ -22,10 +23,11 @@ export const ConnectionProvider = ({
   children: ReactElement;
 }) => {
   const { isLoading, isOffline }: any = useNavigatorOnLine();
+  const isAuthenticated = Boolean(localStorage.getItem('isAuthenticated'));
 
-  // if (isLoading) {
-  //   return null;
-  // }
+  if (isLoading && !!isAuthenticated) {
+    return <BaseProtected isLoading={isLoading && !!isAuthenticated} />;
+  }
 
   if (!isLoading && isOffline) {
     return (
@@ -40,7 +42,9 @@ export const ConnectionProvider = ({
   }
 
   return (
-    <ConnectionContext.Provider value={{ isLoading, isOffline }}>
+    <ConnectionContext.Provider
+      value={{ isLoading: isLoading && !!isAuthenticated, isOffline }}
+    >
       {children}
     </ConnectionContext.Provider>
   );

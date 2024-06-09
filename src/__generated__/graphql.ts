@@ -89,9 +89,8 @@ export type CreateChatInput = {
 export type CreateMessageInput = {
   chatId: Scalars['String']['input'];
   message: Scalars['String']['input'];
-  otherMembers: Array<OtherMemberInput>;
-  sender: SenderInput;
-  userId: Scalars['String']['input'];
+  senderId: Scalars['String']['input'];
+  timestamp: Scalars['Float']['input'];
 };
 
 /** CreateRequestInput */
@@ -100,13 +99,9 @@ export type CreateRequestInput = {
   userId: Scalars['String']['input'];
 };
 
-export type DeliveredStatusInput = {
-  isDelivered: Scalars['Boolean']['input'];
-  timestamp: Scalars['Float']['input'];
-};
-
-export type DeliveredStatusObject = {
-  __typename?: 'DeliveredStatusObject';
+/** DeliveredStatusObject */
+export type DeliveredStatus = {
+  __typename?: 'DeliveredStatus';
   isDelivered: Scalars['Boolean']['output'];
   timestamp: Scalars['Float']['output'];
 };
@@ -155,55 +150,44 @@ export type FriendsInput = {
   userId: Scalars['String']['input'];
 };
 
-/** MessageData */
+/** MessageObject */
+export type Message = {
+  __typename?: 'Message';
+  _id: Scalars['String']['output'];
+  chatId: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  otherMembers: Array<OtherMember>;
+  sender: Sender;
+};
+
+/** MessageDataObject */
 export type MessageData = {
   __typename?: 'MessageData';
   chatId: Scalars['String']['output'];
-  data: MessageObject;
-  userId: Scalars['String']['output'];
+  message: Array<Message>;
 };
 
 /** MessageInput */
 export type MessageInput = {
-  chatId: Scalars['String']['input'];
   messageId: Scalars['String']['input'];
-  userId: Scalars['String']['input'];
-};
-
-export type MessageObject = {
-  __typename?: 'MessageObject';
-  _id: Scalars['String']['output'];
-  chatId: Scalars['String']['output'];
-  message: Scalars['String']['output'];
-  otherMembers: Array<OtherMemberObject>;
-  sender: SenderObject;
-};
-
-/** MessagesDataObject */
-export type MessagesData = {
-  __typename?: 'MessagesData';
-  chatId: Scalars['String']['output'];
-  data: Array<MessageObject>;
-  userId: Scalars['String']['output'];
 };
 
 /** MessagesInput */
 export type MessagesInput = {
   chatId: Scalars['String']['input'];
-  userId: Scalars['String']['input'];
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
   createChat: Chat;
-  createMessage: MessageData;
+  createMessage: Message;
   createRequest: Request;
   removeChat: Scalars['Boolean']['output'];
   removeFriend: Scalars['Boolean']['output'];
   removeMessage: Scalars['Boolean']['output'];
   removeRequest: Scalars['Boolean']['output'];
   updateChat: Chat;
-  updateMessage: MessageData;
+  updateMessage: Message;
   updateRequest: Request;
 };
 
@@ -213,8 +197,6 @@ export type MutationCreateChatArgs = {
 
 export type MutationCreateMessageArgs = {
   input: CreateMessageInput;
-  limit?: Scalars['Int']['input'];
-  skip?: Scalars['Int']['input'];
 };
 
 export type MutationCreateRequestArgs = {
@@ -243,25 +225,18 @@ export type MutationUpdateChatArgs = {
 
 export type MutationUpdateMessageArgs = {
   input: CreateMessageInput;
-  limit?: Scalars['Int']['input'];
-  skip?: Scalars['Int']['input'];
 };
 
 export type MutationUpdateRequestArgs = {
   input: UpdateRequestInput;
 };
 
-export type OtherMemberInput = {
-  _id: Scalars['String']['input'];
-  deliveredStatus?: InputMaybe<DeliveredStatusInput>;
-  readStatus?: InputMaybe<ReadStatusInput>;
-};
-
-export type OtherMemberObject = {
-  __typename?: 'OtherMemberObject';
+/** OtherMemberObject */
+export type OtherMember = {
+  __typename?: 'OtherMember';
   _id: Scalars['String']['output'];
-  deliveredStatus?: Maybe<DeliveredStatusObject>;
-  readStatus?: Maybe<ReadStatusObject>;
+  deliveredStatus?: Maybe<DeliveredStatus>;
+  readStatus?: Maybe<ReadStatus>;
 };
 
 /** PaginatedRequestObject */
@@ -277,8 +252,8 @@ export type Query = {
   chats: Array<Chat>;
   friend: Friend;
   friends: Array<Friend>;
-  message: MessageData;
-  messages: MessagesData;
+  message: Message;
+  messages: Array<Message>;
   otherFriends: Array<Friend>;
   pendingRequest: Request;
   pendingRequests: PaginatedRequest;
@@ -337,13 +312,9 @@ export type QuerySentRequestsArgs = {
   skip?: Scalars['Int']['input'];
 };
 
-export type ReadStatusInput = {
-  isRead: Scalars['Boolean']['input'];
-  timestamp: Scalars['Float']['input'];
-};
-
-export type ReadStatusObject = {
-  __typename?: 'ReadStatusObject';
+/** ReadStatusObject */
+export type ReadStatus = {
+  __typename?: 'ReadStatus';
   isRead: Scalars['Boolean']['output'];
   timestamp: Scalars['Float']['output'];
 };
@@ -392,24 +363,16 @@ export type RequestsInput = {
   userId: Scalars['String']['input'];
 };
 
-export type SenderInput = {
-  _id: Scalars['String']['input'];
-  sentStatus: SentStatusInput;
-};
-
-export type SenderObject = {
-  __typename?: 'SenderObject';
+/** SenderObject */
+export type Sender = {
+  __typename?: 'Sender';
   _id: Scalars['String']['output'];
-  sentStatus: SentStatusObject;
+  sentStatus: SentStatus;
 };
 
-export type SentStatusInput = {
-  isSent: Scalars['Boolean']['input'];
-  timestamp: Scalars['Float']['input'];
-};
-
-export type SentStatusObject = {
-  __typename?: 'SentStatusObject';
+/** SentStatusObject */
+export type SentStatus = {
+  __typename?: 'SentStatus';
   isSent: Scalars['Boolean']['output'];
   timestamp: Scalars['Float']['output'];
 };
@@ -421,8 +384,6 @@ export type Subscription = {
   OnFriendAdded: FriendData;
   OnMessageAdded: MessageData;
   OnMessageUpdated: MessageData;
-  OnMessagesAdded: MessagesData;
-  OnMessagesUpdated: MessagesData;
   OnRequestAdded: RequestData;
   OnRequestUpdated: RequestData;
 };
@@ -431,6 +392,33 @@ export type Subscription = {
 export type UpdateRequestInput = {
   requestId: Scalars['String']['input'];
   status: Scalars['String']['input'];
+};
+
+export type ChatQueryVariables = Exact<{
+  chatId: Scalars['String']['input'];
+}>;
+
+export type ChatQuery = {
+  __typename?: 'Query';
+  chat: {
+    __typename?: 'Chat';
+    _id: string;
+    type: string;
+    members: Array<{
+      __typename?: 'ChatMember';
+      _id: string;
+      hasAdded: boolean;
+      memberDetails?: {
+        __typename?: 'ChatMemberDetails';
+        name: string;
+        email: string;
+        email_verified: boolean;
+        picture: string;
+        given_name: string;
+        family_name: string;
+      } | null;
+    }>;
+  };
 };
 
 export type ChatsQueryVariables = Exact<{
@@ -759,45 +747,64 @@ export type OnRequestUpdatedSubscription = {
 };
 
 export type MessagesQueryVariables = Exact<{
-  userId: Scalars['String']['input'];
   chatId: Scalars['String']['input'];
 }>;
 
 export type MessagesQuery = {
   __typename?: 'Query';
-  messages: {
-    __typename?: 'MessagesData';
+  messages: Array<{
+    __typename?: 'Message';
+    _id: string;
     chatId: string;
-    data: Array<{
-      __typename?: 'MessageObject';
+    message: string;
+    sender: {
+      __typename?: 'Sender';
       _id: string;
-      chatId: string;
-      message: string;
-      otherMembers: Array<{
-        __typename?: 'OtherMemberObject';
-        _id: string;
-        deliveredStatus?: {
-          __typename?: 'DeliveredStatusObject';
-          isDelivered: boolean;
-          timestamp: number;
-        } | null;
-        readStatus?: {
-          __typename?: 'ReadStatusObject';
-          isRead: boolean;
-          timestamp: number;
-        } | null;
-      }>;
-      sender: {
-        __typename?: 'SenderObject';
-        _id: string;
-        sentStatus: {
-          __typename?: 'SentStatusObject';
-          isSent: boolean;
-          timestamp: number;
-        };
+      sentStatus: {
+        __typename?: 'SentStatus';
+        isSent: boolean;
+        timestamp: number;
       };
+    };
+    otherMembers: Array<{
+      __typename?: 'OtherMember';
+      _id: string;
+      deliveredStatus?: {
+        __typename?: 'DeliveredStatus';
+        isDelivered: boolean;
+        timestamp: number;
+      } | null;
+      readStatus?: {
+        __typename?: 'ReadStatus';
+        isRead: boolean;
+        timestamp: number;
+      } | null;
     }>;
-  };
+  }>;
+};
+
+export type CreateMessageMutationVariables = Exact<{
+  chatId: Scalars['String']['input'];
+  message: Scalars['String']['input'];
+  senderId: Scalars['String']['input'];
+  timestamp: Scalars['Float']['input'];
+}>;
+
+export type CreateMessageMutation = {
+  __typename?: 'Mutation';
+  createMessage: { __typename?: 'Message'; _id: string };
+};
+
+export type UpdateMessageMutationVariables = Exact<{
+  chatId: Scalars['String']['input'];
+  message: Scalars['String']['input'];
+  senderId: Scalars['String']['input'];
+  timestamp: Scalars['Float']['input'];
+}>;
+
+export type UpdateMessageMutation = {
+  __typename?: 'Mutation';
+  updateMessage: { __typename?: 'Message'; _id: string };
 };
 
 export type OnMessageAddedSubscriptionVariables = Exact<{
@@ -809,75 +816,34 @@ export type OnMessageAddedSubscription = {
   OnMessageAdded: {
     __typename?: 'MessageData';
     chatId: string;
-    data: {
-      __typename?: 'MessageObject';
+    message: Array<{
+      __typename?: 'Message';
       _id: string;
       chatId: string;
       message: string;
-      otherMembers: Array<{
-        __typename?: 'OtherMemberObject';
-        _id: string;
-        deliveredStatus?: {
-          __typename?: 'DeliveredStatusObject';
-          isDelivered: boolean;
-          timestamp: number;
-        } | null;
-        readStatus?: {
-          __typename?: 'ReadStatusObject';
-          isRead: boolean;
-          timestamp: number;
-        } | null;
-      }>;
       sender: {
-        __typename?: 'SenderObject';
+        __typename?: 'Sender';
         _id: string;
         sentStatus: {
-          __typename?: 'SentStatusObject';
+          __typename?: 'SentStatus';
           isSent: boolean;
           timestamp: number;
         };
       };
-    };
-  };
-};
-
-export type OnMessagesAddedSubscriptionVariables = Exact<{
-  [key: string]: never;
-}>;
-
-export type OnMessagesAddedSubscription = {
-  __typename?: 'Subscription';
-  OnMessagesAdded: {
-    __typename?: 'MessagesData';
-    chatId: string;
-    data: Array<{
-      __typename?: 'MessageObject';
-      _id: string;
-      chatId: string;
-      message: string;
       otherMembers: Array<{
-        __typename?: 'OtherMemberObject';
+        __typename?: 'OtherMember';
         _id: string;
         deliveredStatus?: {
-          __typename?: 'DeliveredStatusObject';
+          __typename?: 'DeliveredStatus';
           isDelivered: boolean;
           timestamp: number;
         } | null;
         readStatus?: {
-          __typename?: 'ReadStatusObject';
+          __typename?: 'ReadStatus';
           isRead: boolean;
           timestamp: number;
         } | null;
       }>;
-      sender: {
-        __typename?: 'SenderObject';
-        _id: string;
-        sentStatus: {
-          __typename?: 'SentStatusObject';
-          isSent: boolean;
-          timestamp: number;
-        };
-      };
     }>;
   };
 };
@@ -891,79 +857,146 @@ export type OnMessageUpdatedSubscription = {
   OnMessageUpdated: {
     __typename?: 'MessageData';
     chatId: string;
-    data: {
-      __typename?: 'MessageObject';
+    message: Array<{
+      __typename?: 'Message';
       _id: string;
       chatId: string;
       message: string;
-      otherMembers: Array<{
-        __typename?: 'OtherMemberObject';
-        _id: string;
-        deliveredStatus?: {
-          __typename?: 'DeliveredStatusObject';
-          isDelivered: boolean;
-          timestamp: number;
-        } | null;
-        readStatus?: {
-          __typename?: 'ReadStatusObject';
-          isRead: boolean;
-          timestamp: number;
-        } | null;
-      }>;
       sender: {
-        __typename?: 'SenderObject';
+        __typename?: 'Sender';
         _id: string;
         sentStatus: {
-          __typename?: 'SentStatusObject';
+          __typename?: 'SentStatus';
           isSent: boolean;
           timestamp: number;
         };
       };
-    };
-  };
-};
-
-export type OnMessagesUpdatedSubscriptionVariables = Exact<{
-  [key: string]: never;
-}>;
-
-export type OnMessagesUpdatedSubscription = {
-  __typename?: 'Subscription';
-  OnMessagesUpdated: {
-    __typename?: 'MessagesData';
-    chatId: string;
-    data: Array<{
-      __typename?: 'MessageObject';
-      _id: string;
-      chatId: string;
-      message: string;
       otherMembers: Array<{
-        __typename?: 'OtherMemberObject';
+        __typename?: 'OtherMember';
         _id: string;
         deliveredStatus?: {
-          __typename?: 'DeliveredStatusObject';
+          __typename?: 'DeliveredStatus';
           isDelivered: boolean;
           timestamp: number;
         } | null;
         readStatus?: {
-          __typename?: 'ReadStatusObject';
+          __typename?: 'ReadStatus';
           isRead: boolean;
           timestamp: number;
         } | null;
       }>;
-      sender: {
-        __typename?: 'SenderObject';
-        _id: string;
-        sentStatus: {
-          __typename?: 'SentStatusObject';
-          isSent: boolean;
-          timestamp: number;
-        };
-      };
     }>;
   };
 };
 
+export const ChatDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'chat' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'chatId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'chat' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'input' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'chatId' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'chatId' },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'members' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'hasAdded' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'memberDetails' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'name' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'email' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'email_verified' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'picture' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'given_name' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'family_name' },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ChatQuery, ChatQueryVariables>;
 export const ChatsDocument = {
   kind: 'Document',
   definitions: [
@@ -2387,20 +2420,6 @@ export const MessagesDocument = {
           kind: 'VariableDefinition',
           variable: {
             kind: 'Variable',
-            name: { kind: 'Name', value: 'userId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
             name: { kind: 'Name', value: 'chatId' },
           },
           type: {
@@ -2427,14 +2446,6 @@ export const MessagesDocument = {
                   fields: [
                     {
                       kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'userId' },
-                      value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'userId' },
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
                       name: { kind: 'Name', value: 'chatId' },
                       value: {
                         kind: 'Variable',
@@ -2458,98 +2469,73 @@ export const MessagesDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'chatId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'message' } },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'data' },
+                  name: { kind: 'Name', value: 'sender' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'chatId' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'message' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'otherMembers' },
+                        name: { kind: 'Name', value: 'sentStatus' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: '_id' },
+                              name: { kind: 'Name', value: 'isSent' },
                             },
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'deliveredStatus' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: {
-                                      kind: 'Name',
-                                      value: 'isDelivered',
-                                    },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'timestamp' },
-                                  },
-                                ],
-                              },
+                              name: { kind: 'Name', value: 'timestamp' },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'otherMembers' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'deliveredStatus' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'isDelivered' },
                             },
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'readStatus' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'isRead' },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'timestamp' },
-                                  },
-                                ],
-                              },
+                              name: { kind: 'Name', value: 'timestamp' },
                             },
                           ],
                         },
                       },
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'sender' },
+                        name: { kind: 'Name', value: 'readStatus' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: '_id' },
+                              name: { kind: 'Name', value: 'isRead' },
                             },
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'sentStatus' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'isSent' },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'timestamp' },
-                                  },
-                                ],
-                              },
+                              name: { kind: 'Name', value: 'timestamp' },
                             },
                           ],
                         },
@@ -2565,6 +2551,258 @@ export const MessagesDocument = {
     },
   ],
 } as unknown as DocumentNode<MessagesQuery, MessagesQueryVariables>;
+export const CreateMessageDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createMessage' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'chatId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'message' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'senderId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'timestamp' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Float' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createMessage' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'input' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'chatId' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'chatId' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'message' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'message' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'senderId' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'senderId' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'timestamp' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'timestamp' },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateMessageMutation,
+  CreateMessageMutationVariables
+>;
+export const UpdateMessageDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateMessage' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'chatId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'message' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'senderId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'timestamp' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Float' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateMessage' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'input' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'chatId' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'chatId' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'message' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'message' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'senderId' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'senderId' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'timestamp' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'timestamp' },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateMessageMutation,
+  UpdateMessageMutationVariables
+>;
 export const OnMessageAddedDocument = {
   kind: 'Document',
   definitions: [
@@ -2584,7 +2822,7 @@ export const OnMessageAddedDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'chatId' } },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'data' },
+                  name: { kind: 'Name', value: 'message' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
@@ -2596,6 +2834,36 @@ export const OnMessageAddedDocument = {
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'message' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'sender' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: '_id' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'sentStatus' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'isSent' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'timestamp' },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: 'Field',
@@ -2636,36 +2904,6 @@ export const OnMessageAddedDocument = {
                                   {
                                     kind: 'Field',
                                     name: { kind: 'Name', value: 'isRead' },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'timestamp' },
-                                  },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'sender' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: '_id' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'sentStatus' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'isSent' },
                                   },
                                   {
                                     kind: 'Field',
@@ -2691,132 +2929,6 @@ export const OnMessageAddedDocument = {
   OnMessageAddedSubscription,
   OnMessageAddedSubscriptionVariables
 >;
-export const OnMessagesAddedDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'subscription',
-      name: { kind: 'Name', value: 'OnMessagesAdded' },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'OnMessagesAdded' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'chatId' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'data' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'chatId' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'message' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'otherMembers' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: '_id' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'deliveredStatus' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: {
-                                      kind: 'Name',
-                                      value: 'isDelivered',
-                                    },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'timestamp' },
-                                  },
-                                ],
-                              },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'readStatus' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'isRead' },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'timestamp' },
-                                  },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'sender' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: '_id' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'sentStatus' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'isSent' },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'timestamp' },
-                                  },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  OnMessagesAddedSubscription,
-  OnMessagesAddedSubscriptionVariables
->;
 export const OnMessageUpdatedDocument = {
   kind: 'Document',
   definitions: [
@@ -2836,7 +2948,7 @@ export const OnMessageUpdatedDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'chatId' } },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'data' },
+                  name: { kind: 'Name', value: 'message' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
@@ -2848,6 +2960,36 @@ export const OnMessageUpdatedDocument = {
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'message' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'sender' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: '_id' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'sentStatus' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'isSent' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'timestamp' },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: 'Field',
@@ -2888,36 +3030,6 @@ export const OnMessageUpdatedDocument = {
                                   {
                                     kind: 'Field',
                                     name: { kind: 'Name', value: 'isRead' },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'timestamp' },
-                                  },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'sender' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: '_id' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'sentStatus' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'isSent' },
                                   },
                                   {
                                     kind: 'Field',
@@ -2942,130 +3054,4 @@ export const OnMessageUpdatedDocument = {
 } as unknown as DocumentNode<
   OnMessageUpdatedSubscription,
   OnMessageUpdatedSubscriptionVariables
->;
-export const OnMessagesUpdatedDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'subscription',
-      name: { kind: 'Name', value: 'OnMessagesUpdated' },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'OnMessagesUpdated' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'chatId' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'data' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'chatId' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'message' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'otherMembers' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: '_id' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'deliveredStatus' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: {
-                                      kind: 'Name',
-                                      value: 'isDelivered',
-                                    },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'timestamp' },
-                                  },
-                                ],
-                              },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'readStatus' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'isRead' },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'timestamp' },
-                                  },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'sender' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: '_id' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'sentStatus' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'isSent' },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'timestamp' },
-                                  },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  OnMessagesUpdatedSubscription,
-  OnMessagesUpdatedSubscriptionVariables
 >;

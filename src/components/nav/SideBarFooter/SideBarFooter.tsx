@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { CircularProgress, IconButton } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { UserProfile } from '../..';
+import { ListItem } from '../..';
 import { useApi, useAuth } from '../../../hooks';
 import { SideBarFooterStyled } from './SideBarFooter.styled';
 
-const SideBarFooter = ({ sx }: any) => {
+const SideBarFooter = ({ className }: any) => {
   const [isLoading, setIsLoading] = useState(false);
   const { auth: { name = '', email = '', picture = '' } = {} } = useAuth();
   const { callLogout } = useApi();
@@ -15,19 +15,22 @@ const SideBarFooter = ({ sx }: any) => {
   };
 
   return (
-    <SideBarFooterStyled sx={sx}>
-      <UserProfile
+    <SideBarFooterStyled className={className}>
+      <ListItem
         primaryText={{
           title: name,
+          fontSize: '1.03rem',
+          fontWeight: 600,
         }}
         secondaryText={{
-          title:
-            email && email?.length > 27
-              ? `${email?.substring(0, 27)}...`
-              : email,
+          title: email,
+          fontSize: '0.79rem',
+          fontWeight: 500,
         }}
+        isAvatar
         picture={picture}
         disableHover
+        minHeight="2.95rem"
         secondaryAction={
           <IconButton className="logout-btn" edge="end" onClick={handleLogout}>
             {isLoading ? (

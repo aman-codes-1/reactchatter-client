@@ -1,6 +1,27 @@
 import { DocumentNode } from 'graphql';
 import { gql } from '../../__generated__/gql';
 
+const CHAT_QUERY = gql(/* GraphQL */ `
+  query chat($chatId: String!) {
+    chat(input: { chatId: $chatId }) {
+      _id
+      type
+      members {
+        _id
+        hasAdded
+        memberDetails {
+          name
+          email
+          email_verified
+          picture
+          given_name
+          family_name
+        }
+      }
+    }
+  }
+`) as DocumentNode;
+
 const CHATS_QUERY = gql(/* GraphQL */ `
   query chats($userId: String!) {
     chats(input: { userId: $userId }, limit: 25, skip: 0) {
@@ -266,6 +287,7 @@ const REQUEST_UPDATED_SUBSCRIPTION = gql(/* GraphQL */ `
 `) as DocumentNode;
 
 export {
+  CHAT_QUERY,
   CHATS_QUERY,
   CREATE_CHAT_MUTATION,
   CHAT_ADDED_SUBSCRIPTION,

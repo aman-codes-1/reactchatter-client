@@ -9,7 +9,7 @@ export const WebSocketContext = createContext<any>({});
 export const WebSocketProvider = ({ children }: any) => {
   const [user, setUser] = useState<any>();
   const [socket, setSocket] = useState<any>(null);
-  const { auth = {} } = useAuth();
+  const { auth } = useAuth();
   const { logout } = useApi();
 
   const client: any = useMemo(() => {

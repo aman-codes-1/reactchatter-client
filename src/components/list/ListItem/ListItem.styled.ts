@@ -1,23 +1,30 @@
 import { styled } from '@mui/system';
 
 export const ListItemStyled = styled('div')<{
+  width: string;
   padding: string;
+  minHeight: string;
   disableHover: boolean;
   primaryTextFontSize: string;
   primaryTextFontWeight: number;
   secondaryTextFontSize: string;
   secondaryTextFontWeight: number;
+  ellipsesLineClamp: number;
 }>(
   ({
     theme,
+    width,
     padding,
+    minHeight,
     disableHover,
     primaryTextFontSize,
     primaryTextFontWeight,
     secondaryTextFontSize,
     secondaryTextFontWeight,
+    ellipsesLineClamp,
   }) => ({
-    width: '100%',
+    width: width || '100%',
+    minHeight,
     padding,
     '.list-item-btn': {
       borderRadius: '10px',
@@ -27,14 +34,20 @@ export const ListItemStyled = styled('div')<{
         '.MuiListItemText-primary': {
           fontSize: primaryTextFontSize || '0.9rem',
           fontWeight: primaryTextFontWeight || 600,
-          fontFamily: 'unset',
+          fontFamily: 'Segoe UI',
           color: theme.palette.grey[900],
         },
         '.MuiListItemText-secondary': {
           fontSize: secondaryTextFontSize || '0.75rem',
           fontWeight: secondaryTextFontWeight || 600,
+          fontFamily: 'Segoe UI',
           color: theme.palette.grey[500],
           letterSpacing: '0.03rem',
+          display: '-webkit-box',
+          '-webkitLineClamp': ellipsesLineClamp || '1',
+          '-webkitBoxOrient': 'vertical',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
         },
       },
     },
@@ -62,6 +75,9 @@ export const ListItemStyled = styled('div')<{
         outline: `1px solid ${theme.palette.secondary.main}`,
         background: theme.palette.common.white,
       },
+    },
+    '.list-item-avatar': {
+      minWidth: 0,
     },
   }),
 );

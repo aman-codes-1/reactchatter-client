@@ -2,6 +2,7 @@ import { createContext, useLayoutEffect, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useSubscription } from '@apollo/client';
 import {
+  CHAT_QUERY,
   CHATS_QUERY,
   CREATE_CHAT_MUTATION,
   CREATE_REQUEST_MUTATION,
@@ -14,7 +15,6 @@ import {
   UPDATE_REQUEST_MUTATION,
 } from '.';
 import { useAuth, useSocket } from '../../hooks';
-import { Loader } from '../../components';
 
 export const ChatsAndFriendsContext = createContext<any>({});
 
@@ -22,7 +22,9 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   const [searchParams] = useSearchParams();
   const chatId = searchParams.get('id');
   const { pathname } = useLocation();
-  const [friendDetails, setFriendDetails] = useState();
+  const [selectedChat, setSelectedChat] = useState();
+  const [selectedFriend, setSelectedFriend] = useState();
+  const [activeMember, setActiveMember] = useState();
   const { auth: { _id = '' } = {} } = useAuth();
   const { socket } = useSocket();
 
@@ -39,6 +41,25 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     },
     fetchPolicy: 'network-only',
     skip: !socket,
+  });
+
+  const {
+    data: chat,
+    loading: chatLoading,
+    error: chatError,
+  } = useQuery(CHAT_QUERY, {
+    variables: {
+      chatId,
+    },
+    fetchPolicy: 'network-only',
+    skip:
+      !socket ||
+      !chatId ||
+      (chatsCalled &&
+        !chatsLoading &&
+        chats?.length &&
+        chatId &&
+        chats?.find((el: any) => el?._id === chatId)),
   });
 
   const {
@@ -265,26 +286,27 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
 
   useLayoutEffect(() => {
     if (pathname !== '/chat' || (pathname?.includes('/chat') && chatId)) {
-      setFriendDetails(undefined);
+      setSelectedChat(undefined);
+      setSelectedFriend(undefined);
+      setActiveMember(undefined);
     }
   }, [pathname, chatId]);
 
-  if (
-    !socket ||
-    chatsLoading ||
-    otherFriendsLoading
-    // pendingRequestsLoading ||
-    // sentRequestsLoading
-  ) {
-    return <Loader center />;
-  }
+  useLayoutEffect(() => {
+    if (chats?.length && chatId) {
+      setSelectedChat(chats?.find((el: any) => el?._id === chatId));
+    }
+  }, [chats, chatId]);
 
   return (
     <ChatsAndFriendsContext.Provider
       value={{
         // chats
+        chat,
         chats,
+        chatLoading,
         chatsLoading,
+        chatError,
         chatsError,
         chatsClient,
         chatsCalled,
@@ -337,9 +359,15 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         OnRequestUpdatedData,
         OnRequestUpdatedLoading,
         OnRequestUpdatedError,
-        // state
-        friendDetails,
-        setFriendDetails,
+        // selectedChat
+        selectedChat,
+        setSelectedChat,
+        // selectedFriend
+        selectedFriend,
+        setSelectedFriend,
+        // activeMember
+        activeMember,
+        setActiveMember,
       }}
     >
       {children}

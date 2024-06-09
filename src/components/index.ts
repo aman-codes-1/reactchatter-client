@@ -1,6 +1,7 @@
 export { Loader, SuspenseWrapper } from './load';
-export { BaseSideBar, NavBar, SideBarFooter } from './nav';
-export { Avatar, UserProfile } from './profile';
+export { Drawer, NavBar, SideBar, SideBarFooter } from './nav';
+export { Avatar } from './profile';
 export { BaseSvg } from './svg';
-export { ListItem } from './ListItem';
+export { DataList, ListItem } from './list';
+export { SearchBar } from './search';
 export { SuccessErrorMessage } from './SuccessErrorMessage';

@@ -1,10 +1,8 @@
 import { styled } from '@mui/system';
 
 export const SideBarFooterStyled = styled('div')(({ theme }) => ({
-  width: '100%',
   '.logout-btn': {
     borderRadius: '7px',
-    padding: '1.1rem',
   },
   '.logout-btn:hover': {
     backgroundColor: theme.palette.primary.light,

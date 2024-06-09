@@ -3,9 +3,12 @@ import { styled } from '@mui/system';
 export const ChatMessagesStyled = styled('div')(({ theme }) => ({
   height: '100%',
   '.chat-wrapper': {
-    padding: '0rem 4rem 0rem 3.25rem',
+    padding: '0rem 2.5rem',
     overflowY: 'auto',
     marginTop: 'auto',
+    [theme.breakpoints.down('md')]: {
+      padding: '0rem 1rem',
+    },
   },
   '.no-messages-wrapper': {
     display: 'flex',
@@ -13,15 +16,11 @@ export const ChatMessagesStyled = styled('div')(({ theme }) => ({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  '.avatar': {
-    width: 32,
-    height: 32,
-  },
   '.msg': {
+    display: 'inline-flex',
     padding: '6px 14px',
     borderRadius: 4,
-    marginBottom: 4,
-    display: 'inline-flex',
+    marginTop: 5,
     wordBreak: 'break-word',
     fontFamily:
       '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
@@ -29,19 +28,13 @@ export const ChatMessagesStyled = styled('div')(({ theme }) => ({
   '.leftRow': {
     textAlign: 'left',
   },
+  '.rightRow': {
+    textAlign: 'right',
+  },
   '.left': {
     borderTopRightRadius: 20,
     borderBottomRightRadius: 20,
     backgroundColor: theme.palette.grey[100],
-  },
-  '.leftFirst': {
-    borderTopLeftRadius: 20,
-  },
-  '.leftLast': {
-    borderBottomLeftRadius: 20,
-  },
-  '.rightRow': {
-    textAlign: 'right',
   },
   '.right': {
     borderTopLeftRadius: 20,
@@ -49,20 +42,26 @@ export const ChatMessagesStyled = styled('div')(({ theme }) => ({
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.common.white,
   },
+  '.leftFirst': {
+    borderTopLeftRadius: 20,
+  },
   '.rightFirst': {
     borderTopRightRadius: 20,
+  },
+  '.leftLast': {
+    borderBottomLeftRadius: 20,
   },
   '.rightLast': {
     borderBottomRightRadius: 20,
   },
   '.text-field-wrapper': {
     display: 'flex',
-    gap: '0.5rem',
+    gap: '0.7rem',
     alignItems: 'center',
-    padding: '0.8rem 1rem 0.8rem 3.25rem',
+    padding: '1rem 2.5rem',
     background: theme.palette.primary.light,
-  },
-  '.send-icon-disabled': {
-    color: theme.palette.primary.light,
+    [theme.breakpoints.down('md')]: {
+      padding: '0.7rem 1rem',
+    },
   },
 }));

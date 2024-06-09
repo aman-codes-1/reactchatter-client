@@ -1,24 +1,26 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useLayoutEffect, useState } from 'react';
 import { AuthProviderProps, Context } from './IAuth';
-import { Loader } from '../../components';
 import { useApi, useSocket } from '../../hooks';
-import { ConnectionContext } from '../Connection';
 import { apiRoutes } from '../../helpers';
+import { BaseProtected } from '../../pages';
 
 export const AuthContext = createContext<Context>({
   auth: {},
   setAuth: () => null,
+  refetch: () => null,
+  isLoading: false,
+  isAuthenticated: false,
 });
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [auth, setAuth] = useState();
   const isAuthenticated = Boolean(localStorage.getItem('isAuthenticated'));
   const [isLoading, setIsLoading] = useState(!!isAuthenticated);
+  const [reRun, setReRun] = useState(false);
   const { socket } = useSocket();
-  const { isLoading: isConnectionLoading } = useContext(ConnectionContext);
   const { callApi, callLogout } = useApi();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const verifyLogin = async () => {
       setIsLoading(true);
       try {
@@ -35,18 +37,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         await callLogout(setIsLoading);
       }
     };
-    if (!auth && isAuthenticated === true) {
-      if (isConnectionLoading) return;
+    if (!auth && !!isAuthenticated) {
       verifyLogin();
     }
-  }, [auth, isAuthenticated, socket, isConnectionLoading]);
+  }, [auth, isAuthenticated, socket, reRun]);
+
+  const refetch = () => {
+    setReRun((prev) => !prev);
+  };
 
   if (isLoading) {
-    return <Loader center />;
+    return <BaseProtected />;
   }
 
   return (
-    <AuthContext.Provider value={{ auth, setAuth }}>
+    <AuthContext.Provider
+      value={{ auth, setAuth, refetch, isLoading, isAuthenticated }}
+    >
       {children}
     </AuthContext.Provider>
   );
