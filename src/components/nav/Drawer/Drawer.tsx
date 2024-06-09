@@ -9,7 +9,6 @@ const Drawer = ({
   children,
 }: any) => {
   const theme = useTheme();
-  console.log(overlayHeight);
 
   return (
     <MuiDrawer
