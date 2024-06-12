@@ -1,3 +1,0 @@
-[submodule "server"]
-	path = server
-	url = https://github.com/aman-codes-1/reactchatter-server.git
