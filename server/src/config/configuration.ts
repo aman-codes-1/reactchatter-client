@@ -4,6 +4,7 @@ const CLIENT_PORT = process.env.CLIENT_PORT || 3001;
 const CLIENT_DOMAIN = process.env.CLIENT_DOMAIN || 'localhost';
 const SERVER_DOMAIN = process.env.SERVER_DOMAIN || 'localhost';
 const CLIENT_URI = process.env.CLIENT_URI || '';
+const SERVER_URI = process.env.SERVER_URI || '';
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/';
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
   ? (process.env.ALLOWED_ORIGINS?.includes(',') &&
@@ -23,6 +24,9 @@ const isDevelopment = NODE_ENV === 'development';
 const CLIENT_URL = isDevelopment
   ? `http://${CLIENT_DOMAIN}:${CLIENT_PORT}`
   : `${CLIENT_URI}`;
+const SERVER_URL = isDevelopment
+  ? `http://${SERVER_DOMAIN}:${PORT}`
+  : `${SERVER_URI}`;
 const ORIGINS = [ALLOWED_ORIGINS, CLIENT_URL]
   .filter((origin) => origin)
   .flat(1);
@@ -61,6 +65,7 @@ export default () => ({
   RATE_LIMIT_MAX,
   isDevelopment,
   CLIENT_URL,
+  SERVER_URL,
   ORIGINS,
   HTTP_ONLY_COOKIE,
   USERS_COOKIE,
