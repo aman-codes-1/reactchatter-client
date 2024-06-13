@@ -1,6 +1,7 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
@@ -11,7 +12,7 @@ import { AppModule } from './app.module';
 const MemoryStore = require('memorystore')(session);
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
   const PORT = configService.get('PORT');
   const SESSION_SECRET = configService.get('SESSION_SECRET');
@@ -80,6 +81,7 @@ async function bootstrap() {
       max: Number(RATE_LIMIT_MAX),
     }),
   );
+  app.set('trust proxy', 1);
   await app.listen(PORT, async () => {
     const logger = new Logger();
     const appUri = await app.getUrl();
