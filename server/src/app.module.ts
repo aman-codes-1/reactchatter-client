@@ -33,6 +33,7 @@ import configuration from './config/configuration';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         const isDevelopment = configService.get('isDevelopment');
+        console.log(isDevelopment);
         if (!isDevelopment) {
           return [
             {
