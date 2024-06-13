@@ -37,6 +37,7 @@ import configuration from './config/configuration';
           return [
             {
               rootPath: join(__dirname, '..', '..', 'build'),
+              exclude: ['/api/(.*)'],
             },
           ];
         }

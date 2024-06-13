@@ -1,7 +1,7 @@
 import { useLayoutEffect, useState } from 'react';
 
 export const useNavigatorOnLine = () => {
-  const url = 'https://www.google.com/';
+  const url = 'https://www.google.com';
   const urlPoll = 10000;
   const urlTimeout = 5000;
   const [isLoading, setIsLoading] = useState(true);

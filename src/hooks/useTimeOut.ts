@@ -1,4 +1,3 @@
-/* eslint-disable consistent-return */
 import { useEffect, useState } from 'react';
 
 export const useTimeout = (callback: any, delay: any) => {
@@ -9,6 +8,7 @@ export const useTimeout = (callback: any, delay: any) => {
       const timeout = setTimeout(callback, delay);
       return () => clearTimeout(timeout);
     }
+    return () => {};
   }, [isTimeoutRunning, delay, callback]);
 
   return [isTimeoutRunning, setIsTimeoutRunning] as any;

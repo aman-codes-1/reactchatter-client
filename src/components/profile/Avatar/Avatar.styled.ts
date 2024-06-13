@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { styled } from '@mui/system';
 
 export const AvatarStyled = styled('div')<{ width: string; height: string }>(

@@ -41,7 +41,6 @@ const DataList = ({
       const topPos = itemRect.top - listRect.top + scrollTop;
       const itemHeight = itemRect.height;
       const listHeight = listRect.height;
-      // eslint-disable-next-line prettier/prettier
       const scrollPos = topPos - listHeight / 2 + itemHeight / 2;
       listElement.scrollTo({ top: scrollPos, behavior: 'smooth' });
     }
