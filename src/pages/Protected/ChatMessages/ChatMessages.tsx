@@ -227,7 +227,6 @@ const ChatMessages = () => {
   };
 
   const renderChat = (msg: any, index: number, data: any, side: string) => {
-    // eslint-disable-next-line no-unused-vars
     const msgHeight = heights?.length
       ? heights?.find((el: any) => el?.msgId === msg?._id)?.height || 0
       : 0;
@@ -329,7 +328,6 @@ const ChatMessages = () => {
               </Grid>
             ))}
             {messagesQueue?.map((messageQueue: any) => {
-              // eslint-disable-next-line no-unused-vars
               const msgHeight2 = heights2?.length
                 ? heights2?.find(
                     (el: any) => el?.msgTimestamp === messageQueue?.timestamp,

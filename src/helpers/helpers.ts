@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 export const formatDate = (dateValue: string | number | Date) => {
   const date = new Date(dateValue);
   return date
