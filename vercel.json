@@ -18,6 +18,9 @@
       "source": "/api",
       "destination": "https://reactchatter-server-production.up.railway.app/api"
     },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }
