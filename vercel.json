@@ -11,6 +11,10 @@
   ],
   "routes": [
     {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    },
+    {
       "src": "/api",
       "dest": "https://reactchatter-server-production.up.railway.app/api"
     },
