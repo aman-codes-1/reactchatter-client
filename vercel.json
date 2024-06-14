@@ -13,10 +13,6 @@
     {
       "src": "/api",
       "dest": "https://reactchatter-server-production.up.railway.app/api"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "https://reactchatter-server-production.up.railway.app/api/$1"
     }
   ]
 }
