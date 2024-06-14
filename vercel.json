@@ -47,10 +47,6 @@
       "destination": "https://reactchatter-server-production.up.railway.app/graphql/$1"
     },
     {
-      "source": "/ws/graphql",
-      "destination": "wss://reactchatter-server-production.up.railway.app/graphql"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
