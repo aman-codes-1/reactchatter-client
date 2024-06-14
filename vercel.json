@@ -12,11 +12,11 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/$1"
+      "destination": "${env:REACT_APP_SERVER_URI}/api/$1"
     },
     {
       "source": "/api",
-      "destination": "/api"
+      "destination": "${env:REACT_APP_SERVER_URI}/api"
     },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
