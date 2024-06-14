@@ -3,24 +3,21 @@
   "builds": [
     {
       "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build"
-      }
+      "use": "@vercel/static-build"
     }
   ],
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    },
-    {
       "src": "/api",
-      "dest": "https://reactchatter-server-production.up.railway.app/api"
+      "dest": "/api"
     },
     {
       "src": "/api/(.*)",
-      "dest": "https://reactchatter-server-production.up.railway.app/api/$1"
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
