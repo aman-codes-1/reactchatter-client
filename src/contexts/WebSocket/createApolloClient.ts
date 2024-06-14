@@ -18,6 +18,7 @@ export const createApolloClient = (
   logout: any,
   setIsLogout: any,
 ) => {
+  console.log(process.env.NODE_ENV);
   const uri =
     process.env.NODE_ENV === 'development'
       ? `http://${process.env.REACT_APP_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}/graphql`
