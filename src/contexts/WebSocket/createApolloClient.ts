@@ -21,7 +21,7 @@ export const createApolloClient = (
   const uri =
     process.env.NODE_ENV === 'development'
       ? `http://${process.env.REACT_APP_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}/graphql`
-      : `${process.env.REACT_APP_SERVER_URI}/graphql`;
+      : `${process.env.REACT_APP_URI}/graphql`;
 
   const subscriptionUri =
     process.env.NODE_ENV === 'development'
