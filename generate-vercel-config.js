@@ -14,7 +14,6 @@ if (!REACT_APP_SERVER_URI) {
   console.error('REACT_APP_SERVER_URI environment variable is not set.');
   process.exit(1);
 }
-console.log(REACT_APP_SERVER_DOMAIN, REACT_APP_SERVER_URI);
 
 const vercelConfig = {
   version: 2,
@@ -33,12 +32,8 @@ const vercelConfig = {
       destination: `${REACT_APP_SERVER_URI}/api`,
     },
     {
-      source: '/api:path*',
-      destination: `${REACT_APP_SERVER_URI}/api:path*`,
-    },
-    {
-      source: '/api/(.*)',
-      destination: `${REACT_APP_SERVER_URI}/api/$1`,
+      source: '/api/:path*',
+      destination: `${REACT_APP_SERVER_URI}/api/:path*`,
     },
     {
       source: '/socket.io',
@@ -49,20 +44,12 @@ const vercelConfig = {
       destination: `${REACT_APP_SERVER_URI}/socket.io/:path*`,
     },
     {
-      source: '/socket.io/(.*)',
-      destination: `${REACT_APP_SERVER_URI}/socket.io/$1`,
-    },
-    {
       source: '/graphql',
       destination: `${REACT_APP_SERVER_URI}/graphql`,
     },
     {
       source: '/graphql/:path*',
       destination: `${REACT_APP_SERVER_URI}/graphql/:path*`,
-    },
-    {
-      source: '/graphql/(.*)',
-      destination: `${REACT_APP_SERVER_URI}/graphql/$1`,
     },
     {
       source: '/ws/graphql',

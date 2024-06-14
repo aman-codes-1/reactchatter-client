@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "generate": "node generate-vercel-config.js",
+    "predeploy": "node generate-vercel-config.js",
     "start": "react-scripts start",
-    "build": "npm run generate && react-scripts build",
+    "build": "react-scripts build",
     "lint": "eslint \"{src,apps,libs,test}/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier --write \"{src,apps,libs,test}/**/*.{js,jsx,ts,tsx}\"",
