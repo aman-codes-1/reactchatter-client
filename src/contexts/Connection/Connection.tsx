@@ -42,9 +42,7 @@ export const ConnectionProvider = ({
   }
 
   return (
-    <ConnectionContext.Provider
-      value={{ isLoading: isLoading && !!isAuthenticated, isOffline }}
-    >
+    <ConnectionContext.Provider value={{ isLoading, isOffline }}>
       {children}
     </ConnectionContext.Provider>
   );
