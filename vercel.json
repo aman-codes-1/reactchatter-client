@@ -12,7 +12,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "https://reactchatter-server-production.up.railway.app"
+      "dest": "https://reactchatter-server-production.up.railway.app/$1"
     }
   ]
 }
