@@ -14,6 +14,7 @@ if (!REACT_APP_SERVER_URI) {
   console.error('REACT_APP_SERVER_URI environment variable is not set.');
   process.exit(1);
 }
+console.log(REACT_APP_SERVER_DOMAIN, REACT_APP_SERVER_URI);
 
 const vercelConfig = {
   version: 2,
