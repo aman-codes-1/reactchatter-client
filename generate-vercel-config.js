@@ -15,6 +15,8 @@ if (!REACT_APP_SERVER_URI) {
   process.exit(1);
 }
 
+console.log(REACT_APP_SERVER_URI);
+
 const vercelConfig = {
   version: 2,
   builds: [
