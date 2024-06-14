@@ -1,15 +1,16 @@
-import { ReactNode, useLayoutEffect, useState } from 'react';
+import { ReactNode, useContext, useLayoutEffect, useState } from 'react';
 import { Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks';
 import { routesConfig } from './config';
 import { IRouteConfig } from './IRoutes';
 import { BaseProtected } from '../pages';
-import { ChatsAndFriendsProvider } from '../contexts';
+import { ChatsAndFriendsProvider, ConnectionContext } from '../contexts';
 
 const AppRoutes = () => {
   const location = useLocation();
   const { pathname } = location || {};
-  const { auth, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useContext(ConnectionContext);
+  const { auth, isLogout } = useAuth();
   const [defaultRoutes, setDefaultRoutes] = useState<ReactNode[]>([]);
   const [privateRoutes, setPrivateRoutes] = useState<ReactNode[]>([]);
   const [publicRoutes, setPublicRoutes] = useState<ReactNode[]>([]);
@@ -49,7 +50,7 @@ const AppRoutes = () => {
     window.location.reload();
   });
 
-  if (!auth && !!isAuthenticated) {
+  if (!auth && isAuthenticated && !isLogout) {
     return <BaseProtected />;
   }
 

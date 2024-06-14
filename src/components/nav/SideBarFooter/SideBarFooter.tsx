@@ -7,11 +7,15 @@ import { SideBarFooterStyled } from './SideBarFooter.styled';
 
 const SideBarFooter = ({ className }: any) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { auth: { name = '', email = '', picture = '' } = {} } = useAuth();
+  const { auth: { name = '', email = '', picture = '' } = {}, setIsLogout } =
+    useAuth();
   const { callLogout } = useApi();
 
   const handleLogout = async () => {
-    await callLogout(setIsLoading);
+    setIsLoading(true);
+    await callLogout();
+    setIsLogout(true);
+    setIsLoading(false);
   };
 
   return (

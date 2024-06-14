@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios, { AxiosRequestConfig } from 'axios';
 import { googleLogout } from '@react-oauth/google';
 import { Dispatch, SetStateAction } from 'react';
@@ -7,21 +7,22 @@ import { apiRoutes } from '../helpers';
 
 export const useApi = () => {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { socket } = useSocket();
-  const { auth, setAuth } = useAuth();
+  const { auth, setAuth, setIsLogout } = useAuth();
 
   const serverUri =
     process.env.NODE_ENV === 'development'
       ? `http://${process.env.REACT_APP_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}`
       : `${process.env.REACT_APP_SERVER_URI}`;
 
-  const logout = () => {
+  const logout = async () => {
     localStorage.removeItem('isAuthenticated');
     setAuth(undefined);
-    navigate('/', { replace: true });
     if (socket) {
-      socket.disconnect();
+      await socket.disconnect();
     }
+    navigate(pathname, { replace: true });
   };
 
   const callApi = async ({
@@ -51,9 +52,10 @@ export const useApi = () => {
         .then((res: any) => {
           resolve(res);
         })
-        .catch((err: any) => {
-          if (err?.response?.data?.message === 'Unauthorized') {
-            logout();
+        .catch(async (err: any) => {
+          if (err?.response?.status === 401) {
+            await logout();
+            setIsLogout(true);
           }
           reject(err);
         });
@@ -63,10 +65,7 @@ export const useApi = () => {
     }) as any;
   };
 
-  const callLogout = async (
-    setIsLoading: Dispatch<SetStateAction<boolean>>,
-  ) => {
-    setIsLoading(true);
+  const callLogout = async () => {
     try {
       if (auth?.provider === 'google') {
         googleLogout();
@@ -78,8 +77,7 @@ export const useApi = () => {
     } catch (err: any) {
       //
     } finally {
-      logout();
-      setIsLoading(false);
+      await logout();
     }
   };
 

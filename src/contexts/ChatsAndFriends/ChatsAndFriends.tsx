@@ -47,6 +47,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     data: chat,
     loading: chatLoading,
     error: chatError,
+    called: chatCalled,
   } = useQuery(CHAT_QUERY, {
     variables: {
       chatId,
@@ -305,6 +306,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         chat,
         chats,
         chatLoading,
+        chatCalled,
         chatsLoading,
         chatError,
         chatsError,

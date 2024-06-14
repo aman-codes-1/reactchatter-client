@@ -13,7 +13,11 @@ import { ErrorResponse, onError } from '@apollo/client/link/error';
 import { RetryLink } from '@apollo/client/link/retry';
 import { GraphQLError } from 'graphql/error/GraphQLError';
 
-export const createApolloClient = (auth: any, logout: any) => {
+export const createApolloClient = (
+  auth: any,
+  logout: any,
+  setIsLogout: any,
+) => {
   const uri =
     process.env.NODE_ENV === 'development'
       ? `http://${process.env.REACT_APP_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}/graphql`
@@ -43,7 +47,8 @@ export const createApolloClient = (auth: any, logout: any) => {
       if (graphQLErrors) {
         graphQLErrors.map(async ({ extensions }: GraphQLError) => {
           if (extensions?.code === 'UNAUTHENTICATED') {
-            logout();
+            await logout();
+            setIsLogout(true);
           }
         });
       }

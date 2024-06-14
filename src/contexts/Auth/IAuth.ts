@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { Dispatch, ReactElement, SetStateAction } from 'react';
 
 export type AuthProviderProps = {
   children: ReactElement;
@@ -11,5 +11,6 @@ export type Context = {
   setAuth: any;
   refetch: () => void;
   isLoading: boolean;
-  isAuthenticated: boolean;
+  isLogout: boolean;
+  setIsLogout: Dispatch<SetStateAction<boolean>>;
 };

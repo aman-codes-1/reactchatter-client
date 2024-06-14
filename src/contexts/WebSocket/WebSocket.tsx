@@ -9,12 +9,12 @@ export const WebSocketContext = createContext<any>({});
 export const WebSocketProvider = ({ children }: any) => {
   const [user, setUser] = useState<any>();
   const [socket, setSocket] = useState<any>(null);
-  const { auth } = useAuth();
+  const { auth, setIsLogout } = useAuth();
   const { logout } = useApi();
 
   const client: any = useMemo(() => {
     if (auth?.isLoggedIn) {
-      return createApolloClient(auth, logout);
+      return createApolloClient(auth, logout, setIsLogout);
     }
     return false;
   }, [auth?.isLoggedIn]);

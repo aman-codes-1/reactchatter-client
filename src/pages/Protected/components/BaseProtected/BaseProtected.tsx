@@ -4,7 +4,7 @@ import { SideBarList } from './components';
 import { Dashboard } from './pages';
 import { BaseProtectedStyled } from './BaseProtected.styled';
 
-const BaseProtected = ({ isLoading }: any) => {
+const BaseProtected = ({ isAuthLoading }: any) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const navbarRef = useRef<any>(null);
 
@@ -32,7 +32,7 @@ const BaseProtected = ({ isLoading }: any) => {
           <SideBarList toggleDrawer={toggleDrawer(false)} />
         </SideBar>
       </Drawer>
-      <Dashboard isLoading={isLoading} />
+      <Dashboard isLoading={isAuthLoading} />
       <NavBar
         className="hidden-from-web mobile-navbar"
         onMenuClick={toggleDrawer(false, true)}
