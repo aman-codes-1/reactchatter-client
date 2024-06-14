@@ -1,7 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios, { AxiosRequestConfig } from 'axios';
 import { googleLogout } from '@react-oauth/google';
-import { Dispatch, SetStateAction } from 'react';
 import { useAuth, useSocket } from '.';
 import { apiRoutes } from '../helpers';
 
