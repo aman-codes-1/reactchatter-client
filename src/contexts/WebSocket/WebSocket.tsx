@@ -7,8 +7,9 @@ import { createApolloClient } from './createApolloClient';
 export const WebSocketContext = createContext<any>({});
 
 export const WebSocketProvider = ({ children }: any) => {
-  const [user, setUser] = useState<any>();
-  const [socket, setSocket] = useState<any>(null);
+  const [user, setUser] = useState();
+  const [socket, setSocket] = useState(null);
+  const [isSocketInitialized, setIsSocketInitialized] = useState(false);
   const { auth, setIsLogout } = useAuth();
   const { logout } = useApi();
 
@@ -50,6 +51,7 @@ export const WebSocketProvider = ({ children }: any) => {
 
   useLayoutEffect(() => {
     let socketInstance: any = null;
+
     const initializeSocket = async () => {
       const serverUri =
         process.env.NODE_ENV === 'development'
@@ -73,9 +75,11 @@ export const WebSocketProvider = ({ children }: any) => {
         //
       }
     };
+
     if (user) {
       initializeSocket();
     }
+
     return () => {
       if (socketInstance) {
         socketInstance.disconnect();

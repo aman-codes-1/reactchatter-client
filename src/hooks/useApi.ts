@@ -15,9 +15,9 @@ export const useApi = () => {
       ? `http://${process.env.REACT_APP_SERVER_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}`
       : `${process.env.REACT_APP_URI}`;
 
-  const logout = async () => {
+  const logout = () => {
     if (socket) {
-      await socket.disconnect();
+      socket.disconnect();
     }
     setUser?.();
     localStorage.removeItem('isAuthenticated');
@@ -52,9 +52,9 @@ export const useApi = () => {
         .then((res: any) => {
           resolve(res);
         })
-        .catch(async (err: any) => {
+        .catch((err: any) => {
           if (err?.response?.status === 401) {
-            await logout();
+            logout();
             setIsLogout(true);
           }
           reject(err);
@@ -77,7 +77,7 @@ export const useApi = () => {
     } catch (err: any) {
       //
     } finally {
-      await logout();
+      logout();
     }
   };
 
