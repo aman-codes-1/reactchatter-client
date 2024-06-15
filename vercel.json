@@ -27,10 +27,6 @@
       "destination": "@REACT_APP_SERVER_URI/graphql"
     },
     {
-      "source": "/graphql/:path*",
-      "destination": "@REACT_APP_SERVER_URI/graphql/:path*"
-    },
-    {
       "source": "/ws/graphql",
       "destination": "wss://@REACT_APP_SERVER_DOMAIN/graphql"
     },
