@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "predeploy": "node generate-vercel-config.js",
+    "deploy": "vercel --prod",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "lint": "eslint \"{src,apps,libs,test}/**/*.{js,jsx,ts,tsx}\"",
