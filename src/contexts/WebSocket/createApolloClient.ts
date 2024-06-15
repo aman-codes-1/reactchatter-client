@@ -45,11 +45,12 @@ export const createApolloClient = (
   const errorLink: ApolloLink = onError(
     ({ graphQLErrors, networkError }: ErrorResponse) => {
       if (graphQLErrors) {
-        graphQLErrors.map(async ({ extensions }: GraphQLError) => {
+        graphQLErrors.map(({ extensions }: GraphQLError) => {
           if (extensions?.code === 'UNAUTHENTICATED') {
-            await logout();
+            logout();
             setIsLogout(true);
           }
+          return true;
         });
       }
 

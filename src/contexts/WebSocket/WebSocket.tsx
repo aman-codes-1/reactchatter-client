@@ -7,8 +7,9 @@ import { createApolloClient } from './createApolloClient';
 export const WebSocketContext = createContext<any>({});
 
 export const WebSocketProvider = ({ children }: any) => {
-  const [user, setUser] = useState<any>();
-  const [socket, setSocket] = useState<any>(null);
+  const [user, setUser] = useState();
+  const [socket, setSocket] = useState(null);
+  const [isSocketInitialized, setIsSocketInitialized] = useState(false);
   const { auth, setIsLogout } = useAuth();
   const { logout } = useApi();
 
@@ -69,22 +70,26 @@ export const WebSocketProvider = ({ children }: any) => {
       try {
         await socketPromise;
         setSocket(socketInstance);
+        setIsSocketInitialized(true);
       } catch (error) {
         //
       }
     };
-    if (user) {
+    if (user && !isSocketInitialized) {
       initializeSocket();
     }
     return () => {
       if (socketInstance) {
         socketInstance.disconnect();
+        setIsSocketInitialized(false);
       }
     };
   }, [user]);
 
   return (
-    <WebSocketContext.Provider value={{ socket, setUser }}>
+    <WebSocketContext.Provider
+      value={{ socket, setUser, setIsSocketInitialized }}
+    >
       {client ? (
         <ApolloProvider client={client?.client}>{children}</ApolloProvider>
       ) : (

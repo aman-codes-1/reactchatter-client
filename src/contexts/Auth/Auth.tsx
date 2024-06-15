@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           ...data?.data,
         });
       } catch (err: any) {
-        await logout();
+        logout();
         setIsLogout(true);
       } finally {
         setIsLoading(false);
