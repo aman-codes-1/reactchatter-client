@@ -16,7 +16,7 @@ const Login = () => {
       : location?.state?.from?.pathname) || '/';
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  console.log(token);
+  console.log('token', token);
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const { setAuth } = useAuth();
