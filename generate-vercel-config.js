@@ -20,7 +20,10 @@ const vercelConfig = {
   builds: [
     {
       src: 'package.json',
-      use: '@vercel/node',
+      use: '@vercel/static-build',
+      config: {
+        distDir: 'build',
+      },
     },
   ],
   rewrites: [
