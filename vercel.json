@@ -15,24 +15,20 @@
       "destination": "https://reactchatter-server-production.up.railway.app/api"
     },
     {
-      "source": "/api/(.*)",
-      "destination": "https://reactchatter-server-production.up.railway.app/api/$1"
+      "source": "/api/:path*",
+      "destination": "https://reactchatter-server-production.up.railway.app/api/:path*"
     },
     {
-      "source": "/socket.io",
-      "destination": "https://reactchatter-server-production.up.railway.app/socket.io"
-    },
-    {
-      "source": "/socket.io/(.*)",
-      "destination": "https://reactchatter-server-production.up.railway.app/socket.io/$1"
+      "source": "/socket.io/",
+      "destination": "https://reactchatter-server-production.up.railway.app/socket.io/"
     },
     {
       "source": "/graphql",
       "destination": "https://reactchatter-server-production.up.railway.app/graphql"
     },
     {
-      "source": "/graphql/(.*)",
-      "destination": "https://reactchatter-server-production.up.railway.app/graphql/$1"
+      "source": "/graphql/:path*",
+      "destination": "https://reactchatter-server-production.up.railway.app/graphql/:path*"
     },
     {
       "source": "/ws/graphql",
