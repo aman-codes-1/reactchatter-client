@@ -19,7 +19,7 @@ export const useApi = () => {
     if (socket) {
       socket.disconnect();
     }
-    setIsSocketInitialized(false);
+    setIsSocketInitialized?.(false);
     setUser?.();
     localStorage.removeItem('isAuthenticated');
     setAuth(undefined);
