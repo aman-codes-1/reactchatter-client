@@ -9,7 +9,6 @@ export const WebSocketContext = createContext<any>({});
 export const WebSocketProvider = ({ children }: any) => {
   const [user, setUser] = useState();
   const [socket, setSocket] = useState(null);
-  const [isSocketInitialized, setIsSocketInitialized] = useState(false);
   const { auth, setIsLogout } = useAuth();
   const { logout } = useApi();
 
@@ -59,6 +58,7 @@ export const WebSocketProvider = ({ children }: any) => {
           : `${process.env.REACT_APP_URI}`;
       socketInstance = io(serverUri, {
         auth: user,
+        reconnection: false,
       });
       const socketPromise = new Promise((resolve, reject) => {
         socketInstance.once('connect', () => {
