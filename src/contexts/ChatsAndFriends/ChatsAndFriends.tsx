@@ -40,6 +40,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       userId: _id,
     },
     fetchPolicy: 'network-only',
+    skip: !socket,
   });
 
   const {
