@@ -3,8 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predeploy": "node generate-vercel-config.js",
-    "deploy": "vercel --prod",
+    "prebuild": "node generate-vercel-config.js",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "lint": "eslint \"{src,apps,libs,test}/**/*.{js,jsx,ts,tsx}\"",
