@@ -15,8 +15,8 @@
       "destination": "https://reactchatter-server-production.up.railway.app/api"
     },
     {
-      "source": "/api/:path*",
-      "destination": "https://reactchatter-server-production.up.railway.app/api/:path*"
+      "source": "/api/(.*)",
+      "destination": "https://reactchatter-server-production.up.railway.app/api/$1"
     },
     {
       "source": "/socket.io/",
@@ -33,17 +33,6 @@
     {
       "source": "/(.*)",
       "destination": "/index.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/api/auth/google/redirect",
-      "headers": [
-        {
-          "key": "Set-Cookie",
-          "value": "HttpOnly"
-        }
-      ]
     }
   ]
 }

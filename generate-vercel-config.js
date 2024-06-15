@@ -32,8 +32,8 @@ const vercelConfig = {
       destination: `${REACT_APP_SERVER_URI}/api`,
     },
     {
-      source: '/api/:path*',
-      destination: `${REACT_APP_SERVER_URI}/api/:path*`,
+      source: '/api/(.*)',
+      destination: `${REACT_APP_SERVER_URI}/api/$1`,
     },
     {
       source: '/socket.io/',
