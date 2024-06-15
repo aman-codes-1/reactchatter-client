@@ -7,7 +7,7 @@ import { apiRoutes } from '../helpers';
 export const useApi = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { socket } = useSocket();
+  const { socket, setUser } = useSocket();
   const { auth, setAuth, setIsLogout } = useAuth();
 
   const serverUri =
@@ -16,12 +16,13 @@ export const useApi = () => {
       : `${process.env.REACT_APP_URI}`;
 
   const logout = async () => {
-    localStorage.removeItem('isAuthenticated');
-    setAuth(undefined);
-    navigate(pathname, { replace: true });
     if (socket) {
       await socket.disconnect();
     }
+    setUser();
+    localStorage.removeItem('isAuthenticated');
+    setAuth(undefined);
+    navigate(pathname, { replace: true });
   };
 
   const callApi = async ({
