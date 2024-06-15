@@ -16,12 +16,6 @@
     },
     {
       "source": "/api/:path*",
-      "headers": [
-        {
-          "key": "Set-Cookie",
-          "value": "HttpOnly"
-        }
-      ],
       "destination": "https://reactchatter-server-production.up.railway.app/api/:path*"
     },
     {
@@ -39,6 +33,17 @@
     {
       "source": "/(.*)",
       "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/*",
+      "headers": [
+        {
+          "key": "Set-Cookie",
+          "value": "HttpOnly"
+        }
+      ]
     }
   ]
 }
