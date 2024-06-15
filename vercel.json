@@ -19,8 +19,8 @@
       "destination": "https://reactchatter-server-production.up.railway.app/api/:path*"
     },
     {
-      "source": "/socket.io/:path*",
-      "destination": "https://reactchatter-server-production.up.railway.app/socket.io/:path*"
+      "source": "/socket.io/:match*",
+      "destination": "https://reactchatter-server-production.up.railway.app/socket.io/:match*"
     },
     {
       "source": "/graphql",
