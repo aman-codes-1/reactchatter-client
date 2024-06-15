@@ -21,9 +21,6 @@ const vercelConfig = {
     {
       src: 'package.json',
       use: '@vercel/node',
-      config: {
-        distDir: 'build',
-      },
     },
   ],
   rewrites: [
