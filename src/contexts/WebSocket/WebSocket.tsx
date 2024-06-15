@@ -49,38 +49,38 @@ export const WebSocketProvider = ({ children }: any) => {
   }, [client]);
 
   useLayoutEffect(() => {
-    if (user) {
+    let socketInstance: any = null;
+    const initializeSocket = async () => {
       const serverUri =
         process.env.NODE_ENV === 'development'
           ? `http://${process.env.REACT_APP_SERVER_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}`
           : `${process.env.REACT_APP_URI}`;
-      const Socket = io(serverUri, {
+      socketInstance = io(serverUri, {
         auth: user,
       });
-      const initializeSocket = async () => {
-        const socketPromise = new Promise((resolve, reject) => {
-          Socket.once('connect', () => {
-            resolve(Socket);
-          });
-          Socket.once('connect_error', (error) => {
-            reject(error);
-          });
+      const socketPromise = new Promise((resolve, reject) => {
+        socketInstance.once('connect', () => {
+          resolve(socketInstance);
         });
-        try {
-          const asyncSocket = await socketPromise;
-          setSocket(asyncSocket);
-        } catch (error) {
-          //
-        }
-      };
+        socketInstance.once('connect_error', (error: any) => {
+          reject(error);
+        });
+      });
+      try {
+        await socketPromise;
+        setSocket(socketInstance);
+      } catch (error) {
+        //
+      }
+    };
+    if (user) {
       initializeSocket();
-      return () => {
-        if (Socket) {
-          Socket.disconnect();
-        }
-      };
     }
-    return () => {};
+    return () => {
+      if (socketInstance) {
+        socketInstance.disconnect();
+      }
+    };
   }, [user]);
 
   return (
