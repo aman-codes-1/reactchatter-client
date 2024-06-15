@@ -7,7 +7,7 @@ import { apiRoutes } from '../helpers';
 export const useApi = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { socket, setUser, setIsSocketInitialized } = useSocket();
+  const { socket, setUser } = useSocket();
   const { auth, setAuth, setIsLogout } = useAuth();
 
   const serverUri =
@@ -19,7 +19,6 @@ export const useApi = () => {
     if (socket) {
       socket.disconnect();
     }
-    setIsSocketInitialized?.(false);
     setUser?.();
     localStorage.removeItem('isAuthenticated');
     setAuth(undefined);

@@ -51,6 +51,7 @@ export const WebSocketProvider = ({ children }: any) => {
 
   useLayoutEffect(() => {
     let socketInstance: any = null;
+
     const initializeSocket = async () => {
       const serverUri =
         process.env.NODE_ENV === 'development'
@@ -70,26 +71,24 @@ export const WebSocketProvider = ({ children }: any) => {
       try {
         await socketPromise;
         setSocket(socketInstance);
-        setIsSocketInitialized(true);
       } catch (error) {
         //
       }
     };
-    if (user && !isSocketInitialized) {
+
+    if (user) {
       initializeSocket();
     }
+
     return () => {
       if (socketInstance) {
         socketInstance.disconnect();
-        setIsSocketInitialized(false);
       }
     };
   }, [user]);
 
   return (
-    <WebSocketContext.Provider
-      value={{ socket, setUser, setIsSocketInitialized }}
-    >
+    <WebSocketContext.Provider value={{ socket, setUser }}>
       {client ? (
         <ApolloProvider client={client?.client}>{children}</ApolloProvider>
       ) : (
