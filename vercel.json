@@ -37,7 +37,8 @@
   ],
   "headers": [
     {
-      "source": "/api/:path*",
+      "source": "/api/auth/google/redirect",
+      "destination": "https://reactchatter-server-production.up.railway.app/api/auth/google/redirect",
       "headers": [
         {
           "key": "Set-Cookie",

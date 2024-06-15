@@ -18,10 +18,10 @@ export const useApi = () => {
   const logout = async () => {
     localStorage.removeItem('isAuthenticated');
     setAuth(undefined);
+    navigate(pathname, { replace: true });
     if (socket) {
       await socket.disconnect();
     }
-    navigate(pathname, { replace: true });
   };
 
   const callApi = async ({
