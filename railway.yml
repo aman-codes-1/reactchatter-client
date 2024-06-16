@@ -1,5 +1,5 @@
 services:
-  - name: frontend
+  - name: reactchatter
     start: "nginx -c /etc/nginx/nginx.conf -g 'daemon off;'"
     build:
       command: |
