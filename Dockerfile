@@ -17,6 +17,9 @@ COPY --from=build /app/build /usr/share/nginx/html
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf.template
 COPY nginx/start.sh /start.sh
 
+# Add this line to set execution permissions for the script
+RUN chmod +x /start.sh
+
 EXPOSE 80
 
 CMD ["/start.sh"]
