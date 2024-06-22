@@ -4,6 +4,11 @@ FROM node:14-alpine as build
 # Set working directory
 WORKDIR /app
 
+# Install dependencies
+COPY package.json ./
+COPY package.lock.json ./
+RUN yarn install
+
 # Copy source code
 COPY . .
 
