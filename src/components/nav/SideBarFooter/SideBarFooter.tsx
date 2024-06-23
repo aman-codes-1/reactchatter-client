@@ -13,8 +13,7 @@ const SideBarFooter = ({ className }: any) => {
 
   const handleLogout = async () => {
     setIsLoading(true);
-    await callLogout();
-    setIsLogout(true);
+    await callLogout(setIsLogout);
     setIsLoading(false);
   };
 

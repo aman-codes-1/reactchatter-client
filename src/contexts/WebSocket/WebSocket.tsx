@@ -72,7 +72,8 @@ export const WebSocketProvider = ({ children }: any) => {
         await socketPromise;
         setSocket(socketInstance);
       } catch (error) {
-        //
+        logout();
+        setIsLogout(true);
       }
     };
 
