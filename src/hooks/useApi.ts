@@ -14,6 +14,7 @@ export const useApi = () => {
     process.env.NODE_ENV === 'development'
       ? `http://${process.env.REACT_APP_SERVER_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}`
       : `${process.env.REACT_APP_URI}`;
+  console.log(serverUri);
 
   const logout = () => {
     if (socket) {
