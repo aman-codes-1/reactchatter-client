@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "react-scripts start",
-    "prebuild": "node generate-vercel-json.js",
+    "postinstall": "node generate-vercel-json.js",
     "build": "react-scripts build",
     "lint": "eslint \"{src,apps,libs,test}/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "npm run lint -- --fix",
