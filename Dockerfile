@@ -4,13 +4,22 @@ FROM node:20-alpine as build
 # Set working directory
 WORKDIR /app
 
+# Copy source code
+COPY . .
+
+# Copy the .env file
+COPY .env .env
+
 # Install dependencies
 COPY package.json ./
 COPY package-lock.json ./
 RUN npm install
 
-# Copy source code
-COPY . .
+# Optionally, you can use a tool like dotenv-cli to load the .env file into the environment during the build
+RUN npm install -g dotenv-cli
+
+# Load environment variables from the .env file and echo them for debugging purposes
+RUN dotenv -e .env
 
 # Build the app
 RUN npm run build
@@ -28,6 +37,7 @@ COPY nginx.conf /etc/nginx/nginx.conf
 ARG PORT
 ARG REACT_APP_SERVER_URI
 
+ENV PORT=$PORT
 ENV REACT_APP_SERVER_URI=$REACT_APP_SERVER_URI
 
 # Copy the entry point script into the container
