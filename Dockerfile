@@ -1,15 +1,26 @@
 # Use the official Node.js image
 FROM node:20-alpine as build
 
-# Set working directory
+# Set environment variables
+ARG PORT
+ARG REACT_APP_DOMAIN
+ARG REACT_APP_URI
+ARG REACT_APP_SERVER_URI
+
+ENV PORT=$PORT
+ENV REACT_APP_DOMAIN=$REACT_APP_DOMAIN
+ENV REACT_APP_URI=$REACT_APP_URI
+ENV REACT_APP_SERVER_URI=$REACT_APP_SERVER_URI
+
+RUN echo "PORT=$PORT"
+RUN echo "REACT_APP_DOMAIN=$REACT_APP_DOMAIN"
+RUN echo "REACT_APP_URI=$REACT_APP_URI"
+RUN echo "REACT_APP_SERVER_URI=$REACT_APP_SERVER_URI"
+
+# Create app directory and copy files
 WORKDIR /app
-
-# Install dependencies
-COPY package.json ./
-COPY package-lock.json ./
+COPY package*.json ./
 RUN npm install
-
-# Copy source code
 COPY . .
 
 # Build the app
@@ -24,22 +35,12 @@ COPY --from=build /app/build /usr/share/nginx/html
 # Copy the custom Nginx configuration file to the container
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Set environment variables
-ARG PORT
-ARG REACT_APP_DOMAIN
-ARG REACT_APP_URI
-ARG REACT_APP_SERVER_URI
-
-ENV PORT=$PORT
-ENV REACT_APP_DOMAIN=$REACT_APP_DOMAIN
-ENV REACT_APP_URI=$REACT_APP_URI
-ENV REACT_APP_SERVER_URI=$REACT_APP_SERVER_URI
-
 # Copy the entry point script into the container
 COPY nginxPop.sh /nginxPop.sh
 
 # Make entry point script executable
 RUN chmod +x /nginxPop.sh
+
 
 # Expose $PORT
 EXPOSE $PORT
