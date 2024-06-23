@@ -46,7 +46,7 @@ const Login = () => {
   const handleLogin = async () => {
     try {
       window.open(
-        `/api/auth/google/login/${from.replaceAll('/', '@')}`,
+        `${serverUri}/api/auth/google/login/${from.replaceAll('/', '@')}`,
         '_self',
       );
     } catch (err) {
