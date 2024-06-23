@@ -65,7 +65,7 @@ export const useApi = () => {
     }) as any;
   };
 
-  const callLogout = async () => {
+  const callLogout = async (setLogout: any) => {
     try {
       if (auth?.provider === 'google') {
         googleLogout();
@@ -78,6 +78,7 @@ export const useApi = () => {
       //
     } finally {
       logout();
+      setLogout(true);
     }
   };
 
