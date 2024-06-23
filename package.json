@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "start": "react-scripts start",
-    "postinstall": "node generate-vercel-json.js",
     "build": "react-scripts build",
+    "vercel-build": "node generate-vercel-json.js && react-scripts build",
     "lint": "eslint \"{src,apps,libs,test}/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier --write \"{src,apps,libs,test}/**/*.{js,jsx,ts,tsx}\"",
