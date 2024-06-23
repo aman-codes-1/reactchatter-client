@@ -26,10 +26,8 @@ COPY nginx.conf /etc/nginx/nginx.conf
 
 # Set environment variables
 ARG PORT
-ARG REACT_APP_URI
 ARG REACT_APP_SERVER_URI
 
-ENV REACT_APP_URI=$REACT_APP_URI
 ENV REACT_APP_SERVER_URI=$REACT_APP_SERVER_URI
 
 # Copy the entry point script into the container
