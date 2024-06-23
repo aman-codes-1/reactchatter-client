@@ -10,13 +10,6 @@ export const useApi = () => {
   const { socket, setUser } = useSocket();
   const { auth, setAuth, setIsLogout } = useAuth();
 
-  console.log(
-    process.env.NODE_ENV,
-    process.env.PORT,
-    process.env.REACT_APP_SERVER_URI,
-    process.env.REACT_APP_URI,
-  );
-
   const serverUri =
     process.env.NODE_ENV === 'development'
       ? `http://${process.env.REACT_APP_SERVER_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}`
