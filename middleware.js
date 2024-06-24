@@ -6,7 +6,7 @@ export default function middleware(request) {
   const serverUri = process.env.REACT_APP_SERVER_URI;
   const serverDomain = process.env.REACT_APP_SERVER_DOMAIN;
 
-  if (url.pathname.startsWith('/api')) {
+  if (url.pathname === '/api') {
     return rewrite(new URL(`${serverUri}/api`, request.url));
   }
 
@@ -15,7 +15,7 @@ export default function middleware(request) {
   }
 
   if (url.pathname.startsWith('/api/')) {
-    return rewrite(new URL(`${serverUri}/api/$1`, request.url));
+    return rewrite(new URL(`${serverUri}${url.pathname}`, request.url));
   }
 
   if (url.pathname.startsWith('/socket.io/')) {
@@ -30,5 +30,5 @@ export default function middleware(request) {
     return rewrite(new URL(`wss://${serverDomain}/graphql`, request.url));
   }
 
-  return rewrite(new URL('/index.html', serverUri));
+  return rewrite(new URL('/index.html', request.url));
 }
