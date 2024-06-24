@@ -7,35 +7,28 @@
       "config": {
         "distDir": "build"
       }
-    },
-    {
-      "src": "api/middleware.js",
-      "use": "@vercel/node"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/middleware"
+      "source": "/api/",
+      "destination": "${REACT_APP_SERVER_URI}/api/"
     },
     {
-      "src": "/socket.io/(.*)",
-      "dest": "/api/middleware"
+      "source": "/socket.io/",
+      "destination": "${REACT_APP_SERVER_URI}/socket.io/"
     },
     {
-      "src": "/graphql",
-      "dest": "/api/middleware"
+      "source": "/graphql",
+      "destination": "${REACT_APP_SERVER_URI}/graphql"
     },
     {
-      "src": "/ws/graphql",
-      "dest": "/api/middleware"
+      "source": "/ws/graphql",
+      "destination": "wss://${REACT_APP_SERVER_DOMAIN}/graphql"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
-  ],
-  "env": {
-    "REACT_APP_SERVER_URI": "REACT_APP_SERVER_URI"
-  }
+  ]
 }
