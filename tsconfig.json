@@ -16,5 +16,5 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["src/**/*", "generate-vercel-json.js"]
+  "include": ["src/**/*", "middleware.js"]
 }
