@@ -10,10 +10,6 @@ export default function middleware(request) {
     return rewrite(new URL(`${serverUri}/api`, request.url));
   }
 
-  if (url.pathname.startsWith('/api')) {
-    return rewrite(new URL(`${serverUri}/api`, request.url));
-  }
-
   if (url.pathname.startsWith('/api/')) {
     return rewrite(new URL(`${serverUri}${url.pathname}`, request.url));
   }
@@ -28,6 +24,10 @@ export default function middleware(request) {
 
   if (url.pathname.startsWith('/ws/graphql')) {
     return rewrite(new URL(`wss://${serverDomain}/graphql`, request.url));
+  }
+
+  if (url.pathname === '/') {
+    return rewrite(new URL('/index.html', request.url));
   }
 
   return rewrite(new URL('/index.html', request.url));
