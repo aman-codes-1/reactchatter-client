@@ -26,9 +26,5 @@ export default function middleware(request) {
     return rewrite(new URL(`wss://${serverDomain}/graphql`, request.url));
   }
 
-  if (url.pathname === '/') {
-    return rewrite(new URL('/index.html'));
-  }
-
-  return rewrite(new URL('/index.html'));
+  return true;
 }
