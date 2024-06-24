@@ -12,23 +12,23 @@
   "rewrites": [
     {
       "source": "/api",
-      "destination": "${REACT_APP_SERVER_URI}/api"
+      "destination": "@REACT_APP_SERVER_URI/api"
     },
     {
       "source": "/api/(.*)",
-      "destination": "${REACT_APP_SERVER_URI}/api/$1"
+      "destination": "@REACT_APP_SERVER_URI/api/$1"
     },
     {
       "source": "/socket.io/",
-      "destination": "${REACT_APP_SERVER_URI}/socket.io/"
+      "destination": "@REACT_APP_SERVER_URI/socket.io/"
     },
     {
       "source": "/graphql",
-      "destination": "${REACT_APP_SERVER_URI}/graphql"
+      "destination": "@REACT_APP_SERVER_URI/graphql"
     },
     {
       "source": "/ws/graphql",
-      "destination": "wss://${REACT_APP_SERVER_DOMAIN}/graphql"
+      "destination": "wss://@REACT_APP_SERVER_DOMAIN/graphql"
     },
     {
       "source": "/(.*)",
