@@ -13,10 +13,26 @@
       "use": "@vercel/node"
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "/api/(.*)",
+      "dest": "/api/middleware"
+    },
+    {
+      "src": "/socket.io/(.*)",
+      "dest": "/api/middleware"
+    },
+    {
+      "src": "/graphql",
+      "dest": "/api/middleware"
+    },
+    {
+      "src": "/ws/graphql",
+      "dest": "/api/middleware"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ],
   "env": {
