@@ -3,6 +3,8 @@ import { rewrite } from '@vercel/edge';
 export default function middleware(request) {
   const url = new URL(request.url);
 
+  console.log('url.pathname', url.pathname);
+
   const serverUri = process.env.REACT_APP_SERVER_URI;
   const serverDomain = process.env.REACT_APP_SERVER_DOMAIN;
 
