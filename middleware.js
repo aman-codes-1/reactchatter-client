@@ -10,18 +10,15 @@ export default function middleware(request) {
     return next();
   }
 
+  if (url.pathname === '/api/auth/google/redirect') {
+    return next();
+  }
+
   if (url.pathname === '/api') {
     return rewrite(new URL(`${serverUri}/api`, request.url));
   }
 
-  if (url.pathname.startsWith('/api/auth/google/redirect')) {
-    return next();
-  }
-
-  if (
-    url.pathname.startsWith('/api/') &&
-    !url.pathname.startsWith('/api/auth/google/redirect')
-  ) {
+  if (url.pathname.startsWith('/api/')) {
     return rewrite(new URL(`${serverUri}${url.pathname}`, request.url));
   }
 
