@@ -26,7 +26,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   const [selectedFriend, setSelectedFriend] = useState();
   const [activeMember, setActiveMember] = useState();
   const { auth: { _id = '' } = {} } = useAuth();
-  const { socket } = useSocket();
+  const { isLoading: isSocketLoading } = useSocket();
 
   const {
     data: { chats = [] } = {},
@@ -40,7 +40,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       userId: _id,
     },
     fetchPolicy: 'network-only',
-    skip: !socket,
+    skip: isSocketLoading,
   });
 
   const {
@@ -54,7 +54,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     },
     fetchPolicy: 'network-only',
     skip:
-      !socket ||
+      isSocketLoading ||
       !chatId ||
       (chatsCalled &&
         !chatsLoading &&
@@ -75,7 +75,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       userId: _id,
     },
     fetchPolicy: 'network-only',
-    skip: !socket,
+    skip: isSocketLoading,
   });
 
   const [
@@ -132,7 +132,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     variables: {
       userId: _id,
     },
-    skip: !socket,
+    skip: isSocketLoading,
   });
 
   const {
@@ -150,7 +150,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     variables: {
       userId: _id,
     },
-    skip: !socket,
+    skip: isSocketLoading,
   });
 
   const [

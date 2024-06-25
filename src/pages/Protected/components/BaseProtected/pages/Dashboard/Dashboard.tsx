@@ -13,11 +13,11 @@ const Dashboard = ({ isLoading }: any) => {
     otherFriendsLoading,
     otherFriendsCalled,
   } = useContext(ChatsAndFriendsContext);
-  const { socket } = useSocket();
+  const { isLoading: isSocketLoading } = useSocket();
 
   if (
     isLoading ||
-    !socket ||
+    isSocketLoading ||
     chatLoading ||
     !chatsCalled ||
     chatsLoading ||
