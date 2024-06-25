@@ -27,8 +27,8 @@ export default function middleware(request) {
   }
 
   if (url.pathname === '/' || url.pathname === '/index.html') {
-    return rewrite(new URL('index.html', request.url));
+    return rewrite(new URL('/index.html', request.url));
   }
 
-  return rewrite(new URL('index.html', request.url));
+  return rewrite(new URL('/index.html', request.url));
 }
