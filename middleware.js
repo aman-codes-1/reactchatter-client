@@ -1,9 +1,5 @@
 import { rewrite } from '@vercel/edge';
 
-export const config = {
-  distDir: 'build',
-};
-
 export default async function middleware(request) {
   const url = new URL(request.url);
 
