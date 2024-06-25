@@ -3,11 +3,10 @@ import { next, rewrite } from '@vercel/edge';
 export default function middleware(request) {
   const url = new URL(request.url);
 
-  const clientUri = process.env.REACT_APP_URI;
   const serverUri = process.env.REACT_APP_SERVER_URI;
   const serverDomain = process.env.REACT_APP_SERVER_DOMAIN;
 
-  if (!clientUri || !serverUri || !serverDomain) {
+  if (!serverUri || !serverDomain) {
     return next();
   }
 
@@ -15,15 +14,15 @@ export default function middleware(request) {
     return rewrite(new URL(`${serverUri}/api`, request.url));
   }
 
+  if (url.pathname.startsWith('/api/auth/google/redirect')) {
+    return next();
+  }
+
   if (
     url.pathname.startsWith('/api/') &&
     !url.pathname.startsWith('/api/auth/google/redirect')
   ) {
     return rewrite(new URL(`${serverUri}${url.pathname}`, request.url));
-  }
-
-  if (url.pathname.startsWith('/api/auth/google/redirect')) {
-    return rewrite(new URL(`${clientUri}/login`, request.url));
   }
 
   if (url.pathname.startsWith('/socket.io/')) {
