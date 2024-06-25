@@ -26,9 +26,9 @@ export default function middleware(request) {
   //   );
   // }
 
-  // if (url.pathname.startsWith('/graphql')) {
-  //   return rewrite(new URL(`${serverUri}/graphql`, request.url));
-  // }
+  if (url.pathname.startsWith('/graphql')) {
+    return rewrite(new URL(`${serverUri}/graphql`, request.url));
+  }
 
   // if (url.pathname.startsWith('/ws/graphql')) {
   //   return rewrite(new URL(`wss://${serverDomain}/graphql`, request.url));
