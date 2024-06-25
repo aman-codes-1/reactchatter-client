@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api",
+      "destination": "https://reactchatter-server-production.up.railway.app/api"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "https://reactchatter-server-production.up.railway.app/api/$1"
+    },
+    {
+      "source": "/socket.io/",
+      "destination": "https://reactchatter-server-production.up.railway.app/socket.io/"
+    },
+    {
+      "source": "/graphql",
+      "destination": "https://reactchatter-server-production.up.railway.app/graphql"
+    },
+    {
+      "source": "/ws/graphql",
+      "destination": "wss://reactchatter-server-production.up.railway.app/graphql"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
