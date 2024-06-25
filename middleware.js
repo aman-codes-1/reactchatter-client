@@ -18,6 +18,10 @@ export default function middleware(request) {
     return rewrite(new URL(`${serverUri}${url.pathname}`, request.url));
   }
 
+  if (url.pathname.startsWith('/api/auth/google/redirect')) {
+    return next();
+  }
+
   if (url.pathname.startsWith('/socket.io/')) {
     return rewrite(new URL(`${serverUri}/socket.io/`, request.url));
   }
