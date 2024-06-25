@@ -1,5 +1,9 @@
 import { rewrite } from '@vercel/edge';
 
+export const config = {
+  distDir: 'build',
+};
+
 export default function middleware(request) {
   const url = new URL(request.url);
 
@@ -26,5 +30,9 @@ export default function middleware(request) {
     return rewrite(new URL(`wss://${serverDomain}/graphql`, request.url));
   }
 
-  return true;
+  if (url.pathname === '/') {
+    return rewrite(new URL('/index.html'));
+  }
+
+  return rewrite(new URL('/index.html'));
 }
