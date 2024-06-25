@@ -15,7 +15,7 @@ import { GraphQLError } from 'graphql/error/GraphQLError';
 
 export const createApolloClient = (
   auth: any,
-  logout: any,
+  callLogout: any,
   setIsLogout: any,
 ) => {
   const uri = `${process.env.REACT_APP_SERVER_URI}/graphql`;
@@ -39,10 +39,9 @@ export const createApolloClient = (
   const errorLink: ApolloLink = onError(
     ({ graphQLErrors, networkError }: ErrorResponse) => {
       if (graphQLErrors) {
-        graphQLErrors.map(({ extensions }: GraphQLError) => {
+        graphQLErrors.map(async ({ extensions }: GraphQLError) => {
           if (extensions?.code === 'UNAUTHENTICATED') {
-            logout();
-            setIsLogout(true);
+            await callLogout(setIsLogout);
           }
           return true;
         });

@@ -10,11 +10,11 @@ export const WebSocketProvider = ({ children }: any) => {
   const [user, setUser] = useState();
   const [socket, setSocket] = useState(null);
   const { auth, setIsLogout } = useAuth();
-  const { logout } = useApi();
+  const { callLogout } = useApi();
 
   const client: any = useMemo(() => {
     if (auth?.isLoggedIn) {
-      return createApolloClient(auth, logout, setIsLogout);
+      return createApolloClient(auth, callLogout, setIsLogout);
     }
     return false;
   }, [auth?.isLoggedIn]);
@@ -70,8 +70,7 @@ export const WebSocketProvider = ({ children }: any) => {
         await socketPromise;
         setSocket(socketInstance);
       } catch (err) {
-        logout();
-        setIsLogout(true);
+        await callLogout(setIsLogout);
       }
     };
 
