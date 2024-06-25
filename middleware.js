@@ -1,6 +1,7 @@
+/* eslint-disable consistent-return */
 import { rewrite } from '@vercel/edge';
 
-export default middleware = (request) => {
+export default function middleware(request) {
   const url = new URL(request.url);
 
   const serverUri = process.env.REACT_APP_SERVER_URI;
@@ -25,10 +26,4 @@ export default middleware = (request) => {
   if (url.pathname.startsWith('/ws/graphql')) {
     return rewrite(new URL(`wss://${serverDomain}/graphql`, request.url));
   }
-
-  if (url.pathname === '/' || url.pathname === '/index.html') {
-    return rewrite(new URL('/static', request.url));
-  }
-
-  return rewrite(new URL('/static', request.url));
-};
+}
