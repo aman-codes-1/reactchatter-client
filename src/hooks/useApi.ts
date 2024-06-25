@@ -10,10 +10,7 @@ export const useApi = () => {
   const { socket, setUser } = useSocket();
   const { auth, setAuth, setIsLogout } = useAuth();
 
-  const serverUri =
-    process.env.NODE_ENV === 'development'
-      ? `http://${process.env.REACT_APP_SERVER_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}`
-      : `${process.env.REACT_APP_URI}`;
+  const serverUri = `${process.env.REACT_APP_PROXY_URI}`;
 
   const logout = () => {
     if (socket) {
