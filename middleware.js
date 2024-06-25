@@ -4,9 +4,8 @@ export default function middleware(request) {
   const url = new URL(request.url);
 
   const serverUri = process.env.REACT_APP_SERVER_URI;
-  const serverDomain = process.env.REACT_APP_SERVER_DOMAIN;
 
-  if (!serverUri || !serverDomain) {
+  if (!serverUri) {
     return next();
   }
 

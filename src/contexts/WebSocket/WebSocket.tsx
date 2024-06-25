@@ -52,10 +52,7 @@ export const WebSocketProvider = ({ children }: any) => {
     let socketInstance: any = null;
 
     const initializeSocket = async () => {
-      const serverUri =
-        process.env.NODE_ENV === 'development'
-          ? `http://${process.env.REACT_APP_SERVER_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}`
-          : `${process.env.REACT_APP_SERVER_URI}`;
+      const serverUri = `${process.env.REACT_APP_SERVER_URI}`;
       socketInstance = io(serverUri, {
         auth: user,
         reconnection: false,
