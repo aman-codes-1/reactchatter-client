@@ -10,6 +10,8 @@ export default function middleware(request) {
     return next();
   }
 
+  console.log(url);
+
   if (url.pathname === '/api') {
     return rewrite(new URL(`${serverUri}/api`, request.url));
   }
