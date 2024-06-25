@@ -59,6 +59,8 @@ export const WebSocketProvider = ({ children }: any) => {
       socketInstance = io(serverUri, {
         auth: user,
         reconnection: false,
+        forceNew: false,
+        autoConnect: false,
       });
       const socketPromise = new Promise((resolve, reject) => {
         socketInstance.once('connect', () => {
