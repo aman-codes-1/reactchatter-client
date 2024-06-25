@@ -10,7 +10,10 @@ export default function middleware(request) {
     return next();
   }
 
+  console.log('Incoming request:', url.pathname);
+
   if (url.pathname === '/api/auth/google/redirect') {
+    console.log('Passing through /api/auth/google/redirect');
     return next();
   }
 
