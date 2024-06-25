@@ -1,10 +1,6 @@
 import { rewrite } from '@vercel/edge';
 
-export const config = {
-  distDir: 'build',
-};
-
-export default function middleware(request) {
+export default async function middleware(request) {
   const url = new URL(request.url);
 
   const serverUri = process.env.REACT_APP_SERVER_URI;
@@ -30,9 +26,10 @@ export default function middleware(request) {
     return rewrite(new URL(`wss://${serverDomain}/graphql`, request.url));
   }
 
-  if (url.pathname === '/') {
-    return rewrite(new URL('/index.html', request.url));
-  }
+  const data = await fetch(new URL(`/index.html`, request.url));
 
-  return rewrite(new URL('/index.html', request.url));
+  return new Response(data, {
+    status: 200,
+    headers: { 'content-type': 'text/html' },
+  });
 }
