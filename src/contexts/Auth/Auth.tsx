@@ -1,6 +1,6 @@
 import { createContext, useContext, useLayoutEffect, useState } from 'react';
 import { AuthProviderProps, Context } from './IAuth';
-import { useApi, useSocket } from '../../hooks';
+import { useApi } from '../../hooks';
 import { apiRoutes } from '../../helpers';
 import { ConnectionContext } from '..';
 import { BaseProtected } from '../../pages';
@@ -18,7 +18,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [auth, setAuth] = useState();
   const [reRun, setReRun] = useState(false);
   const [isLogout, setIsLogout] = useState(false);
-  const { socket } = useSocket();
   const { callApi, logout } = useApi();
   const { isLoading: isConnectionLoading, isAuthLoading } =
     useContext(ConnectionContext);
@@ -48,7 +47,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (isConnectionLoading) return;
       verifyLogin();
     }
-  }, [auth, isLogout, isConnectionLoading, socket, reRun]);
+  }, [auth, isLogout, isConnectionLoading, reRun]);
 
   const refetch = () => {
     setReRun((prev) => !prev);

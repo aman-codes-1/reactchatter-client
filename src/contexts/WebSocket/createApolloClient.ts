@@ -18,7 +18,7 @@ export const createApolloClient = (
   callLogout: any,
   setIsLogout: any,
 ) => {
-  const uri = `${process.env.REACT_APP_SERVER_URI}/graphql`;
+  const uri = `${process.env.REACT_APP_PROXY_URI}/graphql`;
 
   const subscriptionUri = uri?.replace?.('http', 'ws');
 

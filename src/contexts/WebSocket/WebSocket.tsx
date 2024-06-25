@@ -9,6 +9,7 @@ export const WebSocketContext = createContext<any>({});
 export const WebSocketProvider = ({ children }: any) => {
   const [user, setUser] = useState();
   const [socket, setSocket] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { auth, setIsLogout } = useAuth();
   const { callLogout } = useApi();
 
@@ -70,7 +71,9 @@ export const WebSocketProvider = ({ children }: any) => {
         await socketPromise;
         setSocket(socketInstance);
       } catch (err) {
-        await callLogout(setIsLogout);
+        setSocket(null);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -86,7 +89,9 @@ export const WebSocketProvider = ({ children }: any) => {
   }, [user]);
 
   return (
-    <WebSocketContext.Provider value={{ socket, setUser }}>
+    <WebSocketContext.Provider
+      value={{ socket, setUser, isLoading, setIsLoading }}
+    >
       {client ? (
         <ApolloProvider client={client?.client}>{children}</ApolloProvider>
       ) : (
