@@ -60,7 +60,6 @@ export const WebSocketProvider = ({ children }: any) => {
         auth: user,
         reconnection: false,
         forceNew: false,
-        autoConnect: false,
       });
       const socketPromise = new Promise((resolve, reject) => {
         socketInstance.once('connect', () => {
@@ -73,7 +72,7 @@ export const WebSocketProvider = ({ children }: any) => {
       try {
         await socketPromise;
         setSocket(socketInstance);
-      } catch (error) {
+      } catch (err) {
         logout();
         setIsLogout(true);
       }
