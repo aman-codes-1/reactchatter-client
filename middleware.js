@@ -22,7 +22,7 @@ export default function middleware(request) {
   }
 
   if (url.pathname.startsWith('/api/auth/google/redirect')) {
-    return next();
+    return rewrite(new URL('/login', request.url));
   }
 
   if (url.pathname.startsWith('/socket.io/')) {
