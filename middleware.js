@@ -26,7 +26,9 @@ export default async function middleware(request) {
     return rewrite(new URL(`wss://${serverDomain}/graphql`, request.url));
   }
 
-  const data = await fetch(new URL(`/index.html`, request.url));
+  const data = await fetch(new URL(`/index.html`, request.url)).then((res) =>
+    res.text(),
+  );
 
   return new Response(data, {
     status: 200,
