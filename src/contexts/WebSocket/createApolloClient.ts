@@ -30,7 +30,7 @@ export const createApolloClient = (
 
   const wsLink = new WebSocketLink(
     new SubscriptionClient(subscriptionUri, {
-      reconnect: false,
+      reconnect: true,
       connectionParams: {
         withCredentials: true,
       },
