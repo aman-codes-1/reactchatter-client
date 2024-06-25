@@ -14,7 +14,10 @@ export default function middleware(request) {
     return rewrite(new URL(`${serverUri}/api`, request.url));
   }
 
-  if (url.pathname.startsWith('/api/')) {
+  if (
+    url.pathname.startsWith('/api/') &&
+    !url.pathname.startsWith('/api/auth/google/redirect')
+  ) {
     return rewrite(new URL(`${serverUri}${url.pathname}`, request.url));
   }
 
