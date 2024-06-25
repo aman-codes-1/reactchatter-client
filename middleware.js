@@ -12,7 +12,7 @@ export default function middleware(request) {
   }
 
   if (url.pathname.startsWith('/api/')) {
-    return rewrite(new URL(`${serverUri}/api/`, request.url));
+    return rewrite(new URL(url.pathname, serverUri));
   }
 
   if (url.pathname.startsWith('/socket.io/')) {
