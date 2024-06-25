@@ -10,24 +10,29 @@ export default function middleware(request) {
     return next();
   }
 
-  if (url.pathname === '/api/auth/google/redirect') {
-    return rewrite(
-      new URL(
-        `${serverUri}/api/auth/google/redirect${url.search}`,
-        request.url,
-      ),
-    );
-  }
+  // if (url.pathname === '/api/auth/google/redirect') {
+  //   return rewrite(
+  //     new URL(
+  //       `${serverUri}/api/auth/google/redirect${url.search}`,
+  //       request.url,
+  //     ),
+  //   );
+  // }
+
   if (url.pathname === '/api') {
     return rewrite(new URL(`${serverUri}/api`, request.url));
   }
 
   if (url.pathname.startsWith('/api/')) {
-    return rewrite(new URL(`${serverUri}${url.pathname}`, request.url));
+    return rewrite(
+      new URL(`${serverUri}${url.pathname}${url.search}`, request.url),
+    );
   }
 
   if (url.pathname.startsWith('/socket.io/')) {
-    return rewrite(new URL(`${serverUri}/socket.io/`, request.url));
+    return rewrite(
+      new URL(`${serverUri}/socket.io/${url.search}`, request.url),
+    );
   }
 
   if (url.pathname.startsWith('/graphql')) {
