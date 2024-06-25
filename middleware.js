@@ -10,8 +10,6 @@ export default function middleware(request) {
     return next();
   }
 
-  console.log('incoming url', url.protocol, url.pathname);
-
   if (url.pathname === '/api') {
     return rewrite(new URL(`${serverUri}/api`, request.url));
   }
@@ -22,19 +20,19 @@ export default function middleware(request) {
     );
   }
 
-  if (url.pathname.startsWith('/socket.io/')) {
-    return rewrite(
-      new URL(`${serverUri}/socket.io/${url.search}`, request.url),
-    );
-  }
+  // if (url.pathname.startsWith('/socket.io/')) {
+  //   return rewrite(
+  //     new URL(`${serverUri}/socket.io/${url.search}`, request.url),
+  //   );
+  // }
 
-  if (url.pathname.startsWith('/graphql')) {
-    return rewrite(new URL(`${serverUri}/graphql`, request.url));
-  }
+  // if (url.pathname.startsWith('/graphql')) {
+  //   return rewrite(new URL(`${serverUri}/graphql`, request.url));
+  // }
 
-  if (url.pathname.startsWith('/ws/graphql')) {
-    return rewrite(new URL(`wss://${serverDomain}/graphql`, request.url));
-  }
+  // if (url.pathname.startsWith('/ws/graphql')) {
+  //   return rewrite(new URL(`wss://${serverDomain}/graphql`, request.url));
+  // }
 
   return next();
 }

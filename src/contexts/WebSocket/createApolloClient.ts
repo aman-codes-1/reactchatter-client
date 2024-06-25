@@ -21,12 +21,12 @@ export const createApolloClient = (
   const uri =
     process.env.NODE_ENV === 'development'
       ? `http://${process.env.REACT_APP_SERVER_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}/graphql`
-      : `${process.env.REACT_APP_URI}/graphql`;
+      : `${process.env.REACT_APP_SERVER_URI}/graphql`;
 
   const subscriptionUri =
     process.env.NODE_ENV === 'development'
       ? `ws://${process.env.REACT_APP_SERVER_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}/graphql`
-      : `wss://${process.env.REACT_APP_DOMAIN}/graphql`;
+      : `wss://${process.env.REACT_APP_SERVER_DOMAIN}/graphql`;
 
   const wsLink = new WebSocketLink(
     new SubscriptionClient(subscriptionUri, {
