@@ -21,7 +21,7 @@ export default function middleware(request) {
 
   if (url.pathname.startsWith('/socket.io/')) {
     return rewrite(
-      new URL(`${serverUri}/socket.io/${url.search}`, request.url),
+      new URL(`${serverUri}${url.pathname}${url.search}`, request.url),
     );
   }
 
