@@ -9,8 +9,6 @@ export default function middleware(request) {
     return next();
   }
 
-  const upgradeHeader = request?.headers?.get?.('upgrade');
-
   if (url.pathname === '/api') {
     return rewrite(new URL(`${serverUri}/api`, request?.url));
   }
@@ -22,6 +20,7 @@ export default function middleware(request) {
   }
 
   if (url.pathname.startsWith('/graphql')) {
+    const upgradeHeader = request?.headers?.get?.('upgrade');
     if (upgradeHeader && upgradeHeader?.toLowerCase() === 'websocket') {
       return rewrite(
         new URL(`${serverUri?.replace?.(/^http/, 'ws')}/graphql`, request?.url),
