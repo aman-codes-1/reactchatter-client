@@ -21,6 +21,7 @@ export default function middleware(request) {
 
   if (url.pathname.startsWith('/graphql')) {
     const upgradeHeader = request?.headers?.get?.('upgrade');
+    console.log('upgradeHeader', upgradeHeader);
     if (upgradeHeader && upgradeHeader?.toLowerCase() === 'websocket') {
       return rewrite(
         new URL(`${serverUri?.replace?.(/^http/, 'ws')}/graphql`, request?.url),
