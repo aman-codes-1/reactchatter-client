@@ -23,15 +23,12 @@ export const createApolloClient = (
   const subscriptionUri = uri?.replace?.('http', 'ws');
 
   const wsLink = new WebSocketLink(
-    new SubscriptionClient(
-      'wss://reactchatter-server-production.up.railway.app/graphql',
-      {
-        reconnect: false,
-        connectionParams: {
-          withCredentials: true,
-        },
+    new SubscriptionClient(subscriptionUri, {
+      reconnect: false,
+      connectionParams: {
+        withCredentials: true,
       },
-    ),
+    }),
   );
 
   const httpLink = new HttpLink({
