@@ -20,7 +20,7 @@ export default function middleware(request) {
   }
 
   if (url.pathname.startsWith('/socket.io/')) {
-    return rewrite(new URL(`${serverUri}/socket.io/`, request.url));
+    return rewrite(new URL(`${serverUri}${url.pathname}`, request.url));
   }
 
   if (url.pathname.startsWith('/graphql')) {
