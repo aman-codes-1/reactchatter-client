@@ -20,12 +20,12 @@ export default function middleware(request) {
   }
 
   if (url.pathname.startsWith('/graphql')) {
-    const upgradeHeader = request?.headers?.get?.('upgrade');
-    if (upgradeHeader && upgradeHeader?.toLowerCase() === 'websocket') {
-      return rewrite(
-        new URL(`${serverUri?.replace?.(/^http/, 'ws')}/graphql`, request?.url),
-      );
-    }
+    // const upgradeHeader = request?.headers?.get?.('upgrade');
+    // if (upgradeHeader && upgradeHeader?.toLowerCase() === 'websocket') {
+    //   return rewrite(
+    //     new URL(`${serverUri?.replace?.(/^http/, 'ws')}/graphql`, request?.url),
+    //   );
+    // }
     return rewrite(new URL(`${serverUri}/graphql`, request?.url));
   }
 
