@@ -19,11 +19,11 @@ export default function middleware(request) {
     );
   }
 
-  // if (url.pathname.startsWith('/socket.io/')) {
-  //   return rewrite(
-  //     new URL(`${serverUri}/socket.io/${url.search}`, request.url),
-  //   );
-  // }
+  if (url.pathname.startsWith('/socket.io/')) {
+    return rewrite(
+      new URL(`${serverUri}/socket.io/${url.search}`, request.url),
+    );
+  }
 
   if (url.pathname.startsWith('/graphql')) {
     return rewrite(new URL(`${serverUri}/graphql`, request.url));
