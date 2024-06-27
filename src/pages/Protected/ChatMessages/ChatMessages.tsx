@@ -299,7 +299,7 @@ const ChatMessages = () => {
         !loading &&
         (messageGroups?.length || messagesQueue?.length) ? (
           <div className="chat-wrapper">
-            {messageGroups?.map((messageGroup: any) => (
+            {messageGroups?.map((messageGroup: any, idx: number) => (
               <Grid
                 container
                 spacing={2}
@@ -307,6 +307,7 @@ const ChatMessages = () => {
                   messageGroup?.side === 'right' ? 'flex-end' : 'flex-start'
                 }
                 alignItems="flex-end"
+                key={`${JSON.stringify(messageGroup)} ${idx}`}
               >
                 {messageGroup?.side === 'left' && (
                   <Grid item>
@@ -327,20 +328,21 @@ const ChatMessages = () => {
                 </Grid>
               </Grid>
             ))}
-            {messagesQueue?.map((messageQueue: any) => {
+            {messagesQueue?.map((messageQueue: any, idx: number) => {
               const msgHeight2 = heights2?.length
                 ? heights2?.find(
                     (el: any) => el?.msgTimestamp === messageQueue?.timestamp,
                   )?.height || 0
                 : 0;
               return (
-                <Grid container spacing={2} justifyContent="flex-end">
+                <Grid
+                  container
+                  spacing={2}
+                  justifyContent="flex-end"
+                  key={`${JSON.stringify(messageQueue)} ${idx}`}
+                >
                   <Grid item xs={8}>
-                    <div
-                      className="rightRow"
-                      key={messageQueue?.timestamp}
-                      ref={ref2}
-                    >
+                    <div className="rightRow" ref={ref2}>
                       <Typography
                         align="left"
                         className="msg right"

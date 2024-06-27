@@ -16,4 +16,6 @@ const BaseSvg = memo((props: any) => {
   );
 });
 
+BaseSvg.displayName = 'BaseSvg';
+
 export default BaseSvg;

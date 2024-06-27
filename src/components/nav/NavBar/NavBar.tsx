@@ -52,4 +52,6 @@ const NavBar = forwardRef(
   },
 );
 
+NavBar.displayName = 'NavBar';
+
 export default NavBar;

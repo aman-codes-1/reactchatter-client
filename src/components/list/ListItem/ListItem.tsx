@@ -116,4 +116,6 @@ const ListItem = forwardRef(
   },
 );
 
+ListItem.displayName = 'ListItem';
+
 export default ListItem;
