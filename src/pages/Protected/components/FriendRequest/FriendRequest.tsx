@@ -45,7 +45,7 @@ const FriendRequest = ({
       ) : null}
       {!loading && !error && data?.length
         ? data.map((obj: any, idx: number) => (
-            <List dense>
+            <List dense key={`${JSON.stringify(obj)} ${idx}`}>
               <ListItem
                 disableHover
                 disableGutters
