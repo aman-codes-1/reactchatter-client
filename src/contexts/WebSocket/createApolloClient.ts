@@ -22,7 +22,7 @@ export const createApolloClient = (
 
   const graphqlUri = `${uri}/graphql`;
 
-  const subscriptionUri = `${uri?.replace?.('http', 'ws')}/subscriptions`;
+  const subscriptionUri = `${uri?.replace?.('http', 'ws')}/ws`;
 
   const wsLink = new GraphQLWsLink(
     createClient({
