@@ -6,25 +6,27 @@ import {
   InMemoryCache,
   split,
 } from '@apollo/client';
-import { WebSocketLink } from '@apollo/client/link/ws';
-import { SubscriptionClient } from 'subscriptions-transport-ws';
-import { getMainDefinition } from '@apollo/client/utilities';
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { createClient } from 'graphql-ws';
 import { ErrorResponse, onError } from '@apollo/client/link/error';
-import { RetryLink } from '@apollo/client/link/retry';
 import { GraphQLError } from 'graphql/error/GraphQLError';
+import { getMainDefinition } from '@apollo/client/utilities';
+import { RetryLink } from '@apollo/client/link/retry';
 
 export const createApolloClient = (
   auth: any,
   callLogout: any,
   setIsLogout: any,
 ) => {
-  const uri = `${process.env.REACT_APP_PROXY_URI}/graphql`;
+  const uri = `${process.env.REACT_APP_PROXY_URI}`;
 
-  const subscriptionUri = uri?.replace?.('http', 'ws');
+  const graphqlUri = `${uri}/graphql`;
 
-  const wsLink = new WebSocketLink(
-    new SubscriptionClient(subscriptionUri, {
-      reconnect: false,
+  const subscriptionUri = `${uri?.replace?.('http', 'ws')}/subscriptions`;
+
+  const wsLink = new GraphQLWsLink(
+    createClient({
+      url: subscriptionUri,
       connectionParams: {
         withCredentials: true,
       },
@@ -32,7 +34,7 @@ export const createApolloClient = (
   );
 
   const httpLink = new HttpLink({
-    uri,
+    uri: graphqlUri,
     credentials: 'include',
   });
 
