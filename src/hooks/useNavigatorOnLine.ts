@@ -7,6 +7,7 @@ export const useNavigatorOnLine = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isOffline, setIsOffline] = useState(false);
   const hasFetched = useRef(false);
+  const isFirstRender = useRef(true);
 
   useLayoutEffect(() => {
     let controllerTimeout: any = 0;
@@ -17,9 +18,7 @@ export const useNavigatorOnLine = () => {
       setIsOffline(false);
       try {
         await fetch(url, {
-          ...(process.env.NODE_ENV === 'development'
-            ? { mode: 'no-cors' }
-            : {}),
+          mode: 'no-cors',
           signal: controller.signal,
         });
         setIsOffline(false);
@@ -30,6 +29,11 @@ export const useNavigatorOnLine = () => {
         clearTimeout(controllerTimeout);
       }
     };
+
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
 
     if (hasFetched.current) return;
 
