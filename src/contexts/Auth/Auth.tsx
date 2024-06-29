@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useLayoutEffect, useState } from 'react';
 import { AuthProviderProps, Context } from './IAuth';
 import { useApi } from '../../hooks';
 import { apiRoutes } from '../../helpers';
@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [auth, setAuth] = useState();
   const { callApi, logout } = useApi();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const verifyLogin = async () => {
       setIsLoading(true);
       try {
