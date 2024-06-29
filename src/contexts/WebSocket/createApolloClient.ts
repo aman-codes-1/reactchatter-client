@@ -20,11 +20,9 @@ export const createApolloClient = (
 ) => {
   const uri = `${process.env.REACT_APP_PROXY_URI}`;
 
-  const serverUri = `${process.env.REACT_APP_SERVER_URI}`;
-
   const graphqlUri = `${uri}/graphql`;
 
-  const subscriptionUri = `${serverUri?.replace?.('http', 'ws')}/ws`;
+  const subscriptionUri = `${uri?.replace?.('http', 'ws')}/ws`;
 
   const wsLink = new GraphQLWsLink(
     createClient({
