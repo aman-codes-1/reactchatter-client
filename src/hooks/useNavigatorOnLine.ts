@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 
 export const useNavigatorOnLine = () => {
   const url = 'https://www.google.com';
@@ -6,8 +6,6 @@ export const useNavigatorOnLine = () => {
   const urlTimeout = 5000;
   const [isLoading, setIsLoading] = useState(true);
   const [isOffline, setIsOffline] = useState(false);
-  const hasFetched = useRef(false);
-  const isFirstRender = useRef(true);
 
   useLayoutEffect(() => {
     let controllerTimeout: any = 0;
@@ -30,13 +28,6 @@ export const useNavigatorOnLine = () => {
       }
     };
 
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-
-    if (hasFetched.current) return;
-
     let interval: any;
     if (isOffline) {
       interval = setInterval(() => {
@@ -49,8 +40,6 @@ export const useNavigatorOnLine = () => {
 
     window.addEventListener('online', fetchRequest);
     window.addEventListener('offline', fetchRequest);
-
-    hasFetched.current = true;
 
     return () => {
       window.removeEventListener('online', fetchRequest);

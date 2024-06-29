@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { AuthProviderProps, Context } from './IAuth';
 import { useApi } from '../../hooks';
 import { apiRoutes } from '../../helpers';
-import { ConnectionContext } from '..';
 import { BaseProtected } from '../../pages';
 
 export const AuthContext = createContext<Context>({
@@ -13,12 +12,10 @@ export const AuthContext = createContext<Context>({
 });
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const isAuthenticated = Boolean(localStorage.getItem('isAuthenticated'));
+  const [isLoading, setIsLoading] = useState(isAuthenticated);
   const [auth, setAuth] = useState();
   const { callApi, logout } = useApi();
-  const { isAuthenticated } = useContext(ConnectionContext);
-  const [isLoading, setIsLoading] = useState(isAuthenticated);
-  const hasVerified = useRef(false);
-  const isFirstRender = useRef(true);
 
   useEffect(() => {
     const verifyLogin = async () => {
@@ -37,16 +34,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         logout();
       } finally {
         setIsLoading(false);
-        hasVerified.current = true;
       }
     };
 
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-
-    if (!auth && isAuthenticated && !hasVerified.current) {
+    if (!auth && isAuthenticated) {
       verifyLogin();
     } else {
       setIsLoading(false);
