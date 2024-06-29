@@ -21,6 +21,9 @@ export const createApolloClient = (auth: any, callLogout: any) => {
   const wsLink = new GraphQLWsLink(
     createClient({
       url: subscriptionUri,
+      connectionParams: {
+        withCredentials: true,
+      },
     }),
   );
 
