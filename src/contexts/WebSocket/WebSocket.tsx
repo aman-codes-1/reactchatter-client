@@ -89,9 +89,9 @@ export const WebSocketProvider = ({ children }: any) => {
     };
   }, [user]);
 
-  if (isLoading) {
-    return <BaseProtected isLoading={isLoading} />;
-  }
+  // if (isLoading) {
+  //   return <BaseProtected isLoading={isLoading} />;
+  // }
 
   return (
     <WebSocketContext.Provider
