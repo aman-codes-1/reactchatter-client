@@ -1,4 +1,4 @@
-import { createContext, useContext, useLayoutEffect, useState } from 'react';
+import { createContext, useEffect, useRef, useState } from 'react';
 import { AuthProviderProps, Context } from './IAuth';
 import { useApi } from '../../hooks';
 import { apiRoutes } from '../../helpers';
@@ -8,19 +8,19 @@ import { BaseProtected } from '../../pages';
 export const AuthContext = createContext<Context>({
   auth: {},
   setAuth: () => null,
-  refetch: () => null,
   isLoading: false,
   setIsLoading: () => null,
 });
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [auth, setAuth] = useState();
-  const [reRun, setReRun] = useState(false);
   const { callApi, logout } = useApi();
-  const { isAuthenticated } = useContext(ConnectionContext);
+  const isAuthenticated = Boolean(localStorage.getItem('isAuthenticated'));
   const [isLoading, setIsLoading] = useState(isAuthenticated);
+  const hasVerified = useRef(false);
+  const isFirstRender = useRef(true);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const verifyLogin = async () => {
       setIsLoading(true);
       try {
@@ -37,27 +37,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         logout();
       } finally {
         setIsLoading(false);
+        hasVerified.current = true;
       }
     };
-    if (!auth && isAuthenticated) {
+
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    if (!auth && isAuthenticated && !hasVerified.current) {
       verifyLogin();
     } else {
       setIsLoading(false);
     }
-  }, [auth, reRun]);
-
-  const refetch = () => {
-    setReRun((prev) => !prev);
-  };
+  }, [auth, isAuthenticated]);
 
   if (isLoading) {
     return <BaseProtected isLoading={isLoading} />;
   }
 
   return (
-    <AuthContext.Provider
-      value={{ auth, setAuth, refetch, isLoading, setIsLoading }}
-    >
+    <AuthContext.Provider value={{ auth, setAuth, isLoading, setIsLoading }}>
       {children}
     </AuthContext.Provider>
   );
