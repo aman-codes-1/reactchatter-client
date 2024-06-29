@@ -3,6 +3,7 @@ import { ApolloProvider } from '@apollo/client';
 import { io } from 'socket.io-client';
 import { useApi, useAuth } from '../../hooks';
 import { createApolloClient } from './createApolloClient';
+import { BaseProtected } from '../../pages';
 
 export const WebSocketContext = createContext<any>({});
 
@@ -10,12 +11,12 @@ export const WebSocketProvider = ({ children }: any) => {
   const [user, setUser] = useState();
   const [socket, setSocket] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { auth, setIsLogout } = useAuth();
+  const { auth } = useAuth();
   const { callLogout } = useApi();
 
   const client: any = useMemo(() => {
     if (auth?.isLoggedIn) {
-      return createApolloClient(auth, callLogout, setIsLogout);
+      return createApolloClient(auth, callLogout);
     }
     return false;
   }, [auth?.isLoggedIn]);
@@ -53,7 +54,7 @@ export const WebSocketProvider = ({ children }: any) => {
     let socketInstance: any = null;
 
     const initializeSocket = async () => {
-      const serverUri = `${process.env.REACT_APP_PROXY_URI}`;
+      const serverUri = `${process.env.REACT_APP_SERVER_URI}`;
       socketInstance = io(serverUri, {
         auth: user,
         reconnection: false,
@@ -87,6 +88,10 @@ export const WebSocketProvider = ({ children }: any) => {
       }
     };
   }, [user]);
+
+  if (isLoading) {
+    return <BaseProtected isLoading={isLoading} />;
+  }
 
   return (
     <WebSocketContext.Provider

@@ -10,7 +10,7 @@ import { NavBarStyled } from './NavBar.styled';
 
 const NavBar = forwardRef(
   ({ onMenuClick, toggleDrawer, className }: any, ref: any) => {
-    const { setAuth } = useAuth();
+    const { setAuth, setIsLoading } = useAuth();
     const { chats = [], otherFriends = [] } = useContext(
       ChatsAndFriendsContext,
     );
@@ -23,6 +23,7 @@ const NavBar = forwardRef(
           className="nav-logo"
           onClick={() => {
             toggleDrawer?.();
+            setIsLoading(true);
             setAuth(undefined);
             setIsSocketLoading(true);
           }}

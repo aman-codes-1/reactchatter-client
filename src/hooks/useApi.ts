@@ -8,7 +8,7 @@ export const useApi = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { socket, setUser } = useSocket();
-  const { auth, setAuth, setIsLogout } = useAuth();
+  const { auth, setAuth } = useAuth();
 
   const serverUri = `${process.env.REACT_APP_PROXY_URI}`;
 
@@ -20,6 +20,7 @@ export const useApi = () => {
     localStorage.removeItem('isAuthenticated');
     setAuth(undefined);
     navigate(pathname, { replace: true });
+    window.location.reload();
   };
 
   const callApi = async ({
@@ -52,7 +53,6 @@ export const useApi = () => {
         .catch((err: any) => {
           if (err?.response?.status === 401) {
             logout();
-            setIsLogout(true);
           }
           reject(err);
         });
@@ -62,7 +62,7 @@ export const useApi = () => {
     }) as any;
   };
 
-  const callLogout = async (setLogout: any) => {
+  const callLogout = async () => {
     try {
       if (auth?.provider === 'google') {
         googleLogout();
@@ -75,7 +75,6 @@ export const useApi = () => {
       //
     } finally {
       logout();
-      setLogout(true);
     }
   };
 

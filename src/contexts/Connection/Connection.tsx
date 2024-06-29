@@ -24,10 +24,10 @@ export const ConnectionProvider = ({
 }) => {
   const { isLoading, isOffline }: any = useNavigatorOnLine();
   const isAuthenticated = Boolean(localStorage.getItem('isAuthenticated'));
-  const isAuthLoading = isLoading && isAuthenticated;
+  const isConnectionLoading = isLoading && isAuthenticated;
 
-  if (isAuthLoading) {
-    return <BaseProtected isAuthLoading={isAuthLoading} />;
+  if (isConnectionLoading) {
+    return <BaseProtected isLoading={isConnectionLoading} />;
   }
 
   if (!isLoading && isOffline) {
@@ -44,7 +44,7 @@ export const ConnectionProvider = ({
 
   return (
     <ConnectionContext.Provider
-      value={{ isLoading, isOffline, isAuthLoading, isAuthenticated }}
+      value={{ isConnectionLoading, isOffline, isAuthenticated }}
     >
       {children}
     </ConnectionContext.Provider>

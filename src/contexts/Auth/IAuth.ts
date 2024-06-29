@@ -11,6 +11,5 @@ export type Context = {
   setAuth: any;
   refetch: () => void;
   isLoading: boolean;
-  isLogout: boolean;
-  setIsLogout: Dispatch<SetStateAction<boolean>>;
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
 };

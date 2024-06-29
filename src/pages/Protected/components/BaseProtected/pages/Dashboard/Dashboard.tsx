@@ -2,7 +2,6 @@ import { useContext } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Loader } from '../../../../../../components';
 import { ChatsAndFriendsContext } from '../../../../../../contexts';
-import { useSocket } from '../../../../../../hooks';
 import { DashboardStyled } from './Dashboard.styled';
 
 const Dashboard = ({ isLoading }: any) => {
@@ -13,11 +12,9 @@ const Dashboard = ({ isLoading }: any) => {
     otherFriendsLoading,
     otherFriendsCalled,
   } = useContext(ChatsAndFriendsContext);
-  const { isLoading: isSocketLoading } = useSocket();
 
   if (
     isLoading ||
-    isSocketLoading ||
     chatLoading ||
     !chatsCalled ||
     chatsLoading ||
