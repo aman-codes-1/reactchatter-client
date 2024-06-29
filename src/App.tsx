@@ -18,13 +18,13 @@ const App = () => (
     <BrowserRouter>
       <Suspense fallback={null}>
         <SnackbarProvider>
-          {/* <ConnectionProvider> */}
-          <AuthProvider>
-            <WebSocketProvider>
-              <AppRoutes />
-            </WebSocketProvider>
-          </AuthProvider>
-          {/* </ConnectionProvider> */}
+          <ConnectionProvider>
+            <AuthProvider>
+              <WebSocketProvider>
+                <AppRoutes />
+              </WebSocketProvider>
+            </AuthProvider>
+          </ConnectionProvider>
         </SnackbarProvider>
       </Suspense>
     </BrowserRouter>

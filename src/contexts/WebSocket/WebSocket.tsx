@@ -3,6 +3,7 @@ import { ApolloProvider } from '@apollo/client';
 import { io } from 'socket.io-client';
 import { useApi, useAuth } from '../../hooks';
 import { createApolloClient } from './createApolloClient';
+import { BaseProtected } from '../../pages';
 
 export const WebSocketContext = createContext<any>({});
 
@@ -87,6 +88,10 @@ export const WebSocketProvider = ({ children }: any) => {
       }
     };
   }, [user]);
+
+  if (isLoading) {
+    return <BaseProtected isLoading={isLoading} />;
+  }
 
   return (
     <WebSocketContext.Provider
