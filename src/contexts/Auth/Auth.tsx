@@ -1,4 +1,4 @@
-import { createContext, useEffect, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { AuthProviderProps, Context } from './IAuth';
 import { useApi } from '../../hooks';
 import { apiRoutes } from '../../helpers';
@@ -13,10 +13,9 @@ export const AuthContext = createContext<Context>({
 });
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  console.log('inside');
   const [auth, setAuth] = useState();
   const { callApi, logout } = useApi();
-  const isAuthenticated = Boolean(localStorage.getItem('isAuthenticated'));
+  const { isAuthenticated } = useContext(ConnectionContext);
   const [isLoading, setIsLoading] = useState(isAuthenticated);
   const hasVerified = useRef(false);
   const isFirstRender = useRef(true);
