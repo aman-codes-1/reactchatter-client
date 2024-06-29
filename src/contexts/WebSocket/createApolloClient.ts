@@ -14,9 +14,11 @@ import { getMainDefinition } from '@apollo/client/utilities';
 import { RetryLink } from '@apollo/client/link/retry';
 
 export const createApolloClient = (auth: any, callLogout: any) => {
-  const uri = `${process.env.REACT_APP_PROXY_URI}/graphql`;
+  const uri = `${process.env.REACT_APP_PROXY_URI}`;
 
-  const subscriptionUri = `${uri?.replace?.('http', 'ws')}`;
+  const graphqlUri = `${uri}/graphql`;
+
+  const subscriptionUri = `${uri?.replace?.('http', 'ws')}/subscriptions`;
 
   const wsLink = new GraphQLWsLink(
     createClient({
@@ -28,7 +30,7 @@ export const createApolloClient = (auth: any, callLogout: any) => {
   );
 
   const httpLink = new HttpLink({
-    uri,
+    uri: graphqlUri,
     credentials: 'include',
   });
 

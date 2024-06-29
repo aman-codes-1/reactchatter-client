@@ -23,10 +23,8 @@ export const ConnectionProvider = ({
   children: ReactElement;
 }) => {
   const { isLoading, isOffline }: any = useNavigatorOnLine();
-  console.log(isLoading);
   const isAuthenticated = Boolean(localStorage.getItem('isAuthenticated'));
   const isConnectionLoading = isLoading && isAuthenticated;
-  console.log(isConnectionLoading);
 
   if (isConnectionLoading) {
     return <BaseProtected isLoading={isConnectionLoading} />;
