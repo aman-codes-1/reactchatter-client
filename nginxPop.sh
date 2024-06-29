@@ -2,7 +2,7 @@
 
 # Export environment variables to make them available to envsubst
 export PORT="$PORT"
-export REACT_APP_PROXY_URI = "$REACT_APP_PROXY_URI"
+export REACT_APP_PROXY_URI="$REACT_APP_PROXY_URI"
 export REACT_APP_SERVER_URI="$REACT_APP_SERVER_URI"
 
 # Use envsubst to replace variables directly in nginx.conf and create a temporary file
