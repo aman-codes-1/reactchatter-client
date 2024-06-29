@@ -17,6 +17,7 @@ export const useNavigatorOnLine = () => {
       try {
         await fetch(url, {
           mode: 'no-cors',
+          method: 'HEAD',
           signal: controller.signal,
         });
         setIsOffline(false);
