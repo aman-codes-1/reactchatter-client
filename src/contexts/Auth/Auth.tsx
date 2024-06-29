@@ -13,6 +13,7 @@ export const AuthContext = createContext<Context>({
 });
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
+  console.log('inside');
   const [auth, setAuth] = useState();
   const { callApi, logout } = useApi();
   const isAuthenticated = Boolean(localStorage.getItem('isAuthenticated'));
