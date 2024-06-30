@@ -20,7 +20,7 @@ export const SideBarListStyled = styled('div')<{
   '.default-heading': {
     fontSize: '0.8rem',
     fontWeight: 701,
-    letterSpacing: '0.04rem',
+    letterSpacing: '0.03rem',
     color: theme.palette.grey[800],
   },
   '.heading': {

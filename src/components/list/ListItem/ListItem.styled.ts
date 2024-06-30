@@ -33,7 +33,7 @@ export const ListItemStyled = styled('div')<{
         '.MuiListItemText-primary': {
           fontSize: primaryTextFontSize || '0.875rem',
           fontWeight: primaryTextFontWeight || 501,
-          letterSpacing: '0.0425rem',
+          letterSpacing: '0.03rem',
           color: theme.palette.grey[900],
           wordBreak: 'break-word',
           ...(primaryEllipsesLineClamp
