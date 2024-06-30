@@ -22,13 +22,13 @@ export const AddFriendStyled = styled('div')(({ theme }) => ({
       },
       '.add-friend-email-input': {
         width: '18rem',
-        fontWeight: 510,
+        fontWeight: 600,
         '@media(min-width: 0px) and (max-width: 460px)': {
           width: '100%',
         },
       },
       '.add-friend-email-input-props': {
-        fontWeight: 510,
+        fontWeight: 600,
       },
     },
     '.add-friend-email-btn-wrapper': {
