@@ -7,6 +7,7 @@ const SentRequests = () => {
   const { openSnackbar } = useSnackbar();
   const {
     updateRequest,
+    updateRequestLoading,
     sentRequests,
     sentRequestsLoading,
     sentRequestsCalled,
@@ -49,8 +50,10 @@ const SentRequests = () => {
         userObj="memberDetails"
         emailKey="email"
         cancelBtnProps={{
-          handleClickCancel: (_: MouseEventHandler, __: number, ___: any) =>
-            handleClickRequest(_, __, ___, 'cancelled'),
+          handleClickCancel: updateRequestLoading
+            ? () => {}
+            : (_: MouseEventHandler, __: number, ___: any) =>
+                handleClickRequest(_, __, ___, 'cancelled'),
         }}
       />
     </MainLayout>

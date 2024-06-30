@@ -9,18 +9,18 @@ export const LoginStyled = styled('div')(({ theme }) => ({
     padding: '0px 30px',
   },
   '.sign-in-heading': {
-    fontSize: '30px',
+    fontSize: '1.875rem',
     marginBottom: '30px',
     textAlign: 'center',
   },
   '.google-login-btn': {
     textTransform: 'none',
-    fontWeight: 600,
+    fontWeight: 501,
     width: '400px',
     minHeight: '40px',
     height: 'auto',
     borderRadius: '6px',
-    fontSize: '14.5px',
+    fontSize: '0.90625rem',
     [theme.breakpoints.down('sm')]: {
       width: '100%',
       height: 'auto',

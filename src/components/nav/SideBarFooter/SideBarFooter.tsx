@@ -21,14 +21,13 @@ const SideBarFooter = ({ className }: any) => {
       <ListItem
         primaryText={{
           title: name,
-          fontSize: '1.03rem',
-          fontWeight: 600,
+          fontSize: '1rem',
+          fontWeight: 500,
           ellipsesLineClamp: '1',
         }}
         secondaryText={{
           title: email,
           fontSize: '0.79rem',
-          fontWeight: 500,
           ellipsesLineClamp: '1',
         }}
         isAvatar

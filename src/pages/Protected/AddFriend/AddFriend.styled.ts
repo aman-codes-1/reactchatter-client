@@ -22,21 +22,19 @@ export const AddFriendStyled = styled('div')(({ theme }) => ({
       },
       '.add-friend-email-input': {
         width: '18rem',
-        fontWeight: 600,
+        fontWeight: 501,
         '@media(min-width: 0px) and (max-width: 460px)': {
           width: '100%',
         },
       },
       '.add-friend-email-input-props': {
-        fontWeight: 600,
-        fontFamily: 'Segoe UI',
+        fontWeight: 501,
       },
     },
     '.add-friend-email-btn-wrapper': {
       width: '100%',
       '.add-friend-email-btn': {
         textTransform: 'none',
-        fontFamily: 'Segoe UI',
         fontSize: '0.875rem',
         fontWeight: 700,
         '@media(min-width: 0px) and (max-width: 460px)': {

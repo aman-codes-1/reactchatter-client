@@ -84,12 +84,10 @@ const DataList = ({
             primaryText={{
               title: member?.memberDetails?.name,
               fontSize: '1.08rem',
-              fontWeight: 600,
             }}
             secondaryText={{
               title: member?.memberDetails?.email,
               fontSize: '0.85rem',
-              fontWeight: 500,
               ellipsesLineClamp,
             }}
             isAvatar

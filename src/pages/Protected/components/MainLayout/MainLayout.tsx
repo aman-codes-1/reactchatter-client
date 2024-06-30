@@ -12,19 +12,11 @@ const MainLayout = ({
   children,
 }: MainLayoutProps) => (
   <MainLayoutStyled>
-    <Typography
-      className="main-layout-heading"
-      fontFamily="unset"
-      fontWeight={700}
-    >
+    <Typography className="main-layout-heading" fontWeight={700}>
       {heading}
     </Typography>
     {defaultText && !loading && !error && !data?.length ? (
-      <Typography
-        className="main-layout-default-text"
-        fontFamily="unset"
-        fontWeight={500}
-      >
+      <Typography className="main-layout-default-text" fontWeight={500}>
         {defaultText}
       </Typography>
     ) : null}

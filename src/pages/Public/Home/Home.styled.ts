@@ -22,14 +22,13 @@ export const HomeStyled = styled('div')(({ theme }) => ({
     '.home-header': {
       marginTop: 162,
       textAlign: 'center',
-      letterSpacing: '0.4px',
       '.home-heading': {
-        fontSize: '58px',
+        fontSize: '3.625rem',
         color: theme.palette.common.white,
         textShadow: `0 1px 0 ${theme.palette.grey[700]}`,
         marginBottom: 8,
         [theme.breakpoints.down('sm')]: {
-          fontSize: '45px',
+          fontSize: '2.8125rem',
         },
       },
       '.home-sub-heading': {
@@ -37,17 +36,17 @@ export const HomeStyled = styled('div')(({ theme }) => ({
         lineHeight: '32px',
         fontSize: '1.26rem',
         [theme.breakpoints.down('sm')]: {
-          fontSize: '19px',
+          fontSize: '1.1875rem',
         },
       },
       '.home-login-btn': {
         marginTop: 10,
         textTransform: 'none',
-        fontWeight: 600,
+        fontWeight: 501,
         backgroundColor: `${theme.palette.action.active} !important`,
         width: '120px',
         height: '50px',
-        fontSize: '16px',
+        fontSize: '1rem',
         borderRadius: 7,
         [theme.breakpoints.down('sm')]: {
           width: '100%',
@@ -62,7 +61,7 @@ export const HomeStyled = styled('div')(({ theme }) => ({
       margin: 'auto 0px 8px 0px',
       textAlign: 'center',
       '.home-footer-sub-heading': {
-        fontSize: '14.5px',
+        fontSize: '0.90625rem',
       },
     },
   },

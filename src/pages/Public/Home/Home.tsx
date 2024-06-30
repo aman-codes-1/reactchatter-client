@@ -8,20 +8,10 @@ const Home = () => (
     <Box className="home-container">
       <div className="home-wrapper">
         <div className="home-header">
-          <Typography
-            component="h1"
-            className="home-heading"
-            fontWeight={700}
-            fontFamily="unset"
-          >
+          <Typography className="home-heading" fontWeight={700}>
             ReactChatter
           </Typography>
-          <Typography
-            component="h5"
-            className="home-sub-heading"
-            fontWeight={700}
-            fontFamily="unset"
-          >
+          <Typography className="home-sub-heading" fontWeight={700}>
             A simple real-time chat application built using
             <br />
             React.js v18, Material UI, Typescript, Nest.js, and GraphQL
@@ -34,12 +24,7 @@ const Home = () => (
           </Link>
         </div>
         <div className="home-footer">
-          <Typography
-            component="p"
-            className="home-footer-sub-heading"
-            fontWeight={400}
-            fontFamily="unset"
-          >
+          <Typography className="home-footer-sub-heading" fontWeight={400}>
             Made with ❤️ by{' '}
             <MuiLink
               href="https://www.linkedin.com/in/aman-jain-4b24b8111/"
@@ -61,12 +46,7 @@ const Home = () => (
               <strong>Source Code</strong>
             </MuiLink>
           </Typography>
-          <Typography
-            component="p"
-            className="home-footer-sub-heading"
-            fontWeight={400}
-            fontFamily="unset"
-          >
+          <Typography className="home-footer-sub-heading" fontWeight={400}>
             &copy; {getCurrentYear()} by{' '}
             <MuiLink
               href="https://bold.pro/my/aman-codes"

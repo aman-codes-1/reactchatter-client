@@ -66,8 +66,21 @@ export const theme = createTheme({
     borderRadius: 4,
   },
   typography: {
+    allVariants: { letterSpacing: '0.03rem' },
     fontSize: 14,
-    fontFamily: 'Roboto, Arial',
+    fontFamily: [
+      '-apple-system',
+      'BlinkMacSystemFont',
+      '"Segoe UI"',
+      'Roboto',
+      'Oxygen',
+      'Ubuntu',
+      'Cantarell',
+      '"Fira Sans"',
+      '"Droid Sans"',
+      '"Helvetica Neue"',
+      'sans-serif',
+    ].join(','),
   },
   breakpoints: {
     values: {

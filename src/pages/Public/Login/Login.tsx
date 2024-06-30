@@ -56,12 +56,7 @@ const Login = () => {
 
   return (
     <LoginStyled>
-      <Typography
-        component="h1"
-        className="sign-in-heading"
-        fontWeight={700}
-        fontFamily="unset"
-      >
+      <Typography className="sign-in-heading" fontWeight={700}>
         Sign in to your account
       </Typography>
       {!isLoading ? (

@@ -39,11 +39,7 @@ const Loader = ({ message, center, height, width, color }: ILoaderProps) => (
         thickness={4}
       />
     </Box>
-    {message && (
-      <Typography pt={1} component="div">
-        {message}
-      </Typography>
-    )}
+    {message && <Typography pt={1}>{message}</Typography>}
   </Grid>
 );
 

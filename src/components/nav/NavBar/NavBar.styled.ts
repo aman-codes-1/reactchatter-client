@@ -48,8 +48,7 @@ export const NavBarStyled = styled('div')(({ theme }: any) => ({
   },
   '.nav-menu-btn': {
     textTransform: 'none',
-    fontFamily: 'Segoe UI',
-    fontWeight: 600,
+    fontWeight: 501,
     backgroundColor: `${theme.palette.action.active} !important`,
     color: theme.palette.common.white,
     gap: '0.25rem',
@@ -69,8 +68,7 @@ export const NavBarStyled = styled('div')(({ theme }: any) => ({
   },
   '.nav-new-chat-btn': {
     textTransform: 'none',
-    fontFamily: 'Segoe UI',
-    fontWeight: 600,
+    fontWeight: 501,
     gap: '0.25rem',
     borderRadius: '0.375rem',
     padding: '0.3rem 1rem',

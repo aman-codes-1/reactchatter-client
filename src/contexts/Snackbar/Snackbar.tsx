@@ -99,7 +99,7 @@ export const SnackbarProvider = ({ children }: Props) => {
               className={`title ${
                 type === 'error' ? 'error-dark' : 'success-dark'
               }`}
-              fontWeight={600}
+              fontWeight={501}
             >
               {title}
             </Typography>

@@ -93,7 +93,7 @@ const AddFriend = () => {
       const { data } = await createRequest({
         variables: {
           userId: _id,
-          sendToEmail: email,
+          sendToEmail: email.toLowerCase(),
         },
       });
       if (data?.createRequest?._id) {
@@ -124,11 +124,7 @@ const AddFriend = () => {
   return (
     <MainLayout heading="Add Friend">
       <AddFriendStyled>
-        <Typography
-          className="add-friend-heading"
-          fontFamily="unset"
-          fontWeight={600}
-        >
+        <Typography className="add-friend-heading" fontWeight={501}>
           Add friend by email
         </Typography>
         <div className="add-friend-email-wrapper">

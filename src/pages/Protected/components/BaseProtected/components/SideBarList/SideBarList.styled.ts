@@ -19,8 +19,7 @@ export const SideBarListStyled = styled('div')<{
   },
   '.default-heading': {
     fontSize: '0.8rem',
-    fontWeight: 700,
-    fontFamily: 'Segoe UI',
+    fontWeight: 701,
     letterSpacing: '0.04rem',
     color: theme.palette.grey[800],
   },

@@ -31,9 +31,9 @@ export const ListItemStyled = styled('div')<{
       '.MuiListItemText-root': {
         wordBreak: 'break-word',
         '.MuiListItemText-primary': {
-          fontSize: primaryTextFontSize || '0.9rem',
-          fontWeight: primaryTextFontWeight || 600,
-          fontFamily: 'Segoe UI',
+          fontSize: primaryTextFontSize || '0.875rem',
+          fontWeight: primaryTextFontWeight || 501,
+          letterSpacing: '0.0425rem',
           color: theme.palette.grey[900],
           wordBreak: 'break-word',
           ...(primaryEllipsesLineClamp
@@ -48,11 +48,9 @@ export const ListItemStyled = styled('div')<{
         },
         '.MuiListItemText-secondary': {
           fontSize: secondaryTextFontSize || '0.75rem',
-          fontWeight: secondaryTextFontWeight || 600,
-          fontFamily: 'Segoe UI',
+          fontWeight: secondaryTextFontWeight || 500,
           color: theme.palette.grey[500],
           wordBreak: 'break-word',
-          letterSpacing: '0.03rem',
           ...(secondaryEllipsesLineClamp
             ? {
                 display: '-webkit-box',
