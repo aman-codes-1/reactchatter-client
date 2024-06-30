@@ -48,7 +48,7 @@ export const NavBarStyled = styled('div')(({ theme }: any) => ({
   },
   '.nav-menu-btn': {
     textTransform: 'none',
-    fontWeight: 510,
+    fontWeight: 600,
     backgroundColor: `${theme.palette.action.active} !important`,
     color: theme.palette.common.white,
     gap: '0.25rem',
@@ -68,7 +68,7 @@ export const NavBarStyled = styled('div')(({ theme }: any) => ({
   },
   '.nav-new-chat-btn': {
     textTransform: 'none',
-    fontWeight: 510,
+    fontWeight: 600,
     gap: '0.25rem',
     borderRadius: '0.375rem',
     padding: '0.3rem 1rem',

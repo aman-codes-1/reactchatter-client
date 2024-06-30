@@ -251,7 +251,7 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
                   <Button
                     sx={{
                       textTransform: 'none',
-                      fontWeight: 510,
+                      fontWeight: 600,
                       width: '100%',
                     }}
                     variant="outlined"
