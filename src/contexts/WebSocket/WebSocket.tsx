@@ -56,8 +56,6 @@ export const WebSocketProvider = ({ children }: any) => {
       const serverUri = `${process.env.REACT_APP_PROXY_URI}`;
       socketInstance = io(serverUri, {
         auth: user,
-        reconnection: false,
-        forceNew: false,
       });
       const socketPromise = new Promise((resolve, reject) => {
         socketInstance.once('connect', () => {
