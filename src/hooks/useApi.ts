@@ -20,7 +20,6 @@ export const useApi = () => {
     localStorage.removeItem('isAuthenticated');
     setAuth(undefined);
     navigate(pathname, { replace: true });
-    window.location.reload();
   };
 
   const callApi = async ({
