@@ -42,7 +42,7 @@ export const HomeStyled = styled('div')(({ theme }) => ({
       '.home-login-btn': {
         marginTop: 10,
         textTransform: 'none',
-        fontWeight: 501,
+        fontWeight: 510,
         backgroundColor: `${theme.palette.action.active} !important`,
         width: '120px',
         height: '50px',

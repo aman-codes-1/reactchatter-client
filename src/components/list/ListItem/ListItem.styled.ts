@@ -32,7 +32,7 @@ export const ListItemStyled = styled('div')<{
         wordBreak: 'break-word',
         '.MuiListItemText-primary': {
           fontSize: primaryTextFontSize || '0.875rem',
-          fontWeight: primaryTextFontWeight || 501,
+          fontWeight: primaryTextFontWeight || 510,
           letterSpacing: '0.03rem',
           color: theme.palette.grey[900],
           wordBreak: 'break-word',

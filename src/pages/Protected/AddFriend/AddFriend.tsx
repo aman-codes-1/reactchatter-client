@@ -124,7 +124,7 @@ const AddFriend = () => {
   return (
     <MainLayout heading="Add Friend">
       <AddFriendStyled>
-        <Typography className="add-friend-heading" fontWeight={501}>
+        <Typography className="add-friend-heading" fontWeight={510}>
           Add friend by email
         </Typography>
         <div className="add-friend-email-wrapper">

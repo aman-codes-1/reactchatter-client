@@ -20,7 +20,7 @@ const SuccessErrorMessage = ({ message, type }: SuccessErrorMessageProps) => {
           className={`success-error-message ${
             type === 'error' ? 'error-dark' : 'success-dark'
           }`}
-          fontWeight={501}
+          fontWeight={510}
         >
           {message}
         </Typography>
