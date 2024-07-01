@@ -1,6 +1,7 @@
 import { Suspense, lazy } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
+import { CssBaseline } from '@mui/material';
 import {
   AuthProvider,
   ConnectionProvider,
@@ -15,6 +16,7 @@ const AppRoutes = lazy(() =>
 
 const App = () => (
   <ThemeProvider theme={theme}>
+    <CssBaseline />
     <BrowserRouter>
       <Suspense fallback={null}>
         <SnackbarProvider>

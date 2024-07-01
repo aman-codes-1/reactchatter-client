@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { AppBar } from '@mui/material';
 import { Drawer, NavBar, SideBar } from '../../../../components';
 import { SideBarList } from './components';
 import { Dashboard } from './pages';
@@ -32,13 +33,21 @@ const BaseProtected = ({ isLoading }: any) => {
           <SideBarList toggleDrawer={toggleDrawer(false)} />
         </SideBar>
       </Drawer>
-      <Dashboard isLoading={isLoading} />
-      <NavBar
-        className="hidden-from-web mobile-navbar"
-        onMenuClick={toggleDrawer(false, true)}
-        toggleDrawer={toggleDrawer(false)}
-        ref={navbarRef}
+      <Dashboard
+        isLoading={isLoading}
+        overlayHeight={navbarRef?.current?.clientHeight}
       />
+      <AppBar
+        position="fixed"
+        elevation={0}
+        className="hidden-from-web mobile-navbar"
+      >
+        <NavBar
+          onMenuClick={toggleDrawer(false, true)}
+          toggleDrawer={toggleDrawer(false)}
+          ref={navbarRef}
+        />
+      </AppBar>
     </BaseProtectedStyled>
   );
 };

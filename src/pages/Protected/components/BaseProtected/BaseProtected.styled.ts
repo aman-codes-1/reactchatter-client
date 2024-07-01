@@ -1,4 +1,4 @@
-import { styled } from '@mui/system';
+import { display, styled } from '@mui/system';
 
 export const BaseProtectedStyled = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -10,9 +10,11 @@ export const BaseProtectedStyled = styled('div')(({ theme }) => ({
     },
   },
   [theme.breakpoints.down('sm')]: {
-    flexDirection: 'column',
+    display: 'block',
     '.mobile-navbar': {
-      marginTop: 'auto',
+      borderTop: `1px solid ${theme.palette.grey[200]}`,
+      top: 'auto',
+      bottom: 0,
     },
     '.hidden-from-mobile': {
       display: 'none',
