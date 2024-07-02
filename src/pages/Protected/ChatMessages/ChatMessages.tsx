@@ -61,7 +61,6 @@ const ChatMessages = () => {
     messagesWithQueue,
   } = useMessages(chatId, setMessagesQueue);
   const scrollRef = useRef<any>(null);
-  const scrollRef2 = useRef<any>(null);
   const inputRef = useRef<any>(null);
   const textFieldRef = useRef<any>(null);
 
@@ -168,14 +167,13 @@ const ChatMessages = () => {
   }, [messagesQueue, width, height]);
 
   useLayoutEffect(() => {
-    scrollRef?.current?.scrollIntoView({
-      behavior: 'instant',
-      block: 'end',
-    });
-    scrollRef2?.current?.scrollIntoView({
-      behavior: 'instant',
-      block: 'end',
-    });
+    const scrollElement = scrollRef?.current;
+    if (scrollElement) {
+      scrollElement?.scrollIntoView({
+        behavior: 'instant',
+        block: 'end',
+      });
+    }
   }, [
     heights,
     heights2,
@@ -401,32 +399,31 @@ const ChatMessages = () => {
             <div ref={scrollRef} />
           </div>
         ) : null}
+        <div className="text-field-wrapper" ref={textFieldRef}>
+          <TextField
+            autoFocus
+            fullWidth
+            value={message}
+            onKeyUp={(_: any) => handleKeyPress(_, handleSendMessage)}
+            onChange={handleChangeMessage}
+            InputProps={{
+              style: {
+                borderRadius: '10px',
+                background: 'white',
+                height: 44,
+              },
+            }}
+            placeholder=" Type a message"
+            inputRef={inputRef}
+            size="medium"
+          />
+          {message ? (
+            <IconButton onClick={handleSendMessage}>
+              <SendIcon color="info" />
+            </IconButton>
+          ) : null}
+        </div>
       </div>
-      <div className="text-field-wrapper" ref={textFieldRef}>
-        <TextField
-          autoFocus
-          fullWidth
-          value={message}
-          onKeyUp={(_: any) => handleKeyPress(_, handleSendMessage)}
-          onChange={handleChangeMessage}
-          InputProps={{
-            style: {
-              borderRadius: '10px',
-              background: 'white',
-              height: 44,
-            },
-          }}
-          placeholder=" Type a message"
-          inputRef={inputRef}
-          size="medium"
-        />
-        {message ? (
-          <IconButton onClick={handleSendMessage}>
-            <SendIcon color="info" />
-          </IconButton>
-        ) : null}
-      </div>
-      <div ref={scrollRef2} />
     </ChatMessagesStyled>
   );
 };

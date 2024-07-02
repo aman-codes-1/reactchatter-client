@@ -6,7 +6,6 @@ export const ChatMessagesStyled = styled('div')<{
 }>(({ theme, navbarHeight, textFieldHeight }) => ({
   height: '100%',
   paddingTop: '1rem',
-  overflow: 'auto',
   '.chat-container': {
     display: 'flex',
     width: '100%',
