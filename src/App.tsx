@@ -16,7 +16,7 @@ const AppRoutes = lazy(() =>
 
 const App = () => (
   <ThemeProvider theme={theme}>
-    <CssBaseline />
+    {/* <CssBaseline /> */}
     <BrowserRouter>
       <Suspense fallback={null}>
         <SnackbarProvider>
