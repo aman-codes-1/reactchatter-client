@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { AppBar } from '@mui/material';
 import { Drawer, NavBar, SideBar } from '../../../../components';
 import { SideBarList } from './components';
@@ -7,6 +7,7 @@ import { BaseProtectedStyled } from './BaseProtected.styled';
 
 const BaseProtected = ({ isLoading }: any) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [navbarHeight, setNavbarHeight] = useState(0);
   const navbarRef = useRef<any>(null);
 
   const toggleDrawer = (newOpen: boolean, isSwitch?: boolean) => () => {
@@ -16,6 +17,10 @@ const BaseProtected = ({ isLoading }: any) => {
       setIsDrawerOpen(newOpen);
     }
   };
+
+  useLayoutEffect(() => {
+    setNavbarHeight(navbarRef?.current?.clientHeight);
+  }, []);
 
   return (
     <BaseProtectedStyled>
@@ -27,25 +32,22 @@ const BaseProtected = ({ isLoading }: any) => {
         anchor="right"
         onClose={toggleDrawer(false)}
         isMobile
-        overlayHeight={navbarRef?.current?.clientHeight}
+        navbarHeight={navbarHeight}
       >
         <SideBar className="mobile-sidebar">
           <SideBarList toggleDrawer={toggleDrawer(false)} />
         </SideBar>
       </Drawer>
-      <Dashboard
-        isLoading={isLoading}
-        overlayHeight={navbarRef?.current?.clientHeight}
-      />
+      <Dashboard isLoading={isLoading} navbarHeight={navbarHeight} />
       <AppBar
         position="fixed"
         elevation={0}
         className="hidden-from-web mobile-navbar"
+        ref={navbarRef}
       >
         <NavBar
           onMenuClick={toggleDrawer(false, true)}
           toggleDrawer={toggleDrawer(false)}
-          ref={navbarRef}
         />
       </AppBar>
     </BaseProtectedStyled>

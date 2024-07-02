@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { Typography } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -6,10 +6,15 @@ import { SuccessErrorMessageStyled } from './SuccessErrorMessage.styled';
 import { SuccessErrorMessageProps } from './ISuccessErrorMessage';
 
 const SuccessErrorMessage = ({ message, type }: SuccessErrorMessageProps) => {
+  const [height, setHeight] = useState(0);
   const ref = useRef<any>(null);
 
+  useLayoutEffect(() => {
+    setHeight(ref?.current?.clientHeight);
+  }, []);
+
   return (
-    <SuccessErrorMessageStyled height={ref?.current?.clientHeight}>
+    <SuccessErrorMessageStyled height={height}>
       <div className="success-error-message-wrapper" ref={ref}>
         {type === 'error' ? (
           <CancelIcon className="error-dark" />

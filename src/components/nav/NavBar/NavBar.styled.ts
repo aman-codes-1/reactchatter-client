@@ -1,6 +1,6 @@
 import { styled } from '@mui/system';
 
-export const NavBarStyled = styled('div')(({ theme }: any) => ({
+export const NavBarStyled = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
@@ -13,7 +13,6 @@ export const NavBarStyled = styled('div')(({ theme }: any) => ({
     margin: 0,
     padding: '0.7rem 1rem',
     backgroundColor: theme.palette.grey[50],
-    zIndex: theme.zIndex.drawer + 1,
   },
   '.nav-logo': {
     display: 'flex',
@@ -25,7 +24,7 @@ export const NavBarStyled = styled('div')(({ theme }: any) => ({
     },
     [theme.breakpoints.down('sm')]: {
       flex: '0',
-      flexBasis: '6rem',
+      flexBasis: '5.85rem',
       padding: '0.5rem 1rem',
       borderRadius: '8px',
       justifyContent: 'center',

@@ -5,7 +5,7 @@ const Drawer = ({
   isOpen,
   onClose,
   isMobile,
-  overlayHeight = 0,
+  navbarHeight = 0,
   children,
 }: any) => {
   const theme = useTheme();
@@ -25,7 +25,7 @@ const Drawer = ({
           : {}
       }
       PaperProps={{
-        sx: { width: '80vw', height: `calc(100% - ${overlayHeight || 0}px)` },
+        sx: { width: '80vw', height: `calc(100% - ${navbarHeight || 0}px)` },
       }}
     >
       {children}

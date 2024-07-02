@@ -1,6 +1,6 @@
 import { display, styled } from '@mui/system';
 
-export const BaseProtectedStyled = styled('div')(({ theme }) => ({
+export const BaseProtectedStyled = styled('div')(({ theme }: any) => ({
   display: 'flex',
   width: '100%',
   height: '100vh',
@@ -15,6 +15,7 @@ export const BaseProtectedStyled = styled('div')(({ theme }) => ({
       borderTop: `1px solid ${theme.palette.grey[200]}`,
       top: 'auto',
       bottom: 0,
+      zIndex: theme.zIndex.drawer + 1,
     },
     '.hidden-from-mobile': {
       display: 'none',

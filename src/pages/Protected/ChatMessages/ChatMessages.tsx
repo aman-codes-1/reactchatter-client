@@ -5,7 +5,11 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  useNavigate,
+  useOutletContext,
+  useSearchParams,
+} from 'react-router-dom';
 import { Grid, IconButton, TextField, Typography } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import DoneIcon from '@mui/icons-material/Done';
@@ -23,6 +27,7 @@ import { getTime, handleKeyPress } from '../../../helpers';
 import { ChatMessagesStyled } from './ChatMessages.styled';
 
 const ChatMessages = () => {
+  const [navbarHeight] = useOutletContext<any>();
   const [searchParams, setSearchParams] = useSearchParams();
   const chatId = searchParams.get('id');
   const navigate = useNavigate();
@@ -277,15 +282,15 @@ const ChatMessages = () => {
   };
 
   return (
-    <ChatMessagesStyled>
+    <ChatMessagesStyled navbarHeight={navbarHeight}>
       <div
         style={{
-          display: 'flex',
-          height: '100%',
+          // display: 'flex',
+          height: 'calc(100% - 80px)',
           width: '100%',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          gap: '1.5rem',
+          // flexDirection: 'column',
+          // justifyContent: 'space-between',
+          // gap: '1.5rem',
         }}
       >
         <span />
@@ -303,6 +308,7 @@ const ChatMessages = () => {
               <Grid
                 container
                 spacing={2}
+                height="100%"
                 justifyContent={
                   messageGroup?.side === 'right' ? 'flex-end' : 'flex-start'
                 }
@@ -384,29 +390,29 @@ const ChatMessages = () => {
             <div ref={scrollRef} />
           </div>
         ) : null}
-        <div className="text-field-wrapper">
-          <TextField
-            autoFocus
-            fullWidth
-            value={message}
-            onKeyUp={(_: any) => handleKeyPress(_, handleSendMessage)}
-            onChange={handleChangeMessage}
-            InputProps={{
-              style: {
-                borderRadius: '10px',
-                background: 'white',
-                height: 44,
-              },
-            }}
-            placeholder=" Type a message"
-            inputRef={inputRef}
-          />
-          {message ? (
-            <IconButton onClick={handleSendMessage}>
-              <SendIcon color="info" />
-            </IconButton>
-          ) : null}
-        </div>
+      </div>
+      <div className="text-field-wrapper">
+        <TextField
+          autoFocus
+          fullWidth
+          value={message}
+          onKeyUp={(_: any) => handleKeyPress(_, handleSendMessage)}
+          onChange={handleChangeMessage}
+          InputProps={{
+            style: {
+              borderRadius: '10px',
+              background: 'white',
+              height: 44,
+            },
+          }}
+          placeholder=" Type a message"
+          inputRef={inputRef}
+        />
+        {message ? (
+          <IconButton onClick={handleSendMessage}>
+            <SendIcon color="info" />
+          </IconButton>
+        ) : null}
       </div>
     </ChatMessagesStyled>
   );

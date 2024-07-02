@@ -4,7 +4,7 @@ import { Loader } from '../../../../../../components';
 import { ChatsAndFriendsContext } from '../../../../../../contexts';
 import { DashboardStyled } from './Dashboard.styled';
 
-const Dashboard = ({ isLoading, overlayHeight }: any) => {
+const Dashboard = ({ isLoading, navbarHeight }: any) => {
   const {
     chatLoading,
     chatsLoading,
@@ -27,8 +27,8 @@ const Dashboard = ({ isLoading, overlayHeight }: any) => {
   }
 
   return (
-    <DashboardStyled overlayHeight={overlayHeight}>
-      <Outlet />
+    <DashboardStyled navbarHeight={navbarHeight}>
+      <Outlet context={[navbarHeight]} />
     </DashboardStyled>
   );
 };
