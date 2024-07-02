@@ -167,27 +167,10 @@ const ChatMessages = () => {
   }, [messagesQueue, width, height]);
 
   useLayoutEffect(() => {
-    if (scrollRef?.current) {
-      const scrollElement = scrollRef?.current;
-      const adjustScroll = () => {
-        scrollElement.scrollIntoView({
-          behavior: 'instant',
-          block: 'end',
-        });
-      };
-
-      // Adjust scroll position on keyboard open and resize events
-      const handleResize = () => {
-        setTimeout(adjustScroll, 300); // Delay to wait for keyboard open animation
-      };
-
-      adjustScroll(); // Initial adjustment
-
-      window.addEventListener('resize', handleResize);
-      return () => {
-        window.removeEventListener('resize', handleResize);
-      };
-    }
+    scrollRef?.current?.scrollIntoView({
+      behavior: 'instant',
+      block: 'end',
+    });
   }, [
     heights,
     heights2,
