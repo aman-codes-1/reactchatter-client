@@ -173,7 +173,12 @@ const ChatMessages = () => {
         behavior: 'instant',
         block: 'end',
       });
-      scrollElement.scrollTop += navbarHeight + textFieldHeight; // Adjust this value as needed
+      const additionalScroll =
+        scrollElement?.scrollHeight -
+        scrollElement?.clientHeight -
+        textFieldHeight -
+        navbarHeight;
+      scrollElement.scrollTop = additionalScroll; // Adjust this value as needed
     }
   }, [
     heights,
