@@ -8,6 +8,7 @@ export const HomeStyled = styled('div')(({ theme }) => ({
     backgroundRepeat: 'no-repeat',
     width: '100%',
     height: '100vh',
+    hright: '100dvh',
     zIndex: '-1',
     userSelect: 'none',
   },
