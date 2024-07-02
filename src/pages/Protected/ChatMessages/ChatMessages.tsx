@@ -298,7 +298,6 @@ const ChatMessages = () => {
     <ChatMessagesStyled
       navbarHeight={navbarHeight}
       textFieldHeight={textFieldHeight}
-      ref={scrollRef}
     >
       <div className="chat-container">
         {(loadingMessages || loading) && null}
@@ -422,6 +421,7 @@ const ChatMessages = () => {
           </IconButton>
         ) : null}
       </div>
+      <div ref={scrollRef} />
     </ChatMessagesStyled>
   );
 };
