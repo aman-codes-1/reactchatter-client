@@ -9,7 +9,7 @@ export const ChatMessagesStyled = styled('div')<{
   '.chat-container': {
     display: 'flex',
     width: '100%',
-    height: '100vh',
+    height: '100%',
     overflow: 'auto',
     padding: '0rem 2.5rem',
     maxHeight: `calc(100svh - ${textFieldHeight || 0}px - 2rem)`,
@@ -19,7 +19,6 @@ export const ChatMessagesStyled = styled('div')<{
     [theme.breakpoints.down('sm')]: {
       padding: '0rem 1rem',
       maxHeight: `calc(100svh - ${textFieldHeight || 0}px - ${navbarHeight || 0}px - 2rem)`,
-      position: 'relative',
     },
   },
   '.chat-wrapper': {
@@ -78,6 +77,7 @@ export const ChatMessagesStyled = styled('div')<{
     gap: '0.7rem',
     alignItems: 'center',
     padding: '1rem 2.5rem',
+    zIndex: 1000,
     background: theme.palette.primary.light,
     [theme.breakpoints.down('md')]: {
       padding: '1rem 1.5rem',
@@ -85,7 +85,6 @@ export const ChatMessagesStyled = styled('div')<{
     [theme.breakpoints.down('sm')]: {
       bottom: navbarHeight,
       padding: '1rem',
-      zIndex: 1000,
     },
   },
 }));
