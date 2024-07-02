@@ -37,7 +37,6 @@ const ChatMessages = () => {
   const [heights2, setHeights2] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [textFieldHeight, setTextFieldHeight] = useState(0);
-  console.log(textFieldHeight);
   const { height, width } = useResize();
   const { auth: { _id = '' } = {} } = useAuth();
   const {
