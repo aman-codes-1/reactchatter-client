@@ -8,7 +8,6 @@ const containerStyles = {
   justifyContent: 'center',
   width: '100%',
   height: '100svh',
-  // maxHeight: '-webkit-fill-available',
 };
 
 const imgStyles = {

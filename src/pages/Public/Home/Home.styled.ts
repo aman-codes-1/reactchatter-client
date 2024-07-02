@@ -10,7 +10,6 @@ export const HomeStyled = styled('div')(({ theme }) => ({
   flexDirection: 'column',
   width: '100%',
   height: '100svh',
-  // maxHeight: '-webkit-fill-available',
   zIndex: '-1',
   userSelect: 'none',
   padding: '0px 30px',
