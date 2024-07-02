@@ -36,6 +36,8 @@ const ChatMessages = () => {
   const [heights, setHeights] = useState<any[]>([]);
   const [heights2, setHeights2] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [textFieldHeight, setTextFieldHeight] = useState(0);
+  console.log(textFieldHeight);
   const { height, width } = useResize();
   const { auth: { _id = '' } = {} } = useAuth();
   const {
@@ -59,9 +61,14 @@ const ChatMessages = () => {
   } = useMessages(chatId, setMessagesQueue);
   const scrollRef = useRef<any>(null);
   const inputRef = useRef<any>(null);
+  const textFieldRef = useRef<any>(null);
 
   const setFocus = () => inputRef?.current && inputRef?.current?.focus();
   setFocus();
+
+  useLayoutEffect(() => {
+    setTextFieldHeight(textFieldRef?.current?.clientHeight);
+  }, []);
 
   const useArrayRef = () => {
     const refs: any[] = [];
@@ -282,18 +289,11 @@ const ChatMessages = () => {
   };
 
   return (
-    <ChatMessagesStyled navbarHeight={navbarHeight}>
-      <div
-        style={{
-          // display: 'flex',
-          height: 'calc(100vh - 80px)',
-          maxHeight: '-webkit-fill-available',
-          width: '100%',
-          // flexDirection: 'column',
-          // justifyContent: 'space-between',
-          // gap: '1.5rem',
-        }}
-      >
+    <ChatMessagesStyled
+      navbarHeight={navbarHeight}
+      textFieldHeight={textFieldHeight}
+    >
+      <div className="chat-container">
         <span />
         {(loadingMessages || loading) && null}
         {!loadingMessages &&
@@ -392,7 +392,7 @@ const ChatMessages = () => {
           </div>
         ) : null}
       </div>
-      <div className="text-field-wrapper">
+      <div className="text-field-wrapper" ref={textFieldRef}>
         <TextField
           autoFocus
           fullWidth
