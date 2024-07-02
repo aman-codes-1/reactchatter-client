@@ -1,25 +1,19 @@
 import { styled } from '@mui/system';
 
 export const HomeStyled = styled('div')(({ theme }) => ({
-  '.home-container': {
+  '.home-wrapper': {
     backgroundImage: 'url(/assets/images/cool-background.svg)',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
-    width: '100%',
-    height: '100vh',
-    hright: '100dvh',
-    zIndex: '-1',
-    userSelect: 'none',
-  },
-  '.home-wrapper': {
     display: 'flex',
     alignItems: 'center',
     flexDirection: 'column',
-    height: '100%',
-    [theme.breakpoints.down('sm')]: {
-      padding: '0px 30px',
-    },
+    width: '100%',
+    height: '100vh',
+    zIndex: '-1',
+    userSelect: 'none',
+    padding: '0px 30px',
     '.home-header': {
       marginTop: 162,
       textAlign: 'center',
