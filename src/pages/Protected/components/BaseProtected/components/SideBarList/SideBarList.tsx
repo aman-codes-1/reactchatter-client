@@ -35,6 +35,7 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
   } = useContext(ChatsAndFriendsContext);
   const [toggleChats, setToggleChats] = useState(!!chats?.length);
   const [toggleFriends, setToggleFriends] = useState(!!otherFriends?.length);
+  const [isListItemClicked, setIsListItemClicked] = useState(false);
 
   const navLinks = [
     {
@@ -148,12 +149,13 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
   ) => {
     e?.preventDefault();
     e?.stopPropagation();
+    setIsListItemClicked((prev) => !prev);
     toggleDrawer?.();
     if (chat?._id) {
       setSelectedFriend(undefined);
       setActiveMember(undefined);
       setSelectedChat(chat);
-      navigate(`/chat?id=${chat?._id}`);
+      navigate(`/chat?id=${chat?._id}`, { state: { isListItemClicked } });
     }
   };
 
@@ -165,11 +167,12 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
     e?.preventDefault();
     e?.stopPropagation();
     toggleDrawer?.();
+    setIsListItemClicked((prev) => !prev);
     if (friend?._id) {
       setSelectedChat(undefined);
       setSelectedFriend(friend);
       setActiveMember(activeMember);
-      navigate('/chat');
+      navigate('/chat', { state: { isListItemClicked } });
     }
   };
 

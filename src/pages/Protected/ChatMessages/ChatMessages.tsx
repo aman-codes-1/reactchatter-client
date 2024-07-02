@@ -6,6 +6,7 @@ import {
   useState,
 } from 'react';
 import {
+  useLocation,
   useNavigate,
   useOutletContext,
   useSearchParams,
@@ -27,10 +28,11 @@ import { getTime, handleKeyPress } from '../../../helpers';
 import { ChatMessagesStyled } from './ChatMessages.styled';
 
 const ChatMessages = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [navbarHeight] = useOutletContext<any>();
   const [searchParams, setSearchParams] = useSearchParams();
   const chatId = searchParams.get('id');
-  const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [messagesQueue, setMessagesQueue] = useState<any[]>([]);
   const [heights, setHeights] = useState<any[]>([]);
@@ -165,13 +167,35 @@ const ChatMessages = () => {
   }, [messagesQueue, width, height]);
 
   useLayoutEffect(() => {
-    if (heights?.length || heights2?.length || messageGroups?.length) {
-      scrollRef?.current?.scrollIntoView({
-        behavior: 'instant',
-        block: 'end',
-      });
+    if (scrollRef?.current) {
+      const scrollElement = scrollRef?.current;
+      const adjustScroll = () => {
+        scrollElement.scrollIntoView({
+          behavior: 'instant',
+          block: 'end',
+        });
+      };
+
+      // Adjust scroll position on keyboard open and resize events
+      const handleResize = () => {
+        setTimeout(adjustScroll, 300); // Delay to wait for keyboard open animation
+      };
+
+      adjustScroll(); // Initial adjustment
+
+      window.addEventListener('resize', handleResize);
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
     }
-  }, [heights, heights2, messageGroups, width, height]);
+  }, [
+    heights,
+    heights2,
+    messageGroups,
+    width,
+    height,
+    location?.state?.isListItemClicked,
+  ]);
 
   const handleChangeMessage = (
     e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
@@ -293,7 +317,6 @@ const ChatMessages = () => {
       textFieldHeight={textFieldHeight}
     >
       <div className="chat-container">
-        <span />
         {(loadingMessages || loading) && null}
         {!loadingMessages &&
         !loading &&
