@@ -42,7 +42,7 @@ const DataList = ({
       const itemHeight = itemRect.height;
       const listHeight = listRect.height;
       const scrollPos = topPos - listHeight / 2 + itemHeight / 2;
-      listElement.scrollTo({ top: scrollPos, behavior: 'smooth' });
+      listElement?.scrollTo({ top: scrollPos, behavior: 'smooth' });
     }
   };
 

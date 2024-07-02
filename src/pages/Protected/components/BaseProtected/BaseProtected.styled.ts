@@ -16,7 +16,6 @@ export const BaseProtectedStyled = styled('div')(({ theme }: any) => ({
       top: 'auto',
       bottom: 0,
       zIndex: theme.zIndex.drawer + 1,
-      overflow: 'hidden',
     },
     '.hidden-from-mobile': {
       display: 'none',

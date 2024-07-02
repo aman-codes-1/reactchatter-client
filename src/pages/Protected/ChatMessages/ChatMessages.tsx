@@ -167,19 +167,10 @@ const ChatMessages = () => {
   }, [messagesQueue, width, height]);
 
   useLayoutEffect(() => {
-    const scrollElement = scrollRef?.current;
-    if (scrollElement) {
-      scrollElement?.scrollIntoView({
-        behavior: 'instant',
-        block: 'end',
-      });
-      // const additionalScroll =
-      //   scrollElement?.scrollHeight -
-      //   scrollElement?.clientHeight -
-      //   textFieldHeight -
-      //   navbarHeight;
-      // scrollElement.scrollTop = additionalScroll; // Adjust this value as needed
-    }
+    scrollRef?.current?.scrollIntoView({
+      behavior: 'instant',
+      block: 'end',
+    });
   }, [
     heights,
     heights2,
@@ -307,6 +298,7 @@ const ChatMessages = () => {
     <ChatMessagesStyled
       navbarHeight={navbarHeight}
       textFieldHeight={textFieldHeight}
+      ref={scrollRef}
     >
       <div className="chat-container">
         {(loadingMessages || loading) && null}
