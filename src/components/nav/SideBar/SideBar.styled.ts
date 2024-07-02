@@ -5,7 +5,7 @@ export const SideBarStyled = styled('div')(({ theme }) => ({
   flexDirection: 'column',
   width: '100%',
   maxWidth: '22%',
-  height: '100svh',
+  height: '100vh',
   borderRight: `2px solid ${theme.palette.grey[200]}`,
   gap: '1rem',
   overflow: 'auto',

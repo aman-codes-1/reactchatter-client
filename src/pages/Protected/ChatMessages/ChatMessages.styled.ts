@@ -12,13 +12,13 @@ export const ChatMessagesStyled = styled('div')<{
     height: '100%',
     overflow: 'auto',
     padding: '0rem 2.5rem',
-    maxHeight: `calc(100svh - ${textFieldHeight || 0}px - 2rem)`,
+    maxHeight: `calc(100vh - ${textFieldHeight || 0}px - 2rem)`,
     [theme.breakpoints.down('md')]: {
       padding: '0rem 1.5rem',
     },
     [theme.breakpoints.down('sm')]: {
       padding: '0rem 1rem',
-      maxHeight: `calc(100svh - ${textFieldHeight || 0}px - ${navbarHeight || 0}px - 2rem)`,
+      maxHeight: `calc(100vh - ${textFieldHeight || 0}px - ${navbarHeight || 0}px - 2rem)`,
     },
   },
   '.chat-wrapper': {

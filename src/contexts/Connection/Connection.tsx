@@ -7,7 +7,7 @@ const containerStyles = {
   alignItems: 'center',
   justifyContent: 'center',
   width: '100%',
-  height: '100svh',
+  height: '100vh',
 };
 
 const imgStyles = {
