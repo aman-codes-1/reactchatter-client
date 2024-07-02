@@ -65,10 +65,6 @@ const ChatMessages = () => {
   const setFocus = () => inputRef?.current && inputRef?.current?.focus();
   setFocus();
 
-  useLayoutEffect(() => {
-    setTextFieldHeight(textFieldRef?.current?.clientHeight);
-  }, []);
-
   const useArrayRef = () => {
     const refs: any[] = [];
     return [refs, (el: any) => el && refs.push(el)];
@@ -90,6 +86,10 @@ const ChatMessages = () => {
   if (chatError) {
     navigate('/');
   }
+
+  useLayoutEffect(() => {
+    setTextFieldHeight(textFieldRef?.current?.clientHeight);
+  }, []);
 
   useLayoutEffect(() => {
     if ((chatId && !chats?.length) || (!selectedFriend && !chatId)) {
