@@ -1,7 +1,7 @@
 import { styled } from '@mui/system';
 
 export const LoginStyled = styled('div')(({ theme }) => ({
-  paddingTop: 124,
+  marginTop: 124,
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
