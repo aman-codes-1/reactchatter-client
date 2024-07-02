@@ -407,6 +407,7 @@ const ChatMessages = () => {
           }}
           placeholder=" Type a message"
           inputRef={inputRef}
+          size="medium"
         />
         {message ? (
           <IconButton onClick={handleSendMessage}>

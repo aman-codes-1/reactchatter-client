@@ -1,27 +1,29 @@
-import { styled } from '@mui/system';
+import { maxHeight, styled } from '@mui/system';
 
 export const ChatMessagesStyled = styled('div')<{
   navbarHeight: number;
   textFieldHeight: number;
 }>(({ theme, navbarHeight, textFieldHeight }) => ({
   height: '100%',
+  paddingTop: '1rem',
   '.chat-container': {
     display: 'flex',
     width: '100%',
-    paddingBottom: '1rem',
-    height: `calc(100svh - ${textFieldHeight || 0}px)`,
+    height: '100%',
+    overflow: 'auto',
+    padding: '0rem 2.5rem',
+    maxHeight: `calc(100svh - ${textFieldHeight || 0}px - 2rem)`,
+    [theme.breakpoints.down('md')]: {
+      padding: '0rem 1.5rem',
+    },
     [theme.breakpoints.down('sm')]: {
-      height: `calc(100svh - ${textFieldHeight || 0}px - ${navbarHeight || 0}px)`,
+      padding: '0rem 1rem',
+      maxHeight: `calc(100svh - ${textFieldHeight || 0}px - ${navbarHeight || 0}px - 2rem)`,
     },
   },
   '.chat-wrapper': {
     width: '100%',
-    padding: '0rem 2.5rem',
-    overflow: 'auto',
     marginTop: 'auto',
-    [theme.breakpoints.down('md')]: {
-      padding: '0rem 1rem',
-    },
   },
   '.no-messages-wrapper': {
     display: 'flex',
@@ -77,10 +79,11 @@ export const ChatMessagesStyled = styled('div')<{
     padding: '1rem 2.5rem',
     background: theme.palette.primary.light,
     [theme.breakpoints.down('md')]: {
-      padding: '0.7rem 1rem',
+      padding: '1rem 1.5rem',
     },
     [theme.breakpoints.down('sm')]: {
       bottom: navbarHeight,
+      padding: '1rem',
     },
   },
 }));
