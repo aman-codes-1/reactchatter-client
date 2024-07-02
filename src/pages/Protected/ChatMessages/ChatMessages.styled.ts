@@ -66,7 +66,7 @@ export const ChatMessagesStyled = styled('div')<{
   },
   '.text-field-wrapper': {
     position: 'fixed',
-    width: '-webkit-fill-available',
+    width: 'stretch',
     top: 'auto',
     bottom: 0,
     display: 'flex',
