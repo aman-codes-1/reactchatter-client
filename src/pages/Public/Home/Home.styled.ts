@@ -9,7 +9,7 @@ export const HomeStyled = styled('div')(({ theme }) => ({
   alignItems: 'center',
   flexDirection: 'column',
   width: '100%',
-  height: '100vh',
+  height: '100svh',
   zIndex: '-1',
   userSelect: 'none',
   padding: '0px 30px',
