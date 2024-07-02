@@ -11,7 +11,6 @@ export const ChatMessagesStyled = styled('div')<{
     width: '100%',
     [theme.breakpoints.down('sm')]: {
       height: `calc(100vh - ${textFieldHeight || 0}px - ${navbarHeight || 0}px)`,
-      maxHeight: '-webkit-fill-available',
     },
   },
   '.chat-wrapper': {
