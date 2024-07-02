@@ -6,11 +6,11 @@ export const ChatMessagesStyled = styled('div')<{
 }>(({ theme, navbarHeight, textFieldHeight }) => ({
   height: '100%',
   '.chat-container': {
-    height: `calc(100vh - ${textFieldHeight}px)`,
+    height: `calc(100vh - ${textFieldHeight || 0}px)`,
     maxHeight: '-webkit-fill-available',
     width: '100%',
     [theme.breakpoints.down('sm')]: {
-      height: `calc(100vh - ${textFieldHeight}px - ${navbarHeight}px)`,
+      height: `calc(100vh - ${textFieldHeight || 0}px - ${navbarHeight || 0}px)`,
       maxHeight: '-webkit-fill-available',
     },
   },
