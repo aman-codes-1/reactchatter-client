@@ -47,7 +47,7 @@ const AddFriend = () => {
     });
     const val = (e.target as HTMLInputElement)?.value;
     setEmail(val);
-    if (val === Email) {
+    if (val?.toLowerCase() === Email?.toLowerCase()) {
       setDisabled(true);
     } else {
       setDisabled(false);
@@ -66,7 +66,7 @@ const AddFriend = () => {
         isRequired: true,
         isNotValid: false,
       };
-    } else if (email && !validateEmail.test(email)) {
+    } else if (email && !validateEmail.test(email?.toLowerCase())) {
       validationCheck = {
         isRequired: false,
         isNotValid: true,
@@ -93,7 +93,7 @@ const AddFriend = () => {
       const { data } = await createRequest({
         variables: {
           userId: _id,
-          sendToEmail: email.toLowerCase(),
+          sendToEmail: email?.toLowerCase(),
         },
       });
       if (data?.createRequest?._id) {
