@@ -7,8 +7,8 @@ const containerStyles = {
   alignItems: 'center',
   justifyContent: 'center',
   width: '100%',
-  height: '100dvh',
-  maxHeight: '-webkit-fill-available',
+  height: '100svh',
+  // maxHeight: '-webkit-fill-available',
 };
 
 const imgStyles = {

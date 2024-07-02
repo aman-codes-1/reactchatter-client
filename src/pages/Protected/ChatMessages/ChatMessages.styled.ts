@@ -6,11 +6,11 @@ export const ChatMessagesStyled = styled('div')<{
 }>(({ theme, navbarHeight, textFieldHeight }) => ({
   height: '100%',
   '.chat-container': {
-    height: `calc(100dvh - ${textFieldHeight || 0}px)`,
-    maxHeight: '-webkit-fill-available',
+    height: `calc(100svh - ${textFieldHeight || 0}px)`,
+    // maxHeight: '-webkit-fill-available',
     width: '100%',
     [theme.breakpoints.down('sm')]: {
-      height: `calc(100dvh - ${textFieldHeight || 0}px - ${navbarHeight || 0}px)`,
+      height: `calc(100svh - ${textFieldHeight || 0}px - ${navbarHeight || 0}px)`,
     },
   },
   '.chat-wrapper': {
@@ -66,7 +66,7 @@ export const ChatMessagesStyled = styled('div')<{
   },
   '.text-field-wrapper': {
     position: 'fixed',
-    width: '-webkit-fill-available',
+    // width: '-webkit-fill-available',
     top: 'auto',
     bottom: 0,
     display: 'flex',
