@@ -78,6 +78,7 @@ export const ChatMessagesStyled = styled('div')<{
     alignItems: 'center',
     padding: '1rem 2.5rem',
     zIndex: 1000,
+    overflow: 'hidden',
     background: theme.palette.primary.light,
     [theme.breakpoints.down('md')]: {
       padding: '1rem 1.5rem',
