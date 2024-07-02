@@ -55,7 +55,7 @@ export const theme = createTheme({
       disabled: 'rgba(0,0,0, 0.38)',
     },
     background: {
-      default: '#F8FAFB',
+      default: '#FFFFFF',
     },
     action: {
       active: '#0F172B',

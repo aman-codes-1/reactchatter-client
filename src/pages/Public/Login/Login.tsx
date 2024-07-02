@@ -4,9 +4,9 @@ import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import { CircularProgress, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { LoginStyled } from './Login.styled';
 import { useAuth, useSnackbar } from '../../../hooks';
 import { BaseSvg } from '../../../components';
+import { LoginStyled } from './Login.styled';
 
 const Login = () => {
   const location = useLocation();
