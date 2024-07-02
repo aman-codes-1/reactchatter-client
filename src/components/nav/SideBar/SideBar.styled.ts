@@ -6,6 +6,7 @@ export const SideBarStyled = styled('div')(({ theme }) => ({
   width: '100%',
   maxWidth: '22%',
   height: '100vh',
+  maxHeight: '-webkit-fill-available',
   borderRight: `2px solid ${theme.palette.grey[200]}`,
   gap: '1rem',
   overflow: 'auto',

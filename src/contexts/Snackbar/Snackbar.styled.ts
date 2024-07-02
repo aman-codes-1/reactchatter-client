@@ -6,6 +6,7 @@ export const SnackbarStyled = styled('div')(({ theme }) => ({
     justifyContent: 'center',
     alignItems: 'center',
     height: '100vh',
+    maxHeight: '-webkit-fill-available',
     top: '0px',
     '.snackbar-wrapper': {
       width: '430px',
