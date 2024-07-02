@@ -61,6 +61,7 @@ const ChatMessages = () => {
     messagesWithQueue,
   } = useMessages(chatId, setMessagesQueue);
   const scrollRef = useRef<any>(null);
+  const scrollRef2 = useRef<any>(null);
   const inputRef = useRef<any>(null);
   const textFieldRef = useRef<any>(null);
 
@@ -168,6 +169,10 @@ const ChatMessages = () => {
 
   useLayoutEffect(() => {
     scrollRef?.current?.scrollIntoView({
+      behavior: 'instant',
+      block: 'end',
+    });
+    scrollRef2?.current?.scrollIntoView({
       behavior: 'instant',
       block: 'end',
     });
@@ -421,7 +426,7 @@ const ChatMessages = () => {
           </IconButton>
         ) : null}
       </div>
-      <div ref={scrollRef} />
+      <div ref={scrollRef2} />
     </ChatMessagesStyled>
   );
 };
