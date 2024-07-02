@@ -286,7 +286,8 @@ const ChatMessages = () => {
       <div
         style={{
           // display: 'flex',
-          height: 'calc(100% - 80px)',
+          height: 'calc(100vh - 80px)',
+          maxHeight: '-webkit-fill-available',
           width: '100%',
           // flexDirection: 'column',
           // justifyContent: 'space-between',

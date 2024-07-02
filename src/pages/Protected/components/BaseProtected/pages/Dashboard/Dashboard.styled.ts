@@ -5,6 +5,7 @@ export const DashboardStyled = styled('div')<{
 }>(({ theme, navbarHeight }) => ({
   width: '100%',
   height: `calc(100vh - ${navbarHeight || 0}px)`,
+  maxHeight: '-webkit-fill-available',
   overflow: 'auto',
   [theme.breakpoints.down('sm')]: {
     width: 'unset',
