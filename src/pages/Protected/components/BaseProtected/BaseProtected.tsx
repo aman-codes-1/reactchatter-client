@@ -1,9 +1,9 @@
-import { Suspense, lazy, useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { AppBar } from '@mui/material';
-import { Drawer, Loader, NavBar, SideBar } from '../../../../components';
+import { Drawer, NavBar, SideBar } from '../../../../components';
 import { SideBarList } from './components';
-import { BaseProtectedStyled } from './BaseProtected.styled';
 import { Dashboard } from './pages';
+import { BaseProtectedStyled } from './BaseProtected.styled';
 
 const BaseProtected = ({ isLoading }: any) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -22,10 +22,6 @@ const BaseProtected = ({ isLoading }: any) => {
     setNavbarHeight(navbarRef?.current?.clientHeight);
   }, []);
 
-  // const Dashboard = lazy(() =>
-  //   import('./pages').then((module) => ({ default: module.Dashboard })),
-  // );
-
   return (
     <BaseProtectedStyled>
       <SideBar className="hidden-from-mobile">
@@ -42,9 +38,7 @@ const BaseProtected = ({ isLoading }: any) => {
           <SideBarList toggleDrawer={toggleDrawer(false)} />
         </SideBar>
       </Drawer>
-      {/* <Suspense fallback={<Loader center />}> */}
       <Dashboard isLoading={isLoading} navbarHeight={navbarHeight} />
-      {/* </Suspense> */}
       <AppBar
         position="fixed"
         elevation={0}
