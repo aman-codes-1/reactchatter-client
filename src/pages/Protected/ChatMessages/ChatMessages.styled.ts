@@ -68,6 +68,9 @@ export const ChatMessagesStyled = styled('div')<{
   },
   '.text-field-wrapper': {
     position: 'fixed',
+    willChange: 'transform',
+    backfaceVisibility: 'hidden',
+    transform: 'translateZ(0)',
     width: 'stretch',
     top: 'auto',
     bottom: 0,
