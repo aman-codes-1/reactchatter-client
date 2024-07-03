@@ -1,4 +1,4 @@
-import { maxHeight, styled } from '@mui/system';
+import { styled } from '@mui/system';
 
 export const ChatMessagesStyled = styled('div')<{
   navbarHeight: number;
@@ -9,16 +9,15 @@ export const ChatMessagesStyled = styled('div')<{
   '.chat-container': {
     display: 'flex',
     width: '100%',
-    height: '100%',
     overflow: 'auto',
     padding: '0rem 2.5rem',
-    maxHeight: `calc(100svh - ${textFieldHeight || 0}px - 2rem)`,
+    height: `calc(100svh - ${textFieldHeight || 0}px - 2rem)`,
     [theme.breakpoints.down('md')]: {
       padding: '0rem 1.5rem',
     },
     [theme.breakpoints.down('sm')]: {
       padding: '0rem 1rem',
-      maxHeight: `calc(100svh - ${textFieldHeight || 0}px - ${navbarHeight || 0}px - 2rem)`,
+      height: `calc(100svh - ${textFieldHeight || 0}px - ${navbarHeight || 0}px - 2rem)`,
     },
   },
   '.chat-wrapper': {
@@ -28,7 +27,6 @@ export const ChatMessagesStyled = styled('div')<{
   '.no-messages-wrapper': {
     display: 'flex',
     width: '100%',
-    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
