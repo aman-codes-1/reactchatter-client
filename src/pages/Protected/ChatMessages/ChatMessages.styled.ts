@@ -4,7 +4,6 @@ export const ChatMessagesStyled = styled('div')<{
   navbarHeight: number;
   textFieldHeight: number;
 }>(({ theme, navbarHeight, textFieldHeight }) => ({
-  // height: '100%',
   paddingTop: '1rem',
   '.chat-container': {
     display: 'flex',
@@ -68,9 +67,6 @@ export const ChatMessagesStyled = styled('div')<{
   },
   '.text-field-wrapper': {
     position: 'fixed',
-    willChange: 'transform',
-    backfaceVisibility: 'hidden',
-    transform: 'translateZ(0)',
     width: 'stretch',
     top: 'auto',
     bottom: 0,
