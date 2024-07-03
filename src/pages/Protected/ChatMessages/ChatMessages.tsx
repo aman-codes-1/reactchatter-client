@@ -169,6 +169,7 @@ const ChatMessages = () => {
   useLayoutEffect(() => {
     const scrollElement = scrollRef?.current;
     if (scrollElement) {
+      console.log(scrollElement);
       scrollElement?.scrollIntoView({
         behavior: 'instant',
         block: 'end',
@@ -317,7 +318,6 @@ const ChatMessages = () => {
               <Grid
                 container
                 spacing={2}
-                height="100%"
                 justifyContent={
                   messageGroup?.side === 'right' ? 'flex-end' : 'flex-start'
                 }
@@ -399,30 +399,30 @@ const ChatMessages = () => {
             <div ref={scrollRef} />
           </div>
         ) : null}
-      </div>
-      <div className="text-field-wrapper" ref={textFieldRef}>
-        <TextField
-          autoFocus
-          fullWidth
-          value={message}
-          onKeyUp={(_: any) => handleKeyPress(_, handleSendMessage)}
-          onChange={handleChangeMessage}
-          InputProps={{
-            style: {
-              borderRadius: '10px',
-              background: 'white',
-              height: 44,
-            },
-          }}
-          placeholder=" Type a message"
-          inputRef={inputRef}
-          size="medium"
-        />
-        {message ? (
-          <IconButton onClick={handleSendMessage}>
-            <SendIcon color="info" />
-          </IconButton>
-        ) : null}
+        <div className="text-field-wrapper" ref={textFieldRef}>
+          <TextField
+            autoFocus
+            fullWidth
+            value={message}
+            onKeyUp={(_: any) => handleKeyPress(_, handleSendMessage)}
+            onChange={handleChangeMessage}
+            InputProps={{
+              style: {
+                borderRadius: '10px',
+                background: 'white',
+                height: 44,
+              },
+            }}
+            placeholder=" Type a message"
+            inputRef={inputRef}
+            size="medium"
+          />
+          {message ? (
+            <IconButton onClick={handleSendMessage}>
+              <SendIcon color="info" />
+            </IconButton>
+          ) : null}
+        </div>
       </div>
     </ChatMessagesStyled>
   );
