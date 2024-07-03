@@ -169,7 +169,7 @@ const ChatMessages = () => {
   useLayoutEffect(() => {
     const scrollElement = scrollRef?.current;
     if (scrollElement) {
-      scrollElement?.lastElementChild?.scrollIntoView();
+      scrollElement?.scrollIntoView();
     }
   }, [
     heights,
@@ -341,7 +341,7 @@ const ChatMessages = () => {
                     <Avatar src="" width={32} height={32} />
                   </Grid>
                 )}
-                <Grid item xs={8} ref={scrollRef}>
+                <Grid item xs={8}>
                   {messageGroup?.data?.length
                     ? messageGroup?.data?.map((msg: any, index: number) =>
                         renderChat(
@@ -408,6 +408,7 @@ const ChatMessages = () => {
                 </Grid>
               );
             })}
+            <div ref={scrollRef} />
           </div>
         ) : null}
       </div>
