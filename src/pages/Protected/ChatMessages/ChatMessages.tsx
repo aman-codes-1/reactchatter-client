@@ -168,23 +168,12 @@ const ChatMessages = () => {
 
   useLayoutEffect(() => {
     const scrollElement = scrollRef?.current;
+    const scrollElement2 = textFieldRef?.current;
     if (scrollElement) {
       scrollElement?.scrollIntoView();
     }
-  }, [
-    heights,
-    heights2,
-    messageGroups,
-    messagesQueue,
-    width,
-    height,
-    location?.state?.isListItemClicked,
-  ]);
-
-  useLayoutEffect(() => {
-    const scrollElement2 = textFieldRef?.current;
     if (scrollElement2) {
-      scrollElement2?.lastElementChild?.scrollIntoView();
+      scrollElement2?.scrollIntoView();
     }
   }, [
     heights,
