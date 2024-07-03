@@ -186,6 +186,7 @@ const ChatMessages = () => {
     heights,
     heights2,
     messageGroups,
+    messagesQueue,
     width,
     height,
     location?.state?.isListItemClicked,
