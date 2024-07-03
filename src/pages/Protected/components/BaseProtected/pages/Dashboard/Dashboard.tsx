@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { Suspense, useContext } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Loader } from '../../../../../../components';
 import { ChatsAndFriendsContext } from '../../../../../../contexts';
@@ -28,7 +28,9 @@ const Dashboard = ({ isLoading, navbarHeight }: any) => {
 
   return (
     <DashboardStyled navbarHeight={navbarHeight}>
-      <Outlet context={[navbarHeight]} />
+      <Suspense fallback={null}>
+        <Outlet context={[navbarHeight]} />
+      </Suspense>
     </DashboardStyled>
   );
 };

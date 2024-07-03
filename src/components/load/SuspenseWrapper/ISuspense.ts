@@ -5,4 +5,5 @@ export interface SuspenseWrapperProps {
   compName: string;
   fallback?: ReactNode;
   key?: any;
+  isLoading?: boolean;
 }

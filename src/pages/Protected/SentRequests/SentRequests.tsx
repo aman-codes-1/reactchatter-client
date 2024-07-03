@@ -40,13 +40,11 @@ const SentRequests = () => {
       heading="Sent Requests"
       defaultText="You have not sent any friend requests."
       loading={sentRequestsLoading || !sentRequestsCalled}
-      data={sentRequests}
       error={sentRequestsError?.graphQLErrors?.[0]?.message}
+      data={sentRequests}
     >
       <FriendRequest
-        loading={sentRequestsLoading || !sentRequestsCalled}
         data={sentRequests}
-        error={sentRequestsError?.graphQLErrors?.[0]?.message}
         userObj="memberDetails"
         emailKey="email"
         cancelBtnProps={{

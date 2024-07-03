@@ -1,4 +1,4 @@
-import { ReactElement, createContext } from 'react';
+import { ReactElement, Suspense, createContext, lazy } from 'react';
 import { useNavigatorOnLine } from '../../hooks';
 import { BaseProtected } from '../../pages';
 
@@ -26,8 +26,16 @@ export const ConnectionProvider = ({
   const isAuthenticated = Boolean(localStorage.getItem('isAuthenticated'));
   const isConnectionLoading = isLoading && isAuthenticated;
 
+  const Routes = lazy(() =>
+    import('../../routes').then((module) => ({ default: module.AppRoutes })),
+  );
+
   if (isConnectionLoading) {
-    return <BaseProtected isLoading={isConnectionLoading} />;
+    return (
+      <Suspense fallback={<BaseProtected isLoading={isConnectionLoading} />}>
+        <Routes isLoading={isConnectionLoading} />
+      </Suspense>
+    );
   }
 
   if (!isLoading && isOffline) {

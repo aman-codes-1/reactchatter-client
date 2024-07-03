@@ -20,22 +20,14 @@ export const routesConfig = () => [
     type: 'public',
     path: '/',
     Element: () => (
-      <SuspenseWrapper
-        path="pages/Public/Home"
-        compName="Home"
-        fallback={<Home />}
-      />
+      <SuspenseWrapper path="pages" compName="Home" fallback={<Home />} />
     ),
   },
   {
     type: 'public',
     path: '/login',
     Element: () => (
-      <SuspenseWrapper
-        path="pages/Public/Login"
-        compName="Login"
-        fallback={<Login />}
-      />
+      <SuspenseWrapper path="pages" compName="Login" fallback={<Login />} />
     ),
   },
   {
@@ -43,7 +35,7 @@ export const routesConfig = () => [
     path: '/',
     Element: () => (
       <SuspenseWrapper
-        path="pages/Protected/RecentChats"
+        path="pages"
         compName="RecentChats"
         fallback={<RecentChats />}
       />
@@ -54,7 +46,7 @@ export const routesConfig = () => [
     path: '/chat',
     Element: () => (
       <SuspenseWrapper
-        path="pages/Protected/ChatMessages"
+        path="pages"
         compName="ChatMessages"
         fallback={<ChatMessages />}
       />
@@ -65,7 +57,7 @@ export const routesConfig = () => [
     path: '/addFriend',
     Element: () => (
       <SuspenseWrapper
-        path="pages/Protected/AddFriend"
+        path="pages"
         compName="AddFriend"
         fallback={<AddFriend />}
       />
@@ -76,7 +68,7 @@ export const routesConfig = () => [
     path: '/friendRequests',
     Element: () => (
       <SuspenseWrapper
-        path="pages/Protected/FriendRequests"
+        path="pages"
         compName="FriendRequests"
         fallback={<FriendRequests />}
       />
@@ -87,7 +79,7 @@ export const routesConfig = () => [
     path: '/sentRequests',
     Element: () => (
       <SuspenseWrapper
-        path="pages/Protected/SentRequests"
+        path="pages"
         compName="SentRequests"
         fallback={<SentRequests />}
       />

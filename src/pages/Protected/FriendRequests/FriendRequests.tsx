@@ -39,13 +39,11 @@ const FriendRequests = () => {
       heading="Friend Requests"
       defaultText="You have no friend requests."
       loading={pendingRequestsLoading || !pendingRequestsCalled}
-      data={pendingRequests}
       error={pendingRequestsError?.graphQLErrors?.[0]?.message}
+      data={pendingRequests}
     >
       <FriendRequest
-        loading={pendingRequestsLoading || !pendingRequestsCalled}
         data={pendingRequests}
-        error={pendingRequestsError?.graphQLErrors?.[0]?.message}
         userObj="memberDetails"
         emailKey="email"
         acceptBtnProps={{

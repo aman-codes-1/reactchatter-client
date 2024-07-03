@@ -1,7 +1,13 @@
-import { createContext, useLayoutEffect, useState } from 'react';
-import { AuthProviderProps, Context } from './IAuth';
+import {
+  Suspense,
+  createContext,
+  lazy,
+  useLayoutEffect,
+  useState,
+} from 'react';
 import { useApi } from '../../hooks';
 import { apiRoutes } from '../../helpers';
+import { AuthProviderProps, Context } from './IAuth';
 import { BaseProtected } from '../../pages';
 
 export const AuthContext = createContext<Context>({
@@ -44,8 +50,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, [auth, isAuthenticated]);
 
+  const Routes = lazy(() =>
+    import('../../routes').then((module) => ({ default: module.AppRoutes })),
+  );
+
   if (isLoading) {
-    return <BaseProtected isLoading={isLoading} />;
+    return (
+      <Suspense fallback={<BaseProtected isLoading={isLoading} />}>
+        <Routes isLoading={isLoading} />
+      </Suspense>
+    );
   }
 
   return (

@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 
 export type MainLayoutProps = {
-  heading: string;
+  heading?: string;
   defaultText?: string;
   loading?: boolean;
   data?: any;
