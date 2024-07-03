@@ -23,7 +23,7 @@ export const ChatMessagesStyled = styled('div')<{
   },
   '.chat-wrapper': {
     width: '100%',
-    alignSelf: 'flex-end',
+    marginTop: 'auto',
   },
   '.no-messages-wrapper': {
     display: 'flex',
