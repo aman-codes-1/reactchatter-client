@@ -407,32 +407,32 @@ const ChatMessages = () => {
             <div ref={scrollRef} />
           </div>
         ) : null}
-        <div className="text-field-wrapper" ref={textFieldRef}>
-          <TextField
-            autoFocus
-            fullWidth
-            value={message}
-            onKeyUp={(_: any) => handleKeyPress(_, handleSendMessage)}
-            onChange={handleChangeMessage}
-            InputProps={{
-              style: {
-                borderRadius: '10px',
-                background: 'white',
-                height: 44,
-              },
-            }}
-            placeholder=" Type a message"
-            inputRef={inputRef}
-            size="medium"
-          />
-          {message ? (
-            <IconButton onClick={handleSendMessage}>
-              <SendIcon color="info" />
-            </IconButton>
-          ) : null}
-        </div>
-        <div ref={scrollRef2} />
       </div>
+      <div className="text-field-wrapper" ref={textFieldRef}>
+        <TextField
+          autoFocus
+          fullWidth
+          value={message}
+          onKeyUp={(_: any) => handleKeyPress(_, handleSendMessage)}
+          onChange={handleChangeMessage}
+          InputProps={{
+            style: {
+              borderRadius: '10px',
+              background: 'white',
+              height: 44,
+            },
+          }}
+          placeholder=" Type a message"
+          inputRef={inputRef}
+          size="medium"
+        />
+        {message ? (
+          <IconButton onClick={handleSendMessage}>
+            <SendIcon color="info" />
+          </IconButton>
+        ) : null}
+      </div>
+      <div ref={scrollRef2} />
     </ChatMessagesStyled>
   );
 };
