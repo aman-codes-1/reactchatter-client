@@ -169,7 +169,6 @@ const ChatMessages = () => {
   useLayoutEffect(() => {
     const scrollElement = scrollRef?.current;
     if (scrollElement) {
-      console.log(scrollElement);
       scrollElement?.scrollIntoView({
         behavior: 'instant',
         block: 'end',
@@ -423,6 +422,7 @@ const ChatMessages = () => {
             </IconButton>
           ) : null}
         </div>
+        <div ref={scrollRef} />
       </div>
     </ChatMessagesStyled>
   );
