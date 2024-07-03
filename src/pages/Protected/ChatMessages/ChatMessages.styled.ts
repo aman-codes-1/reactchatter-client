@@ -1,15 +1,15 @@
-import { styled } from '@mui/system';
+import { maxHeight, styled } from '@mui/system';
 
 export const ChatMessagesStyled = styled('div')<{
   navbarHeight: number;
   textFieldHeight: number;
 }>(({ theme, navbarHeight, textFieldHeight }) => ({
-  height: '100vh',
+  height: '100%',
   paddingTop: '1rem',
   '.chat-container': {
     display: 'flex',
     width: '100%',
-    height: '100svh',
+    height: '100%',
     overflow: 'auto',
     padding: '0rem 2.5rem',
     maxHeight: `calc(100svh - ${textFieldHeight || 0}px - 2rem)`,
