@@ -169,13 +169,24 @@ const ChatMessages = () => {
 
   useLayoutEffect(() => {
     const scrollElement = scrollRef?.current;
-    const scrollElement2 = scrollRef2?.current;
     if (scrollElement) {
       scrollElement?.scrollIntoView({
         behavior: 'instant',
         block: 'end',
       });
     }
+  }, [
+    heights,
+    heights2,
+    messageGroups,
+    messagesQueue,
+    width,
+    height,
+    location?.state?.isListItemClicked,
+  ]);
+
+  useLayoutEffect(() => {
+    const scrollElement2 = scrollRef2?.current;
     if (scrollElement2) {
       scrollElement2?.scrollIntoView({
         behavior: 'instant',
