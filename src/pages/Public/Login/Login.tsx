@@ -25,7 +25,7 @@ const Login = () => {
     const googleLogin = async () => {
       setIsLoading(true);
       const decoded = jwtDecode(token || '');
-      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('token', token || '');
       setAuth({
         isLoggedIn: true,
         ...decoded,

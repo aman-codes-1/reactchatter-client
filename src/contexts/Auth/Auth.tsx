@@ -1,69 +1,28 @@
-import {
-  Suspense,
-  createContext,
-  lazy,
-  useLayoutEffect,
-  useState,
-} from 'react';
-import { useApi } from '../../hooks';
-import { apiRoutes } from '../../helpers';
+import { createContext, useLayoutEffect, useState } from 'react';
+import { jwtDecode } from 'jwt-decode';
 import { AuthProviderProps, Context } from './IAuth';
-import { BaseProtected } from '../../pages';
 
 export const AuthContext = createContext<Context>({
   auth: {},
   setAuth: () => null,
-  isLoading: false,
-  setIsLoading: () => null,
 });
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const isAuthenticated = Boolean(localStorage.getItem('isAuthenticated'));
-  const [isLoading, setIsLoading] = useState(isAuthenticated);
-  const [auth, setAuth] = useState();
-  const { callApi, logout } = useApi();
+  const token = localStorage.getItem('token');
+  const [auth, setAuth] = useState<any>();
 
   useLayoutEffect(() => {
-    const verifyLogin = async () => {
-      setIsLoading(true);
-      try {
-        const { data }: any = await callApi({
-          url: apiRoutes.AuthProfile,
-          withCredentials: true,
-        });
-        localStorage.setItem('isAuthenticated', 'true');
-        setAuth({
-          isLoggedIn: true,
-          ...data?.data,
-        });
-      } catch (err: any) {
-        logout();
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (!auth && isAuthenticated) {
-      verifyLogin();
-    } else {
-      setIsLoading(false);
+    if (!auth && token) {
+      const decoded = jwtDecode(token || '');
+      setAuth({
+        isLoggedIn: true,
+        ...decoded,
+      });
     }
-  }, [auth, isAuthenticated]);
-
-  const Routes = lazy(() =>
-    import('../../routes').then((module) => ({ default: module.AppRoutes })),
-  );
-
-  if (isLoading) {
-    return (
-      <Suspense fallback={<BaseProtected isLoading={isLoading} />}>
-        <Routes isLoading={isLoading} />
-      </Suspense>
-    );
-  }
+  }, [auth, token]);
 
   return (
-    <AuthContext.Provider value={{ auth, setAuth, isLoading, setIsLoading }}>
+    <AuthContext.Provider value={{ auth, setAuth }}>
       {children}
     </AuthContext.Provider>
   );

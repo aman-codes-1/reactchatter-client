@@ -15,10 +15,10 @@ const AppRoutes = lazy(() =>
 );
 
 const App = () => (
-  <ThemeProvider theme={theme}>
-    <CssBaseline />
-    <BrowserRouter>
-      <Suspense fallback={null}>
+  <Suspense fallback={null}>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <BrowserRouter>
         <SnackbarProvider>
           <ConnectionProvider>
             <AuthProvider>
@@ -28,9 +28,9 @@ const App = () => (
             </AuthProvider>
           </ConnectionProvider>
         </SnackbarProvider>
-      </Suspense>
-    </BrowserRouter>
-  </ThemeProvider>
+      </BrowserRouter>
+    </ThemeProvider>
+  </Suspense>
 );
 
 export default App;

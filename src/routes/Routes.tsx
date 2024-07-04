@@ -1,13 +1,11 @@
-import { ReactNode, Suspense, lazy, useLayoutEffect, useState } from 'react';
+import { ReactNode, Suspense, useLayoutEffect, useState } from 'react';
 import { Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks';
 import { routesConfig } from './config';
 import { IRouteConfig } from './IRoutes';
-// import { BaseProtected } from '../pages';
-import { ChatsAndFriendsProvider } from '../contexts';
 import { BaseProtected } from '../pages';
 
-const AppRoutes = ({ isLoading }: any) => {
+const AppRoutes = () => {
   const location = useLocation();
   const { pathname } = location || {};
   const { auth } = useAuth();
@@ -50,36 +48,22 @@ const AppRoutes = ({ isLoading }: any) => {
     window.location.reload();
   });
 
-  const Protected = lazy(() =>
-    import('../pages').then((module) => ({ default: module.BaseProtected })),
-  );
-
-  const renderElement = () => {
-    if (isLoading) {
-      return (
-        <Suspense fallback={<BaseProtected isLoading={isLoading} />}>
-          <Protected isLoading={isLoading} />
-        </Suspense>
-      );
-    } else if (!isLoading && auth?.isLoggedIn) {
-      return (
-        <ChatsAndFriendsProvider>
-          <BaseProtected isLoading={isLoading} />
-        </ChatsAndFriendsProvider>
-      );
-    }
-    return (
-      <Suspense fallback={null}>
-        <Outlet />
-      </Suspense>
-    );
-  };
-
   return (
     <Routes>
-      <Route path="/" element={renderElement()}>
+      <Route
+        path="/"
+        element={
+          auth?.isLoggedIn ? (
+            <BaseProtected />
+          ) : (
+            <Suspense fallback={null}>
+              <Outlet />
+            </Suspense>
+          )
+        }
+      >
         {defaultRoutes}
-        {isLoading || auth?.isLoggedIn ? privateRoutes : publicRoutes}
+        {auth?.isLoggedIn ? privateRoutes : publicRoutes}
       </Route>
     </Routes>
   );

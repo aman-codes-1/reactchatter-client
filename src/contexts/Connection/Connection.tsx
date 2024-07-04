@@ -22,8 +22,6 @@ export const ConnectionProvider = ({
   children: ReactElement;
 }) => {
   const { isLoading, isOffline }: any = useNavigatorOnLine();
-  const isAuthenticated = Boolean(localStorage.getItem('isAuthenticated'));
-  const isConnectionLoading = isLoading && isAuthenticated;
 
   if (!isLoading && isOffline) {
     return (
@@ -38,9 +36,7 @@ export const ConnectionProvider = ({
   }
 
   return (
-    <ConnectionContext.Provider
-      value={{ isConnectionLoading, isOffline, isAuthenticated }}
-    >
+    <ConnectionContext.Provider value={{ isLoading, isOffline }}>
       {children}
     </ConnectionContext.Provider>
   );

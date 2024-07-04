@@ -17,7 +17,7 @@ export const useApi = () => {
       socket.disconnect();
     }
     setUser?.();
-    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('token');
     setAuth(undefined);
     navigate(pathname, { replace: true });
   };

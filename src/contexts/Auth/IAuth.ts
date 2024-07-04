@@ -9,6 +9,4 @@ export type Auth = any;
 export type Context = {
   auth: Auth;
   setAuth: any;
-  isLoading: boolean;
-  setIsLoading: Dispatch<SetStateAction<boolean>>;
 };

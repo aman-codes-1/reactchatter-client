@@ -43,6 +43,8 @@ const ChatMessages = () => {
   const { auth: { _id = '' } = {} } = useAuth();
   const {
     chats = [],
+    chatsLoading,
+    chatsCalled,
     chatError,
     createChat,
     selectedFriend,
@@ -94,10 +96,11 @@ const ChatMessages = () => {
   }, []);
 
   useLayoutEffect(() => {
+    if (chatsLoading || !chatsCalled) return;
     if ((chatId && !chats?.length) || (!selectedFriend && !chatId)) {
       navigate('/');
     }
-  }, [chatId, chats, selectedFriend, navigate]);
+  }, [chatsLoading, chatsCalled, chatId, chats, selectedFriend, navigate]);
 
   useLayoutEffect(() => {
     if ((selectedFriend && !chatId) || chatId) {
