@@ -2,8 +2,8 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { Typography } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { SuccessErrorMessageStyled } from './SuccessErrorMessage.styled';
 import { SuccessErrorMessageProps } from './ISuccessErrorMessage';
+import { SuccessErrorMessageStyled } from './SuccessErrorMessage.styled';
 
 const SuccessErrorMessage = ({ message, type }: SuccessErrorMessageProps) => {
   const [height, setHeight] = useState(0);

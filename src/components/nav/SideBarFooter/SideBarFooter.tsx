@@ -30,8 +30,9 @@ const SideBarFooter = ({ className }: any) => {
           fontSize: '0.79rem',
           ellipsesLineClamp: '1',
         }}
-        isAvatar
-        picture={picture}
+        avatar={{
+          src: picture,
+        }}
         disableHover
         btnHeight="4.4rem"
         endIcon={
@@ -44,8 +45,6 @@ const SideBarFooter = ({ className }: any) => {
           />
         }
         disablePadding
-        avatarWidth={37}
-        avatarHeight={37}
       />
     </SideBarFooterStyled>
   );

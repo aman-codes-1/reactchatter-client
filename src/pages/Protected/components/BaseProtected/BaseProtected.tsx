@@ -3,8 +3,8 @@ import { AppBar } from '@mui/material';
 import { Drawer, NavBar, SideBar } from '../../../../components';
 import { SideBarList } from './components';
 import { Dashboard } from './pages';
-import { BaseProtectedStyled } from './BaseProtected.styled';
 import { ChatsAndFriendsProvider } from '../../../../contexts';
+import { BaseProtectedStyled } from './BaseProtected.styled';
 
 const BaseProtected = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);

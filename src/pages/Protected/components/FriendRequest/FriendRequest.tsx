@@ -3,8 +3,8 @@ import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useAuth } from '../../../../hooks';
-import { FriendRequestStyled } from './FriendRequest.styled';
 import { ListItem } from '../../../../components';
+import { FriendRequestStyled } from './FriendRequest.styled';
 
 const FriendRequest = ({
   data,

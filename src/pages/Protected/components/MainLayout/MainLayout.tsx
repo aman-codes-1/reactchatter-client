@@ -1,5 +1,7 @@
 import { Typography } from '@mui/material';
-import { Loader, SuccessErrorMessage } from '../../../../components';
+import { SuccessErrorMessage } from '../../../../components';
+import { useSocket } from '../../../../hooks';
+import { MainLayoutLoader } from '.';
 import { MainLayoutProps } from './IMainLayout';
 import { MainLayoutStyled } from './MainLayout.styled';
 
@@ -11,6 +13,8 @@ const MainLayout = ({
   error,
   children,
 }: MainLayoutProps) => {
+  const { isLoading } = useSocket();
+
   return (
     <MainLayoutStyled>
       {heading ? (
@@ -18,7 +22,7 @@ const MainLayout = ({
           {heading}
         </Typography>
       ) : null}
-      {loading ? <Loader center /> : null}
+      {loading || isLoading ? <MainLayoutLoader /> : null}
       {defaultText && !loading && !error && !data?.length ? (
         <Typography className="main-layout-default-text" fontWeight={500}>
           {defaultText}

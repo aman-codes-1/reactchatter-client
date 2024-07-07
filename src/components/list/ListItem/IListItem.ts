@@ -7,15 +7,12 @@ import {
 export type ListItemProps = {
   primaryText?: any;
   secondaryText?: any;
+  avatar?: any;
   startIcon?: ReactNode;
   endIcon?: ReactNode;
-  isAvatar?: boolean;
-  picture?: string;
   width?: string;
   minHeight?: string;
   btnHeight?: string;
-  avatarWidth?: number;
-  avatarHeight?: number;
   disableGutters?: MuiListItemProps['disableGutters'];
   disablePadding?: MuiListItemProps['disablePadding'];
   denseListItem?: MuiListItemProps['dense'];

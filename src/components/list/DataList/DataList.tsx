@@ -79,7 +79,6 @@ const DataList = ({
       return (
         <List dense disablePadding>
           <ListItem
-            // disablePadding
             disableGutters
             primaryText={{
               title: member?.memberDetails?.name,
@@ -90,8 +89,9 @@ const DataList = ({
               fontSize: '0.85rem',
               ellipsesLineClamp,
             }}
-            isAvatar
-            picture={member?.memberDetails?.picture}
+            avatar={{
+              src: member?.memberDetails?.picture,
+            }}
             onClick={(_) => handleClick(_, obj, member)}
             sx={hasScrollbar ? { mr: '1.5rem' } : {}}
             selected={selected}

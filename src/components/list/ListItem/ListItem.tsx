@@ -6,22 +6,19 @@ import {
   ListItemAvatar,
 } from '@mui/material';
 import { Avatar } from '../..';
-import { ListItemStyled } from './ListItem.styled';
 import { ListItemProps } from './IListItem';
+import { ListItemStyled } from './ListItem.styled';
 
 const ListItem = forwardRef(
   (
     {
       primaryText,
       secondaryText,
+      avatar,
       startIcon,
       endIcon,
-      isAvatar = false,
-      picture = '',
       width = '',
       btnHeight = '',
-      avatarWidth = 0,
-      avatarHeight = 0,
       disableGutters = false,
       disablePadding = false,
       denseListItem = false,
@@ -38,26 +35,24 @@ const ListItem = forwardRef(
     ref: any,
   ) => {
     const name = primaryText?.title;
+    const isAvatar = !!Object.keys(avatar || {})?.length;
 
     const renderAvatar = () => {
-      if (name?.length && picture?.length) {
+      if (name?.length && avatar?.src?.length) {
         return (
           <Avatar
             alt={name}
-            src={picture}
-            width={avatarWidth}
-            height={avatarHeight}
+            src={avatar?.src}
+            width={avatar?.width}
+            height={avatar?.height}
           />
         );
       }
-      if (name?.length) {
-        return (
-          <Avatar width={avatarWidth} height={avatarHeight}>
-            {name?.length ? name?.substring(0, 1).toUpperCase() : null}
-          </Avatar>
-        );
-      }
-      return <Avatar width={avatarWidth} height={avatarHeight} />;
+      return (
+        <Avatar alt="" src="" width={avatar?.width} height={avatar?.height}>
+          {name?.length ? name?.substring(0, 1).toUpperCase() : null}
+        </Avatar>
+      );
     };
 
     return (
@@ -91,7 +86,7 @@ const ListItem = forwardRef(
             ref={ref}
           >
             {children}
-            {isAvatar && (picture || name) ? (
+            {isAvatar ? (
               <ListItemAvatar className="list-item-avatar">
                 {renderAvatar()}
               </ListItemAvatar>
