@@ -11,9 +11,12 @@ const MainLayout = ({
   loading = false,
   data,
   error,
+  loaderProps,
+  onlyChildren,
   children,
 }: MainLayoutProps) => {
-  const { isLoading } = useSocket();
+  const { isLoading: isSocketLoading } = useSocket();
+  const isLoading = loading || isSocketLoading;
 
   return (
     <MainLayoutStyled>
@@ -22,16 +25,16 @@ const MainLayout = ({
           {heading}
         </Typography>
       ) : null}
-      {loading || isLoading ? <MainLayoutLoader /> : null}
-      {defaultText && !loading && !error && !data?.length ? (
+      {isLoading ? <MainLayoutLoader {...loaderProps} /> : null}
+      {!isLoading && !error && !data?.length && defaultText?.length ? (
         <Typography className="main-layout-default-text" fontWeight={500}>
           {defaultText}
         </Typography>
       ) : null}
-      {!loading && error ? (
+      {!isLoading && error ? (
         <SuccessErrorMessage message={error} type="error" />
       ) : null}
-      {children}
+      {!isLoading && !error && (data?.length || onlyChildren) ? children : null}
     </MainLayoutStyled>
   );
 };

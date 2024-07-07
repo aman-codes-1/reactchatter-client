@@ -4,13 +4,7 @@ export const FriendRequestStyled = styled('div')<{ isAcceptBtn: boolean }>(
   ({ theme, isAcceptBtn }) => ({
     overflow: 'auto',
     padding: '0.2rem',
-    // width: '100%',
     '.sent-requests-wrapper': {
-      // display: 'flex',
-      // gap: '1rem',
-      // alignItems: 'center',
-      // justifyContent: 'space-between',
-      // width: 'auto',
       maxWidth: isAcceptBtn ? '440px' : '430px',
       outline: `1px solid ${theme.palette.grey[300]}`,
       borderRadius: '8px',

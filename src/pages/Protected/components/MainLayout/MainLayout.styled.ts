@@ -30,9 +30,8 @@ export const MainLayoutStyled = styled('div')(({ theme }) => ({
   },
   '.main-layout-default-text': {
     fontSize: '0.875rem',
-    lineHeight: '1.5rem',
+    marginTop: '0.5rem',
     color: theme.palette.grey[800],
-    marginBottom: '2.75rem',
   },
   '.overflow-wrapper': {
     width: '100%',

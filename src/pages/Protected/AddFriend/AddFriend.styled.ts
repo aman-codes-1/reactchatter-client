@@ -1,13 +1,14 @@
 import { styled } from '@mui/system';
 
 export const AddFriendStyled = styled('div')(({ theme }) => ({
+  marginTop: '0.45rem',
   '.add-friend-heading': {
     fontSize: '0.875rem',
     lineHeight: '1.5rem',
     color: theme.palette.text.primary,
   },
   '.add-friend-email-wrapper': {
-    marginTop: '0.5rem',
+    marginTop: '0.6rem',
     display: 'flex',
     gap: '1rem',
     '@media(min-width: 0px) and (max-width: 750px)': {

@@ -2,26 +2,40 @@ import { List, Skeleton } from '@mui/material';
 import { ListItem } from '../../../../components';
 import { MainLayoutLoaderStyled } from './MainLayout.styled';
 
-const MainLayoutLoader = () => (
+const MainLayoutLoader = ({
+  avatarWidth,
+  avatarHeight,
+  disablePrimary,
+  disableSecondary,
+  btnHeight,
+}: any) => (
   <MainLayoutLoaderStyled>
     <List dense disablePadding>
       <ListItem
         disableGutters
         disableHover
-        primaryText={{
-          title: <Skeleton className="primary-skeleton" />,
-          fontSize: '1.08rem',
-        }}
-        secondaryText={{
-          title: <Skeleton className="secondary-skeleton" />,
-          fontSize: '0.85rem',
-        }}
-        btnHeight="5.1rem"
+        primaryText={
+          disablePrimary
+            ? null
+            : {
+                title: <Skeleton className="primary-skeleton" />,
+                fontSize: '1.08rem',
+              }
+        }
+        secondaryText={
+          disableSecondary
+            ? null
+            : {
+                title: <Skeleton className="secondary-skeleton" />,
+                fontSize: '0.85rem',
+              }
+        }
+        btnHeight={btnHeight || '5.1rem'}
       >
         <Skeleton
           variant="circular"
-          width={38}
-          height={38}
+          width={avatarWidth || 38}
+          height={avatarHeight || 38}
           className="skeleton-avatar"
         />
       </ListItem>

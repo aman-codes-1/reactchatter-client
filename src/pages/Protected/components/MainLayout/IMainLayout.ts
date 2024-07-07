@@ -6,5 +6,7 @@ export type MainLayoutProps = {
   loading?: boolean;
   data?: any;
   error?: string;
+  loaderProps?: any;
+  onlyChildren?: boolean;
   children?: ReactNode;
 };

@@ -1,4 +1,4 @@
-import { styled } from '@mui/system';
+import { minHeight, styled } from '@mui/system';
 
 export const ListItemStyled = styled('div')<{
   width: string;
@@ -26,7 +26,7 @@ export const ListItemStyled = styled('div')<{
     width: width || '100%',
     cursor: disableHover ? 'default' : 'pointer',
     '.list-item-btn': {
-      height: btnHeight,
+      minHeight: btnHeight,
       borderRadius: '10px',
       '.MuiListItemText-root': {
         wordBreak: 'break-word',

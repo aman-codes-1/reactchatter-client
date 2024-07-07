@@ -122,7 +122,7 @@ const AddFriend = () => {
   setFocus();
 
   return (
-    <MainLayout heading="Add Friend">
+    <MainLayout heading="Add Friend" onlyChildren>
       <AddFriendStyled>
         <Typography className="add-friend-heading" fontWeight={600}>
           Add friend by email

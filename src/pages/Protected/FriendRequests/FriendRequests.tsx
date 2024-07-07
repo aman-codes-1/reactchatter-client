@@ -41,6 +41,12 @@ const FriendRequests = () => {
       loading={pendingRequestsLoading || !pendingRequestsCalled}
       error={pendingRequestsError?.graphQLErrors?.[0]?.message}
       data={pendingRequests}
+      loaderProps={{
+        avatarWidth: 24,
+        avatarHeight: 24,
+        disablePrimary: true,
+        btnHeight: '4rem',
+      }}
     >
       <FriendRequest
         data={pendingRequests}
