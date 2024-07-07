@@ -67,7 +67,7 @@ export const theme = createTheme({
   },
   typography: {
     allVariants: {
-      letterSpacing: '0.02rem',
+      letterSpacing: '0.025rem',
       textDecoration: 'none',
       WebkitFontSmoothing: 'antialiased',
       MozOsxFontSmoothing: 'grayscale',
