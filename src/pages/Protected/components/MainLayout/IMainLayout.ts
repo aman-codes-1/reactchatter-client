@@ -4,9 +4,10 @@ export type MainLayoutProps = {
   heading?: string;
   defaultText?: string;
   loading?: boolean;
+  loaderProps?: any;
+  disableLoader?: boolean;
   data?: any;
   error?: string;
-  loaderProps?: any;
   onlyChildren?: boolean;
   children?: ReactNode;
 };

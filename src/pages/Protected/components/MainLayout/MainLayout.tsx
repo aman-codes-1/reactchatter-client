@@ -9,14 +9,15 @@ const MainLayout = ({
   heading,
   defaultText,
   loading = false,
+  loaderProps,
+  disableLoader = false,
   data,
   error,
-  loaderProps,
-  onlyChildren,
+  onlyChildren = false,
   children,
 }: MainLayoutProps) => {
   const { isLoading: isSocketLoading } = useSocket();
-  const isLoading = loading || isSocketLoading;
+  const isLoading = (loading || isSocketLoading) && !disableLoader;
 
   return (
     <MainLayoutStyled>
