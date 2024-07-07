@@ -41,6 +41,12 @@ export const MainLayoutStyled = styled('div')(({ theme }) => ({
 }));
 
 export const MainLayoutLoaderStyled = styled('div')(() => ({
+  '.primary-skeleton': {
+    maxWidth: '130px',
+  },
+  '.secondary-skeleton': {
+    maxWidth: '230px',
+  },
   '.skeleton-avatar': {
     marginRight: '1.2rem',
   },

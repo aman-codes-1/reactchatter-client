@@ -9,11 +9,11 @@ const MainLayoutLoader = () => (
         disableGutters
         disableHover
         primaryText={{
-          title: <Skeleton width={160} />,
+          title: <Skeleton className="primary-skeleton" />,
           fontSize: '1.08rem',
         }}
         secondaryText={{
-          title: <Skeleton width={250} />,
+          title: <Skeleton className="secondary-skeleton" />,
           fontSize: '0.85rem',
         }}
         btnHeight="5.1rem"
