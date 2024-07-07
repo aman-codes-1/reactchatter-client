@@ -66,7 +66,7 @@ export const theme = createTheme({
     borderRadius: 4,
   },
   typography: {
-    allVariants: { letterSpacing: '0.02rem' },
+    allVariants: { letterSpacing: '0.02rem', textDecoration: 'none' },
     fontSize: 14,
     fontFamily: [
       '-apple-system',
