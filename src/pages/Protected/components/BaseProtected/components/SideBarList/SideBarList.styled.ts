@@ -30,15 +30,15 @@ export const SideBarListStyled = styled('div')<{
     width: '100%',
     flex: toggleChats ? '0 1 auto' : '',
     minHeight:
-      (toggleChats && chats?.length > 1 && chats?.length <= 2 && '140px') ||
-      (toggleChats && chats?.length > 2 && '210px') ||
+      (toggleChats && chats?.length > 1 && chats?.length <= 2 && '8.75rem') ||
+      (toggleChats && chats?.length > 2 && '13.125rem') ||
       '4.4rem',
     overflow: 'auto',
   },
   '.friends-wrapper': {
     width: '100%',
     flex: toggleFriends ? '0 1 auto' : '',
-    minHeight: toggleFriends && otherFriends?.length > 1 ? '140px' : '4.4rem',
+    minHeight: toggleFriends && otherFriends?.length > 1 ? '8.75rem' : '4.4rem',
     overflow: 'auto',
   },
   '.overview-wrapper': {
