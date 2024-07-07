@@ -18,12 +18,12 @@ export const SideBarListStyled = styled('div')<{
     marginTop: '1.5rem',
   },
   '.default-heading': {
-    fontSize: '0.8rem',
+    fontSize: '0.825rem',
     fontWeight: 700,
     color: theme.palette.grey[800],
   },
   '.heading': {
-    fontSize: '1.7rem',
+    fontSize: '1.725rem',
     fontWeight: 701,
     letterSpacing: '0.04rem',
   },
