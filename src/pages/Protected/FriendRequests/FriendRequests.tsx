@@ -39,14 +39,14 @@ const FriendRequests = () => {
       heading="Friend Requests"
       defaultText="You have no friend requests."
       loading={pendingRequestsLoading || !pendingRequestsCalled}
-      error={pendingRequestsError?.graphQLErrors?.[0]?.message}
-      data={pendingRequests}
       loaderProps={{
         avatarWidth: 24,
         avatarHeight: 24,
         disablePrimary: true,
         btnHeight: '4rem',
       }}
+      error={pendingRequestsError?.graphQLErrors?.[0]?.message}
+      data={pendingRequests}
     >
       <FriendRequest
         data={pendingRequests}

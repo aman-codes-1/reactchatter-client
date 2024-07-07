@@ -40,14 +40,14 @@ const SentRequests = () => {
       heading="Sent Requests"
       defaultText="You have not sent any friend requests."
       loading={sentRequestsLoading || !sentRequestsCalled}
-      error={sentRequestsError?.graphQLErrors?.[0]?.message}
-      data={sentRequests}
       loaderProps={{
         avatarWidth: 24,
         avatarHeight: 24,
         disablePrimary: true,
         btnHeight: '4rem',
       }}
+      error={sentRequestsError?.graphQLErrors?.[0]?.message}
+      data={sentRequests}
     >
       <FriendRequest
         data={sentRequests}
