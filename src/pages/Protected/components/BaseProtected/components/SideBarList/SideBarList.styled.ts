@@ -25,7 +25,6 @@ export const SideBarListStyled = styled('div')<{
   '.heading': {
     fontSize: '1.725rem',
     fontWeight: 701,
-    letterSpacing: '0.04rem',
   },
   '.chats-wrapper': {
     width: '100%',
