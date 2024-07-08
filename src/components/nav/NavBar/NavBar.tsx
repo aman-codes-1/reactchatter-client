@@ -30,15 +30,6 @@ const NavBar = forwardRef(
           <BaseSvg id="logo" className="nav-logo-svg" />
         </Link>
         {chats?.length || otherFriends?.length ? (
-          // <Button
-          //   startIcon={<CommentOutlinedIcon />}
-          //   className="nav-new-chat-btn"
-          //   variant="outlined"
-          //   color="info"
-          //   onClick={() => toggleDrawer?.()}
-          // >
-          //   <div className="text-hidden">New Chat</div>
-          // </Button>
           <ListItemButton
             denseListItemButton
             startIcon={

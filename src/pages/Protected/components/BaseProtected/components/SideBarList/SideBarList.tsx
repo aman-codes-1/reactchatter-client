@@ -1,12 +1,16 @@
 import { useContext, useLayoutEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Badge, Button } from '@mui/material';
+import { Badge } from '@mui/material';
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { DataList, ListItem } from '../../../../../../components';
+import {
+  DataList,
+  ListItem,
+  ListItemButton,
+} from '../../../../../../components';
 import {
   CHAT_ADDED_SUBSCRIPTION,
   ChatsAndFriendsContext,
@@ -246,18 +250,16 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
                 ellipsesLineClamp="1"
               />
               {toggleChats && chats?.length > 2 && otherFriends?.length > 2 ? (
-                <Button
-                  sx={{
-                    textTransform: 'none',
-                    fontWeight: 600,
-                    width: '100%',
+                <ListItemButton
+                  denseListItemButton
+                  primaryText={{
+                    title: 'View More',
+                    fontSize: '0.825rem',
+                    fontWeight: 501,
                   }}
                   variant="outlined"
-                  color="info"
-                  size="small"
-                >
-                  View More
-                </Button>
+                  sx={{ height: '2rem', textAlign: 'center' }}
+                />
               ) : null}
             </>
           ) : null}
