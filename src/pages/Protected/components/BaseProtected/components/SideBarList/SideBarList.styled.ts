@@ -1,18 +1,16 @@
 import { styled } from '@mui/system';
 
 export const SideBarListStyled = styled('div')<{
-  chats: any[];
-  otherFriends: any[];
   toggleChats: boolean;
   toggleFriends: boolean;
-}>(({ theme, chats, otherFriends, toggleChats, toggleFriends }) => ({
+}>(({ theme, toggleChats, toggleFriends }) => ({
   display: 'flex',
   flexDirection: 'column',
   gap: '0.2rem',
   margin: '0rem 1.3rem',
   overflow: 'auto',
-  '@media(min-width: 0px) and (max-width: 800px)': {
-    margin: '1rem 0.6rem',
+  [theme.breakpoints.down('md')]: {
+    margin: '1rem 0.6rem 0rem 0.6rem',
   },
   '.margin-top': {
     marginTop: '1.5rem',
@@ -29,16 +27,13 @@ export const SideBarListStyled = styled('div')<{
   '.chats-wrapper': {
     width: '100%',
     flex: toggleChats ? '0 1 auto' : '',
-    minHeight:
-      (toggleChats && chats?.length > 1 && chats?.length <= 2 && '8.75rem') ||
-      (toggleChats && chats?.length > 2 && '13.125rem') ||
-      '4.4rem',
+    minHeight: '5.8rem',
     overflow: 'auto',
   },
   '.friends-wrapper': {
     width: '100%',
     flex: toggleFriends ? '0 1 auto' : '',
-    minHeight: toggleFriends && otherFriends?.length > 1 ? '8.75rem' : '4.4rem',
+    minHeight: '4.6rem',
     overflow: 'auto',
   },
   '.overview-wrapper': {
@@ -52,6 +47,6 @@ export const SideBarListStyled = styled('div')<{
     fontSize: '1.1rem',
     color: theme.palette.grey[600],
     outline: `1px solid ${theme.palette.grey[300]}`,
-    borderRadius: '8px',
+    borderRadius: '7px',
   },
 }));

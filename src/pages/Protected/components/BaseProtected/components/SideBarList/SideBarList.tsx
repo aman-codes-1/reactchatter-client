@@ -178,149 +178,143 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
 
   return (
     <SideBarListStyled
-      chats={chats}
-      otherFriends={otherFriends}
       toggleChats={toggleChats}
       toggleFriends={toggleFriends}
       className={`${className} flex-item`}
     >
-      <>
-        {chats?.length ? (
-          <>
-            <ListItem
-              denseListItem
-              disablePadding
-              primaryText={{
-                title: 'Chats',
-                className: 'default-heading heading',
-                ellipsesLineClamp: '1',
-              }}
-              endIcon={
-                toggleChats ? <ExpandLessIcon /> : <ExpandCircleDownIcon />
-              }
-              onClick={(_) => handleToggle(_, setToggleChats)}
+      {chats?.length ? (
+        <>
+          <ListItem
+            denseListItem
+            disablePadding
+            primaryText={{
+              title: 'Chats',
+              className: 'default-heading heading',
+              ellipsesLineClamp: '1',
+            }}
+            endIcon={
+              toggleChats ? <ExpandLessIcon /> : <ExpandCircleDownIcon />
+            }
+            onClick={(_) => handleToggle(_, setToggleChats)}
+          />
+          {toggleChats ? (
+            <DataList
+              data={chats}
+              selectedItem={selectedChat}
+              handleClickListItem={handleClickChat}
+              className="chats-wrapper"
+              scrollDependencies={[toggleChats, toggleFriends]}
+              ellipsesLineClamp="2"
+              btnHeight="5.1rem"
             />
-            {toggleChats ? (
+          ) : null}
+        </>
+      ) : null}
+      {otherFriends?.length ? (
+        <>
+          <ListItem
+            denseListItem
+            disablePadding
+            className={toggleChats && chats?.length ? 'margin-top' : ''}
+            primaryText={{
+              title: chats?.length ? 'New Chat' : 'Your Friends',
+              className: 'default-heading',
+              ellipsesLineClamp: '1',
+            }}
+            endIcon={
+              toggleFriends ? (
+                <ExpandLessIcon fontSize="small" />
+              ) : (
+                <ExpandCircleDownIcon fontSize="small" />
+              )
+            }
+            onClick={(_) => handleToggle(_, setToggleFriends)}
+          />
+          {toggleFriends ? (
+            <>
               <DataList
-                data={chats}
-                selectedItem={selectedChat}
-                handleClickListItem={handleClickChat}
-                className="chats-wrapper"
+                data={otherFriends}
+                sliceDataBy={
+                  toggleChats && chats?.length > 2 && otherFriends?.length > 2
+                    ? 2
+                    : undefined
+                }
+                selectedItem={selectedFriend}
+                handleClickListItem={handleClickFriend}
+                className="friends-wrapper"
                 scrollDependencies={[toggleChats, toggleFriends]}
-                ellipsesLineClamp="2"
-                btnHeight="5.1rem"
+                ellipsesLineClamp="1"
               />
-            ) : null}
-          </>
-        ) : null}
-        {otherFriends?.length ? (
-          <>
-            <ListItem
-              denseListItem
-              disablePadding
-              className={toggleChats && chats?.length ? 'margin-top' : ''}
-              primaryText={{
-                title: chats?.length ? 'New Chat' : 'Your Friends',
-                className: 'default-heading',
-                ellipsesLineClamp: '1',
-              }}
-              endIcon={
-                toggleFriends ? (
-                  <ExpandLessIcon fontSize="small" />
-                ) : (
-                  <ExpandCircleDownIcon fontSize="small" />
-                )
-              }
-              onClick={(_) => handleToggle(_, setToggleFriends)}
-            />
-            {toggleFriends ? (
-              <>
-                <DataList
-                  data={otherFriends}
-                  sliceDataBy={
-                    toggleChats && chats?.length > 2 && otherFriends?.length > 2
-                      ? 2
-                      : undefined
-                  }
-                  selectedItem={selectedFriend}
-                  handleClickListItem={handleClickFriend}
-                  className="friends-wrapper"
-                  scrollDependencies={[toggleChats, toggleFriends]}
-                  ellipsesLineClamp="1"
-                />
-                {toggleChats &&
-                chats?.length > 2 &&
-                otherFriends?.length > 2 ? (
-                  <Button
-                    sx={{
-                      textTransform: 'none',
-                      fontWeight: 600,
-                      width: '100%',
-                    }}
-                    variant="outlined"
-                    color="info"
-                    size="small"
-                  >
-                    View More
-                  </Button>
-                ) : null}
-              </>
-            ) : null}
-          </>
-        ) : null}
-        {navLinks?.length ? (
-          <>
-            <ListItem
-              denseListItem
-              disablePadding
-              disableHover
-              className={
-                (toggleChats && !otherFriends?.length) ||
-                (!toggleChats && toggleFriends) ||
-                (toggleChats && toggleFriends)
-                  ? 'margin-top'
-                  : ''
-              }
-              primaryText={{
-                title: 'Overview',
-                className: 'default-heading',
-                ellipsesLineClamp: '1',
-              }}
-            />
-            <div className="overview-wrapper">
-              {navLinks.map((navLink, idx) => (
-                <ListItem
-                  disablePadding
-                  denseListItem
-                  sx={{ mb: '0.5rem' }}
-                  key={navLink?.title}
-                  startIcon={navLink?.icon}
-                  primaryText={{
-                    title: navLink?.title || '',
-                    ellipsesLineClamp: '1',
+              {toggleChats && chats?.length > 2 && otherFriends?.length > 2 ? (
+                <Button
+                  sx={{
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    width: '100%',
                   }}
-                  endIcon={
-                    <Badge
-                      badgeContent={navLink?.count}
-                      color="secondary"
-                      overlap="circular"
-                      sx={{ mr: '0.5rem' }}
-                    />
-                  }
-                  selected={
-                    idx ===
-                    navLinks.findIndex(
-                      (el) =>
-                        selectedOverviewLink === el?.link?.split?.('/')?.[1],
-                    )
-                  }
-                  onClick={(_) => handleClickOverviewItem(_, navLink?.link)}
-                />
-              ))}
-            </div>
-          </>
-        ) : null}
-      </>
+                  variant="outlined"
+                  color="info"
+                  size="small"
+                >
+                  View More
+                </Button>
+              ) : null}
+            </>
+          ) : null}
+        </>
+      ) : null}
+      {navLinks?.length ? (
+        <>
+          <ListItem
+            denseListItem
+            disablePadding
+            disableHover
+            className={
+              (toggleChats && !otherFriends?.length) ||
+              (!toggleChats && toggleFriends) ||
+              (toggleChats && toggleFriends)
+                ? 'margin-top'
+                : ''
+            }
+            primaryText={{
+              title: 'Overview',
+              className: 'default-heading',
+              ellipsesLineClamp: '1',
+            }}
+          />
+          <div className="overview-wrapper">
+            {navLinks.map((navLink, idx) => (
+              <ListItem
+                disablePadding
+                denseListItem
+                sx={{ mb: '0.5rem' }}
+                key={navLink?.title}
+                startIcon={navLink?.icon}
+                primaryText={{
+                  title: navLink?.title || '',
+                  ellipsesLineClamp: '1',
+                }}
+                endIcon={
+                  <Badge
+                    badgeContent={navLink?.count}
+                    color="secondary"
+                    overlap="circular"
+                    sx={{ mr: '0.5rem' }}
+                  />
+                }
+                selected={
+                  idx ===
+                  navLinks.findIndex(
+                    (el) =>
+                      selectedOverviewLink === el?.link?.split?.('/')?.[1],
+                  )
+                }
+                onClick={(_) => handleClickOverviewItem(_, navLink?.link)}
+              />
+            ))}
+          </div>
+        </>
+      ) : null}
     </SideBarListStyled>
   );
 };

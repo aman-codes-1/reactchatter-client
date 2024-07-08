@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@mui/material';
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
-import { BaseSvg } from '../../svg/BaseSvg';
+import { BaseSvg, ListItemButton } from '../..';
 import { useAuth, useSocket } from '../../../hooks';
 import { ChatsAndFriendsContext } from '../../../contexts';
 import { NavBarStyled } from './NavBar.styled';
@@ -30,15 +30,36 @@ const NavBar = forwardRef(
           <BaseSvg id="logo" className="nav-logo-svg" />
         </Link>
         {chats?.length || otherFriends?.length ? (
-          <Button
-            startIcon={<CommentOutlinedIcon />}
-            className="nav-new-chat-btn"
+          // <Button
+          //   startIcon={<CommentOutlinedIcon />}
+          //   className="nav-new-chat-btn"
+          //   variant="outlined"
+          //   color="info"
+          //   onClick={() => toggleDrawer?.()}
+          // >
+          //   <div className="text-hidden">New Chat</div>
+          // </Button>
+          <ListItemButton
+            denseListItemButton
+            startIcon={
+              <CommentOutlinedIcon
+                fontSize="small"
+                className="nav-new-chat-btn-icon"
+              />
+            }
+            primaryText={{
+              title: (
+                <div className="nav-new-chat-btn-title text-hidden">
+                  New Chat
+                </div>
+              ),
+              fontWeight: 501,
+            }}
+            width="auto"
             variant="outlined"
-            color="info"
-            onClick={() => toggleDrawer?.()}
-          >
-            <div className="text-hidden">New Chat</div>
-          </Button>
+            btnHeight="2.35rem"
+            className="nav-new-chat-btn"
+          />
         ) : null}
         <Button
           className="nav-menu-btn"

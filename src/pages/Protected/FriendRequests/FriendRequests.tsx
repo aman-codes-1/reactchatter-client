@@ -43,7 +43,7 @@ const FriendRequests = () => {
         avatarWidth: 24,
         avatarHeight: 24,
         disablePrimary: true,
-        btnHeight: '4rem',
+        btnHeight: '3.45rem',
       }}
       error={pendingRequestsError?.graphQLErrors?.[0]?.message}
       data={pendingRequests}
@@ -51,7 +51,9 @@ const FriendRequests = () => {
       <FriendRequest
         data={pendingRequests}
         userObj="memberDetails"
+        nameKey="name"
         emailKey="email"
+        pictureKey="picture"
         acceptBtnProps={{
           handleClickAccept: (_: MouseEventHandler, __: number, ___: any) =>
             handleClickRequest(_, __, ___, 'accepted'),

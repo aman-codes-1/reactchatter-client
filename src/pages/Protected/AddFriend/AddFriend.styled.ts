@@ -11,20 +11,20 @@ export const AddFriendStyled = styled('div')(({ theme }) => ({
     marginTop: '0.6rem',
     display: 'flex',
     gap: '1rem',
-    '@media(min-width: 0px) and (max-width: 750px)': {
+    [theme.breakpoints.down('md')]: {
       alignItems: 'flex-start',
       flexDirection: 'column',
       gap: '0.9rem',
     },
     '.add-friend-text-field-wrapper': {
       width: '18rem',
-      '@media(min-width: 0px) and (max-width: 750px)': {
+      [theme.breakpoints.down('md')]: {
         width: '100%',
       },
       '.add-friend-email-input': {
         width: '18rem',
         fontWeight: 600,
-        '@media(min-width: 0px) and (max-width: 750px)': {
+        [theme.breakpoints.down('md')]: {
           width: '100%',
         },
       },
@@ -38,7 +38,7 @@ export const AddFriendStyled = styled('div')(({ theme }) => ({
         textTransform: 'none',
         fontSize: '0.875rem',
         fontWeight: 700,
-        '@media(min-width: 0px) and (max-width: 750px)': {
+        [theme.breakpoints.down('md')]: {
           width: '100%',
         },
       },

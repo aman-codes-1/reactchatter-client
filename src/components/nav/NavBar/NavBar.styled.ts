@@ -6,7 +6,7 @@ export const NavBarStyled = styled('div')(({ theme }) => ({
   justifyContent: 'space-between',
   marginRight: '1.35rem',
   gap: '1rem',
-  '@media(min-width: 600px) and (max-width: 800px)': {
+  [theme.breakpoints.down('md')]: {
     marginRight: '0.7rem',
   },
   [theme.breakpoints.down('sm')]: {
@@ -19,7 +19,7 @@ export const NavBarStyled = styled('div')(({ theme }) => ({
     alignItems: 'center',
     flex: '1 1 auto',
     padding: '1.3rem 0rem 1.3rem 1.7rem',
-    '@media(min-width: 600px) and (max-width: 800px)': {
+    [theme.breakpoints.down('md')]: {
       padding: '1.5rem 0rem 1.3rem 1.2rem',
     },
     [theme.breakpoints.down('sm')]: {
@@ -32,20 +32,20 @@ export const NavBarStyled = styled('div')(({ theme }) => ({
     },
     [theme.breakpoints.down('xs')]: {
       flexBasis: '0',
-      padding: '0.58rem 1.4rem',
+      padding: '0.62rem 1.4rem',
     },
-    '.nav-logo-svg': {
-      width: '32px',
-      height: '32px',
-      color: theme.palette.secondary.main,
-      [theme.breakpoints.down('sm')]: {
-        width: '24px',
-        height: '24px',
-      },
-      [theme.breakpoints.down('xs')]: {
-        width: '20px',
-        height: '20px',
-      },
+  },
+  '.nav-logo-svg': {
+    width: '32px',
+    height: '32px',
+    color: theme.palette.secondary.main,
+    [theme.breakpoints.down('sm')]: {
+      width: '24px',
+      height: '24px',
+    },
+    [theme.breakpoints.down('xs')]: {
+      width: '20px',
+      height: '20px',
     },
   },
   '.nav-logo:hover': {
@@ -54,21 +54,30 @@ export const NavBarStyled = styled('div')(({ theme }) => ({
     },
   },
   '.nav-new-chat-btn': {
-    textTransform: 'none',
-    fontWeight: 501,
-    gap: '0.25rem',
-    borderRadius: '0.375rem',
-    padding: '0.4rem 1rem',
-    margin: '1rem 0rem',
+    margin: '1.1rem 0rem',
     [theme.breakpoints.down('sm')]: {
       margin: 0,
     },
+    // textTransform: 'none',
+    // fontWeight: 501,
+    // gap: '0.25rem',
+    // borderRadius: '0.375rem',
+    // padding: '0.4rem 1rem',
+    // [theme.breakpoints.down('xs')]: {
+    //   padding: '0.5rem 1rem',
+    //   '.MuiButton-startIcon': {
+    //     margin: 0,
+    //   },
+    // },
+  },
+  '.nav-new-chat-btn-icon': {
     [theme.breakpoints.down('xs')]: {
-      padding: '0.5rem 1rem',
-      '.MuiButton-startIcon': {
-        margin: 0,
-      },
+      margin: '0rem 0.26rem',
     },
+  },
+  '.nav-new-chat-btn-title': {
+    marginLeft: '10px',
+    textAlign: 'center',
   },
   '.nav-menu-btn': {
     textTransform: 'none',
@@ -82,7 +91,7 @@ export const NavBarStyled = styled('div')(({ theme }) => ({
       display: 'none',
     },
     [theme.breakpoints.down('xs')]: {
-      padding: '0.56rem 1rem',
+      padding: '0.59rem 1rem',
       '.MuiButton-endIcon': {
         margin: 0,
       },

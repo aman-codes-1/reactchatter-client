@@ -77,7 +77,7 @@ const DataList = ({
     );
     if (member) {
       return (
-        <List dense disablePadding>
+        <>
           <ListItem
             disableGutters
             primaryText={{
@@ -100,14 +100,14 @@ const DataList = ({
             ref={itemsRef ? (el) => (itemsRef.current[idx] = el) : null}
           />
           <Divider variant="middle" sx={hasScrollbar ? { mr: '2.5rem' } : {}} />
-        </List>
+        </>
       );
     }
     return null;
   };
 
   return (
-    <div className={className} ref={listRef}>
+    <List dense disablePadding className={className} ref={listRef}>
       {data
         ?.slice(0, undefined)
         ?.map((obj: any, idx: number) =>
@@ -119,7 +119,7 @@ const DataList = ({
             listItemsRef,
           ),
         )}
-    </div>
+    </List>
   );
 };
 

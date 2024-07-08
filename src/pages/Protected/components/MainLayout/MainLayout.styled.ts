@@ -3,18 +3,14 @@ import { styled } from '@mui/system';
 export const MainLayoutStyled = styled('div')(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  margin: '4.5rem 4rem 2rem 4rem',
-  height: 'calc(100% - 6.5rem)',
-  '@media(min-width: 600px) and (max-width: 800px)': {
-    margin: '4.5rem 2rem 2rem 2rem',
-  },
-  [theme.breakpoints.down('sm')]: {
-    margin: '2.5rem 3rem 2rem 3rem',
-    height: 'calc(100% - 4.5rem)',
+  margin: '3.8rem 4.5rem',
+  height: 'calc(100% - 7.6rem)',
+  [theme.breakpoints.down('md')]: {
+    margin: '2.5rem 3rem',
+    height: 'calc(100% - 5rem)',
   },
   [theme.breakpoints.down('xs')]: {
-    margin: '2.5rem 2rem 2rem 2rem',
-    height: 'calc(100% - 4.5rem)',
+    margin: '2.5rem 2rem',
   },
   '.main-layout-heading': {
     fontSize: '3rem',

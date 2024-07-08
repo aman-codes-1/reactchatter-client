@@ -1,28 +1,15 @@
 import { ReactNode } from 'react';
-import {
-  ListItemProps as MuiListItemProps,
-  ListItemButtonProps,
-} from '@mui/material';
+import { ListItemProps as MuiListItemProps } from '@mui/material';
+import { ListItemButtonProps } from '../ListItemButton/IListItemButton';
 
-export type ListItemProps = {
-  primaryText?: any;
-  secondaryText?: any;
-  avatar?: any;
-  startIcon?: ReactNode;
-  endIcon?: ReactNode;
+export interface ListItemProps extends ListItemButtonProps {
   width?: string;
-  minHeight?: string;
-  btnHeight?: string;
+  btnWidth?: ListItemButtonProps['width'];
+  btnClassName?: ListItemButtonProps['className'];
+  disableHover?: boolean;
+  denseListItem?: MuiListItemProps['dense'];
   disableGutters?: MuiListItemProps['disableGutters'];
   disablePadding?: MuiListItemProps['disablePadding'];
-  denseListItem?: MuiListItemProps['dense'];
-  denseListItemButton?: ListItemButtonProps['dense'];
-  disableHover?: boolean;
-  disabled?: ListItemButtonProps['disabled'];
   secondaryAction?: MuiListItemProps['secondaryAction'];
-  selected?: ListItemButtonProps['selected'];
-  onClick?: ListItemButtonProps['onClick'];
-  sx?: ListItemButtonProps['sx'];
-  className?: string;
-  children?: ReactNode;
-};
+  className?: MuiListItemProps['className'];
+}

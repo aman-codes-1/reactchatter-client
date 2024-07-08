@@ -44,7 +44,7 @@ const SentRequests = () => {
         avatarWidth: 24,
         avatarHeight: 24,
         disablePrimary: true,
-        btnHeight: '4rem',
+        btnHeight: '3.45rem',
       }}
       error={sentRequestsError?.graphQLErrors?.[0]?.message}
       data={sentRequests}
@@ -52,7 +52,9 @@ const SentRequests = () => {
       <FriendRequest
         data={sentRequests}
         userObj="memberDetails"
+        nameKey="name"
         emailKey="email"
+        pictureKey="picture"
         cancelBtnProps={{
           handleClickCancel: updateRequestLoading
             ? () => {}
