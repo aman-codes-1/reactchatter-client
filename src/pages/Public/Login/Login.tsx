@@ -1,11 +1,9 @@
-import { useLayoutEffect, useState } from 'react';
+import { useLayoutEffect } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
-import { CircularProgress, Typography } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
+import { Typography } from '@mui/material';
 import { useAuth, useSnackbar } from '../../../hooks';
-import { BaseSvg } from '../../../components';
 import { LoginStyled } from './Login.styled';
 
 const Login = () => {
@@ -17,13 +15,11 @@ const Login = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
   const { setAuth } = useAuth();
   const { openSnackbar } = useSnackbar();
 
   useLayoutEffect(() => {
     const googleLogin = async () => {
-      setIsLoading(true);
       const decoded = jwtDecode(token || '');
       localStorage.setItem('token', token || '');
       setAuth({
@@ -31,7 +27,6 @@ const Login = () => {
         ...decoded,
       });
       navigate('/', { replace: true });
-      setIsLoading(false);
     };
     if (token) {
       googleLogin();
@@ -59,32 +54,13 @@ const Login = () => {
       <Typography className="sign-in-heading" fontWeight={700}>
         Sign in to your account
       </Typography>
-      {!isLoading ? (
-        <GoogleLogin
-          // useOneTap
-          ux_mode="redirect"
-          shape="pill"
-          click_listener={handleLogin}
-          onSuccess={() => {}}
-        />
-      ) : (
-        <LoadingButton
-          className={`google-login-btn ${
-            isLoading ? 'btn-disabled' : 'btn-active'
-          }`}
-          loading={isLoading}
-          variant="contained"
-          startIcon={
-            isLoading ? (
-              <CircularProgress className="loading-indicator" size={18} />
-            ) : (
-              <BaseSvg id="google-logo" width="18" height="18" />
-            )
-          }
-        >
-          Signing in with Google
-        </LoadingButton>
-      )}
+      <GoogleLogin
+        // useOneTap
+        ux_mode="redirect"
+        shape="pill"
+        click_listener={handleLogin}
+        onSuccess={() => {}}
+      />
     </LoginStyled>
   );
 };
