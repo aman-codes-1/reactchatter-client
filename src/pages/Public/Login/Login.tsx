@@ -7,11 +7,11 @@ import { useAuth, useSnackbar } from '../../../hooks';
 import { LoginStyled } from './Login.styled';
 
 const Login = () => {
-  // const location = useLocation();
-  // const from: string =
-  //   (location?.state?.from?.pathname === '/login'
-  //     ? '/'
-  //     : location?.state?.from?.pathname) || '/';
+  const location = useLocation();
+  const from: string =
+    (location?.state?.from?.pathname === '/login'
+      ? '/'
+      : location?.state?.from?.pathname) || '/';
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const navigate = useNavigate();
@@ -37,7 +37,10 @@ const Login = () => {
 
   const handleLogin = async () => {
     try {
-      window.open(`${serverUri}/api/auth/google/login`, '_self');
+      window.open(
+        `${serverUri}/api/auth/google/login/${from.replaceAll('/', '@')}`,
+        '_self',
+      );
     } catch (err) {
       openSnackbar({
         message: JSON.stringify(err || ''),
