@@ -16,7 +16,8 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "incremental": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "sourceMap": true
   },
   "include": ["src/**/*"]
 }
