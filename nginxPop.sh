@@ -1,16 +1,18 @@
-#!/bin/sh
+#!/bin/bash
 
-# Export environment variables to make them available to envsubst
-export PORT="$PORT"
-export REACT_APP_PROXY_URI="$REACT_APP_PROXY_URI"
-export REACT_APP_SERVER_URI="$REACT_APP_SERVER_URI"
-export REACT_APP_PROXY_DOMAIN="$REACT_APP_PROXY_DOMAIN"
+# Define the file where the environment variables will be stored
+ENV_VARS_FILE="/etc/nginx/env-vars.conf"
 
-# Use envsubst to replace variables directly in nginx.conf and create a temporary file
-envsubst '$PORT $REACT_APP_PROXY_URI $REACT_APP_SERVER_URI $REACT_APP_PROXY_DOMAIN' < /etc/nginx/nginx.conf > /etc/nginx/nginx.conf.tmp
+# Create or empty the file
+> $ENV_VARS_FILE
 
-# Move the temporary file to replace the original nginx.conf
-mv /etc/nginx/nginx.conf.tmp /etc/nginx/nginx.conf
+# List of environment variables to load into Nginx
+ENV_VARS=("PORT" "REACT_APP_PROXY_URI" "REACT_APP_SERVER_URI" "REACT_APP_PROXY_DOMAIN")
 
-# Start Nginx with the provided command line arguments
-exec "$@"
+# Loop through each environment variable and add it to the file
+for VAR in "${ENV_VARS[@]}"
+do
+  if [ ! -z "${!VAR}" ]; then
+    echo "env $VAR='${!VAR}';" >> $ENV_VARS_FILE
+  fi
+done
