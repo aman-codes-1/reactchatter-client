@@ -1,6 +1,21 @@
 # Use the official Node.js image
 FROM node:20-alpine as build
 
+# Set environment variables
+ARG PORT
+ARG NODE_ENV
+ARG REACT_APP_PROXY_URI
+ARG REACT_APP_SERVER_URI
+ARG REACT_APP_PROXY_DOMAIN
+ARG REACT_APP_GOOGLE_CLIENT_ID
+
+ENV PORT=$PORT
+ENV NODE_ENV=$NODE_ENV
+ENV REACT_APP_PROXY_URI=$REACT_APP_PROXY_URI
+ENV REACT_APP_SERVER_URI=$REACT_APP_SERVER_URI
+ENV REACT_APP_PROXY_DOMAIN=$REACT_APP_PROXY_DOMAIN
+ENV REACT_APP_GOOGLE_CLIENT_ID=$REACT_APP_GOOGLE_CLIENT_ID
+
 # Create app directory and copy files
 WORKDIR /app
 COPY package*.json ./
@@ -26,8 +41,8 @@ COPY nginxPop.sh /nginxPop.sh
 RUN chmod +x /nginxPop.sh
 
 
-# Expose PORT
-EXPOSE 80
+# Expose $PORT
+EXPOSE $PORT
 
 # Set the entry point and default command
 ENTRYPOINT ["/nginxPop.sh"]
