@@ -26,8 +26,8 @@ COPY nginxPop.sh /nginxPop.sh
 RUN chmod +x /nginxPop.sh
 
 
-# Expose $PORT
-EXPOSE $PORT
+# Expose PORT
+EXPOSE 80
 
 # Set the entry point and default command
 ENTRYPOINT ["/nginxPop.sh"]
