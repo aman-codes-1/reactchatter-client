@@ -14,9 +14,10 @@ const AppRoutes = lazy(() =>
   import('./routes').then((module) => ({ default: module.AppRoutes })),
 );
 
+console.log('NODE_ENV', process.env.NODE_ENV);
+console.log('REACT_APP_PROXY_URI', process.env.REACT_APP_PROXY_URI);
 console.log(
-  process.env.NODE_ENV,
-  process.env.REACT_APP_PROXY_URI,
+  'REACT_APP_GOOGLE_CLIENT_ID',
   process.env.REACT_APP_GOOGLE_CLIENT_ID,
 );
 
