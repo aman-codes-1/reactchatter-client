@@ -1,30 +1,8 @@
-# Use the official Node.js runtime as the base image
+# Use the official Node.js image
 FROM node:20-alpine as build
 
-# Set environment variables
-ARG PORT
-ARG NODE_ENV
-ARG REACT_APP_PROXY_URI
-ARG REACT_APP_SERVER_URI
-ARG REACT_APP_PROXY_DOMAIN
-ARG REACT_APP_GOOGLE_CLIENT_ID
-
-ENV PORT=$PORT
-ENV NODE_ENV=$NODE_ENV
-ENV REACT_APP_PROXY_URI=$REACT_APP_PROXY_URI
-ENV REACT_APP_SERVER_URI=$REACT_APP_SERVER_URI
-ENV REACT_APP_PROXY_DOMAIN=$REACT_APP_PROXY_DOMAIN
-ENV REACT_APP_GOOGLE_CLIENT_ID=$REACT_APP_GOOGLE_CLIENT_ID
-
-RUN echo "$PORT"
-RUN echo "$NODE_ENV"
-RUN echo "$REACT_APP_PROXY_URI"
-RUN echo "$REACT_APP_SERVER_URI"
-RUN echo "$REACT_APP_PROXY_DOMAIN"
-RUN echo "$REACT_APP_GOOGLE_CLIENT_ID"
-
-# Set the working directory in the container and copy files
-WORKDIR /reactchatter
+# Create app directory and copy files
+WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
@@ -32,8 +10,11 @@ COPY . .
 # Build the app
 RUN npm run build
 
-# Use Nginx as the production server
+# Use nginx as a lightweight HTTP server to serve the frontend build
 FROM nginx:alpine
+
+# Copy built files from the build stage
+COPY --from=build /app/build /usr/share/nginx/html
 
 # Copy the custom Nginx configuration file to the container
 COPY nginx.conf /etc/nginx/nginx.conf
@@ -44,8 +25,6 @@ COPY nginxPop.sh /nginxPop.sh
 # Make entry point script executable
 RUN chmod +x /nginxPop.sh
 
-# Copy built files from the build stage
-COPY --from=build /reactchatter/build /usr/share/nginx/html
 
 # Expose $PORT
 EXPOSE $PORT
