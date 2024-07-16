@@ -36,7 +36,7 @@ RUN npm run build
 FROM nginx:alpine
 
 # Copy the custom Nginx configuration file to the container
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/nginx.conf
 
 # Copy the entry point script into the container
 COPY nginxPop.sh /nginxPop.sh
