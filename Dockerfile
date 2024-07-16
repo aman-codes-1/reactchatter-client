@@ -7,6 +7,10 @@ COPY package*.json ./
 RUN npm install
 COPY . .
 
+# Set environment variables
+ARG PORT
+ENV PORT=${PORT}
+
 # Build the app
 RUN npm run build
 
@@ -26,8 +30,8 @@ COPY nginxPop.sh /nginxPop.sh
 RUN chmod +x /nginxPop.sh
 
 
-# Expose $PORT
-EXPOSE $PORT
+# Expose ${PORT}
+EXPOSE ${PORT}
 
 # Set the entry point and default command
 ENTRYPOINT ["/nginxPop.sh"]
