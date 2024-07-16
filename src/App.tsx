@@ -14,6 +14,8 @@ const AppRoutes = lazy(() =>
   import('./routes').then((module) => ({ default: module.AppRoutes })),
 );
 
+console.log(process.env.REACT_APP_GOOGLE_CLIENT_ID);
+
 const App = () => (
   <Suspense fallback={null}>
     <ThemeProvider theme={theme}>
