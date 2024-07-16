@@ -36,13 +36,13 @@ RUN npm run build
 FROM nginx:alpine
 
 # Copy the custom Nginx configuration file to the container
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy the entry point script into the container
-COPY nginxPop.sh /usr/local/bin/nginxPop.sh
+COPY nginxPop.sh /nginxPop.sh
 
 # Make entry point script executable
-RUN chmod +x /usr/local/bin/nginxPop.sh
+RUN chmod +x /nginxPop.sh
 
 # Copy built files from the build stage
 COPY --from=build /reactchatter/build /usr/share/nginx/html
@@ -51,4 +51,7 @@ COPY --from=build /reactchatter/build /usr/share/nginx/html
 EXPOSE $PORT
 
 # Set the entry point and default command
-ENTRYPOINT ["/bin/sh", "-c", "/usr/local/bin/nginxPop.sh && nginx -g 'daemon off;'"]
+ENTRYPOINT ["/nginxPop.sh"]
+
+# Run Nginx with daemon off
+CMD ["nginx", "-g", "daemon off;"]
