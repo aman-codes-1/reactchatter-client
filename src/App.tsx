@@ -14,7 +14,11 @@ const AppRoutes = lazy(() =>
   import('./routes').then((module) => ({ default: module.AppRoutes })),
 );
 
-console.log(process.env.REACT_APP_GOOGLE_CLIENT_ID);
+console.log(
+  process.env.NODE_ENV,
+  process.env.REACT_APP_PROXY_URI,
+  process.env.REACT_APP_GOOGLE_CLIENT_ID,
+);
 
 const App = () => (
   <Suspense fallback={null}>
