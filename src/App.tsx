@@ -14,15 +14,15 @@ const AppRoutes = lazy(() =>
   import('./routes').then((module) => ({ default: module.AppRoutes })),
 );
 
-console.log('PORT', process.env.PORT);
-console.log('NODE_ENV', process.env.NODE_ENV);
-console.log('REACT_APP_PROXY_URI', process.env.REACT_APP_PROXY_URI);
-console.log(
-  'REACT_APP_GOOGLE_CLIENT_ID',
-  process.env.REACT_APP_GOOGLE_CLIENT_ID,
-);
-console.log('REACT_APP_PROXY_DOMAIN', process.env.REACT_APP_PROXY_DOMAIN);
-console.log('REACT_APP_SERVER_URI', process.env.REACT_APP_SERVER_URI);
+// console.log('PORT', process.env.PORT);
+// console.log('NODE_ENV', process.env.NODE_ENV);
+// console.log('REACT_APP_PROXY_URI', process.env.REACT_APP_PROXY_URI);
+// console.log(
+//   'REACT_APP_GOOGLE_CLIENT_ID',
+//   process.env.REACT_APP_GOOGLE_CLIENT_ID,
+// );
+// console.log('REACT_APP_PROXY_DOMAIN', process.env.REACT_APP_PROXY_DOMAIN);
+// console.log('REACT_APP_SERVER_URI', process.env.REACT_APP_SERVER_URI);
 
 const App = () => (
   <Suspense fallback={null}>
