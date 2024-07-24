@@ -9,7 +9,6 @@ import {
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { ErrorResponse, onError } from '@apollo/client/link/error';
-import { GraphQLError } from 'graphql/error/GraphQLError';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { RetryLink } from '@apollo/client/link/retry';
 
@@ -35,7 +34,7 @@ export const createApolloClient = (auth: any, callLogout: any) => {
   const errorLink: ApolloLink = onError(
     ({ graphQLErrors, networkError }: ErrorResponse) => {
       if (graphQLErrors) {
-        graphQLErrors.map(async ({ extensions }: GraphQLError) => {
+        graphQLErrors.map(async ({ extensions }) => {
           if (extensions?.code === 'UNAUTHENTICATED') {
             await callLogout();
           }
