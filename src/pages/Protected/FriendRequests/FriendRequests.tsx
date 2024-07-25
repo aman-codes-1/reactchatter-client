@@ -40,10 +40,11 @@ const FriendRequests = () => {
       defaultText="You have no friend requests."
       loading={pendingRequestsLoading || !pendingRequestsCalled}
       loaderProps={{
-        avatarWidth: 24,
-        avatarHeight: 24,
-        disablePrimary: true,
-        btnHeight: '3.45rem',
+        avatarWidth: 61,
+        avatarHeight: 61,
+        secondaryFontSize: '0.975rem',
+        btnHeight: '6.5rem',
+        sx: { gap: '1.2rem' },
       }}
       error={pendingRequestsError?.graphQLErrors?.[0]?.message}
       data={pendingRequests}
@@ -54,12 +55,12 @@ const FriendRequests = () => {
         nameKey="name"
         emailKey="email"
         pictureKey="picture"
-        acceptBtnProps={{
-          handleClickAccept: (_: MouseEventHandler, __: number, ___: any) =>
+        confirmBtnProps={{
+          handleClickConfirm: (_: MouseEventHandler, __: number, ___: any) =>
             handleClickRequest(_, __, ___, 'accepted'),
         }}
-        cancelBtnProps={{
-          handleClickCancel: (_: MouseEventHandler, __: number, ___: any) =>
+        deleteBtnProps={{
+          handleClickDelete: (_: MouseEventHandler, __: number, ___: any) =>
             handleClickRequest(_, __, ___, 'rejected'),
         }}
       />

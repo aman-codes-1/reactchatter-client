@@ -1,8 +1,8 @@
 import { forwardRef } from 'react';
 import {
   ListItemAvatar,
-  ListItemText,
   ListItemButton as MuiListItemButton,
+  ListItemText,
 } from '@mui/material';
 import { Avatar } from '../..';
 import { ListItemButtonProps } from './IListItemButton';
@@ -20,11 +20,13 @@ const ListItemButton = forwardRef(
       avatar,
       startIcon,
       endIcon,
+      alignItems = 'center',
       denseListItemButton = false,
       disabled,
       selected,
       onClick,
       sx,
+      listItemTextSx,
       className,
       children,
     }: ListItemButtonProps,
@@ -44,9 +46,19 @@ const ListItemButton = forwardRef(
           />
         );
       }
+
+      const nameFirstLetter = name?.length
+        ? name?.substring(0, 1).toUpperCase()
+        : null;
+
       return (
-        <Avatar alt="" src="" width={avatar?.width} height={avatar?.height}>
-          {name?.length ? name?.substring(0, 1).toUpperCase() : null}
+        <Avatar
+          alt={nameFirstLetter}
+          src=""
+          width={avatar?.width}
+          height={avatar?.height}
+        >
+          {nameFirstLetter}
         </Avatar>
       );
     };
@@ -57,9 +69,11 @@ const ListItemButton = forwardRef(
         btnHeight={btnHeight}
         variant={variant}
         disableHover={disableHover}
+        primaryTextMarginTop={primaryText?.marginTop}
         primaryTextFontSize={primaryText?.fontSize}
         primaryTextFontWeight={primaryText?.fontWeight}
         primaryEllipsesLineClamp={primaryText?.ellipsesLineClamp}
+        secondaryTextMarginTop={secondaryText?.marginTop}
         secondaryTextFontSize={secondaryText?.fontSize}
         secondaryTextFontWeight={secondaryText?.fontWeight}
         secondaryEllipsesLineClamp={secondaryText?.ellipsesLineClamp}
@@ -75,13 +89,12 @@ const ListItemButton = forwardRef(
           onClick={onClick}
           sx={sx}
           ref={ref}
+          alignItems={alignItems}
         >
-          {children}
           {isAvatar ? (
-            <ListItemAvatar className="list-item-avatar">
-              {renderAvatar()}
-            </ListItemAvatar>
+            <ListItemAvatar>{avatar?.comp || renderAvatar()}</ListItemAvatar>
           ) : null}
+          {}
           {startIcon}
           {primaryText || secondaryText ? (
             <ListItemText
@@ -92,9 +105,11 @@ const ListItemButton = forwardRef(
                   ? { className: primaryText?.className }
                   : {}
               }
+              sx={listItemTextSx}
             />
           ) : null}
           {endIcon}
+          {children}
         </MuiListItemButton>
       </ListItemButtonStyled>
     );

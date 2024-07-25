@@ -7,19 +7,32 @@ const MainLayoutLoader = ({
   avatarHeight,
   disablePrimary,
   disableSecondary,
+  primaryFontSize,
+  secondaryFontSize,
   btnHeight,
+  sx,
 }: any) => (
   <MainLayoutLoaderStyled>
     <List dense disablePadding>
       <ListItem
         disableGutters
         disableHover
+        sx={sx}
+        avatar={{
+          comp: (
+            <Skeleton
+              variant="circular"
+              width={avatarWidth || 42}
+              height={avatarHeight || 42}
+            />
+          ),
+        }}
         primaryText={
           disablePrimary
             ? null
             : {
                 title: <Skeleton className="primary-skeleton" />,
-                fontSize: '1.08rem',
+                fontSize: primaryFontSize || '1.08rem',
               }
         }
         secondaryText={
@@ -27,18 +40,11 @@ const MainLayoutLoader = ({
             ? null
             : {
                 title: <Skeleton className="secondary-skeleton" />,
-                fontSize: '0.85rem',
+                fontSize: secondaryFontSize || '0.85rem',
               }
         }
         btnHeight={btnHeight || '5.1rem'}
-      >
-        <Skeleton
-          variant="circular"
-          width={avatarWidth || 38}
-          height={avatarHeight || 38}
-          className="skeleton-avatar"
-        />
-      </ListItem>
+      />
     </List>
   </MainLayoutLoaderStyled>
 );

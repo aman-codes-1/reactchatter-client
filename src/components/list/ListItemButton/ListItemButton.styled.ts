@@ -5,9 +5,11 @@ export const ListItemButtonStyled = styled('div')<{
   btnHeight: string;
   variant: string;
   disableHover: boolean;
+  primaryTextMarginTop: string;
   primaryTextFontSize: string;
   primaryTextFontWeight: number;
   primaryEllipsesLineClamp: number;
+  secondaryTextMarginTop: string;
   secondaryTextFontSize: string;
   secondaryTextFontWeight: number;
   secondaryEllipsesLineClamp: number;
@@ -18,9 +20,11 @@ export const ListItemButtonStyled = styled('div')<{
     btnHeight,
     variant,
     disableHover,
+    primaryTextMarginTop,
     primaryTextFontSize,
     primaryTextFontWeight,
     primaryEllipsesLineClamp,
+    secondaryTextMarginTop,
     secondaryTextFontSize,
     secondaryTextFontWeight,
     secondaryEllipsesLineClamp,
@@ -40,6 +44,7 @@ export const ListItemButtonStyled = styled('div')<{
       '.MuiListItemText-root': {
         wordBreak: 'break-word',
         '.MuiListItemText-primary': {
+          marginTop: primaryTextMarginTop,
           fontSize: primaryTextFontSize || '0.875rem',
           fontWeight: primaryTextFontWeight || 501,
           color:
@@ -58,6 +63,7 @@ export const ListItemButtonStyled = styled('div')<{
             : {}),
         },
         '.MuiListItemText-secondary': {
+          marginTop: secondaryTextMarginTop,
           fontSize: secondaryTextFontSize || '0.75rem',
           fontWeight: secondaryTextFontWeight || 500,
           color: theme.palette.grey[500],

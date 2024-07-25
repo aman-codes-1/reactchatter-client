@@ -41,10 +41,11 @@ const SentRequests = () => {
       defaultText="You have not sent any friend requests."
       loading={sentRequestsLoading || !sentRequestsCalled}
       loaderProps={{
-        avatarWidth: 24,
-        avatarHeight: 24,
-        disablePrimary: true,
-        btnHeight: '3.45rem',
+        avatarWidth: 61,
+        avatarHeight: 61,
+        secondaryFontSize: '0.975rem',
+        btnHeight: '6.5rem',
+        sx: { gap: '1.2rem' },
       }}
       error={sentRequestsError?.graphQLErrors?.[0]?.message}
       data={sentRequests}
@@ -55,8 +56,8 @@ const SentRequests = () => {
         nameKey="name"
         emailKey="email"
         pictureKey="picture"
-        cancelBtnProps={{
-          handleClickCancel: updateRequestLoading
+        deleteBtnProps={{
+          handleClickDelete: updateRequestLoading
             ? () => {}
             : (_: MouseEventHandler, __: number, ___: any) =>
                 handleClickRequest(_, __, ___, 'cancelled'),

@@ -9,12 +9,14 @@ const ListItem = forwardRef((props: ListItemProps, ref: any) => {
     width = '',
     btnWidth = '',
     btnClassName = '',
+    btnChildren,
     disableHover = false,
     denseListItem = false,
     disableGutters = false,
     disablePadding = false,
     secondaryAction,
     className,
+    children,
     ...rest
   } = props;
 
@@ -36,7 +38,10 @@ const ListItem = forwardRef((props: ListItemProps, ref: any) => {
           className={btnClassName}
           ref={ref}
           {...rest}
-        />
+        >
+          {btnChildren || null}
+        </ListItemButton>
+        {children}
       </MuiListItem>
     </ListItemStyled>
   );
