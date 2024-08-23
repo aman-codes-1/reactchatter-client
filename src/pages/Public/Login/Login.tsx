@@ -55,7 +55,6 @@ const Login = () => {
         Sign in to your account
       </Typography>
       <GoogleLogin
-        // useOneTap
         ux_mode="redirect"
         shape="pill"
         click_listener={handleLogin}

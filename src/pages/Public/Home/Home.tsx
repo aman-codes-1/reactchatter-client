@@ -1,4 +1,4 @@
-import { Box, Button, Link as MuiLink, Typography } from '@mui/material';
+import { Button, Link as MuiLink, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { getCurrentYear } from '../../../helpers';
 import { HomeStyled } from './Home.styled';
@@ -15,11 +15,15 @@ const Home = () => (
         React.js v18, Material UI, Typescript, Nest.js, and GraphQL
         Subscriptions.
       </Typography>
-      <Link to="/login">
-        <Button size="large" variant="contained" className="home-login-btn">
-          Login
-        </Button>
-      </Link>
+      <Button
+        component={Link}
+        to="/login"
+        size="large"
+        variant="contained"
+        className="home-login-btn"
+      >
+        Login
+      </Button>
     </div>
     <div className="home-footer">
       <Typography className="home-footer-sub-heading" fontWeight={400}>

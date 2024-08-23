@@ -1,44 +1,91 @@
-import { display, styled } from '@mui/system';
+import { display, height, styled } from '@mui/system';
 
 export const FriendRequestStyled = styled('div')<{
   isConfirmBtn: boolean;
   hasScrollbar: boolean;
 }>(({ theme, isConfirmBtn, hasScrollbar }) => ({
-  overflow: 'auto',
+  '.friend-request-loader': {
+    gap: '1.2rem',
+    [theme.breakpoints.down('md')]: {
+      gap: '0.4rem',
+    },
+    [theme.breakpoints.down('xs')]: {
+      gap: '0rem',
+    },
+  },
+  '.friend-request-loader-avatar': {
+    width: 55,
+    height: 55,
+    [theme.breakpoints.down('md')]: {
+      width: 45,
+      height: 45,
+    },
+    [theme.breakpoints.down('xs')]: {
+      width: 40,
+      height: 40,
+    },
+  },
+  '.friend-request-list-wrapper': {
+    overflow: 'auto',
+  },
   '.friend-request-list': {
-    width: '420px',
+    width: '400px',
     maxWidth: hasScrollbar ? 'calc(100% - 1.5rem)' : '100%',
   },
-  '.friend-request-btn': {
-    border: `1px solid ${theme.palette.grey[300]}`,
+  '.friend-request-list-item-btn': {
+    border: `1px solid ${theme.palette.grey[400]}`,
     borderRadius: '8px',
+    [theme.breakpoints.down('lg')]: {
+      marginRight: '1.7rem',
+    },
+    [theme.breakpoints.down('xs')]: {
+      marginRight: '1.25rem',
+    },
+    '.MuiButtonBase-root': {
+      gap: '1.2rem',
+      [theme.breakpoints.down('md')]: {
+        gap: '0.4rem',
+      },
+      [theme.breakpoints.down('xs')]: {
+        gap: '0rem',
+      },
+    },
+  },
+  '.friend-request-avatar': {
+    '.MuiAvatar-root': {
+      fontSize: '1rem',
+      width: 55,
+      height: 55,
+      [theme.breakpoints.down('md')]: {
+        fontSize: '0.5rem',
+        width: 45,
+        height: 45,
+      },
+      [theme.breakpoints.down('xs')]: {
+        width: 40,
+        height: 40,
+      },
+    },
   },
   '.friend-request-action-btn-wrapper': {
-    marginTop: '0.8rem',
+    marginTop: '0.85rem',
     display: 'flex',
-    alignItems: 'center',
     justifyContent: isConfirmBtn ? 'space-between' : 'flex-end',
-    // '.friend-request-confirm-btn': {
-    //   '.friend-request-confirm-btn-icon': {
-    //     color: theme.palette.success.dark,
-    //   },
-    //   '.friend-request-confirm-btn-icon:hover': {
-    //     color: theme.palette.success[900],
-    //   },
-    // },
-    // '.friend-request-confirm-btn:hover': {
-    //   background: theme.palette.success.light,
-    // },
-    // '.friend-request-delete-btn': {
-    //   '.friend-request-delete-btn-icon': {
-    //     color: theme.palette.error.dark,
-    //   },
-    //   '.friend-request-delete-btn-icon:hover': {
-    //     color: theme.palette.error[900],
-    //   },
-    // },
-    // '.friend-request-delete-btn:hover': {
-    //   background: theme.palette.error.light,
-    // },
+    gap: '1rem',
+    '@media(min-width: 600px) and (max-width: 735px)': {
+      flexDirection: 'column',
+    },
+    '@media(min-width: 0px) and (max-width: 425px)': {
+      flexDirection: 'column',
+    },
+  },
+  '.friend-request-text-wrapper': {
+    margin: '0.7rem 0rem',
+    [theme.breakpoints.down('md')]: {
+      margin: '0.42rem 0rem',
+    },
+    [theme.breakpoints.down('xs')]: {
+      margin: '0.25rem 0rem',
+    },
   },
 }));

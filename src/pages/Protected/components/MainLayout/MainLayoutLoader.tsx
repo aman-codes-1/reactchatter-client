@@ -3,47 +3,55 @@ import { ListItem } from '../../../../components';
 import { MainLayoutLoaderStyled } from './MainLayout.styled';
 
 const MainLayoutLoader = ({
-  avatarWidth,
-  avatarHeight,
+  avatarClassName,
   disablePrimary,
   disableSecondary,
   primaryFontSize,
   secondaryFontSize,
-  btnHeight,
   sx,
+  dense = false,
+  btnAlignItems,
+  btnClassName,
+  listClassName,
+  listItemTextClassName,
 }: any) => (
   <MainLayoutLoaderStyled>
-    <List dense disablePadding>
+    <List dense={dense} disablePadding className={listClassName}>
       <ListItem
         disableGutters
         disableHover
         sx={sx}
-        avatar={{
-          comp: (
-            <Skeleton
-              variant="circular"
-              width={avatarWidth || 42}
-              height={avatarHeight || 42}
-            />
-          ),
+        btnProps={{
+          className: btnClassName,
+          alignItems: btnAlignItems,
+          textProps: {
+            ...(disablePrimary
+              ? {}
+              : {
+                  primary: <Skeleton className="primary-skeleton" />,
+                  primaryTypographyProps: {
+                    fontSize: primaryFontSize || '1.08rem',
+                  },
+                }),
+            ...(disableSecondary
+              ? {}
+              : {
+                  secondary: <Skeleton className="secondary-skeleton" />,
+                  secondaryTypographyProps: {
+                    fontSize: secondaryFontSize || '0.85rem',
+                  },
+                }),
+            className: listItemTextClassName,
+          },
+          avatarProps: {
+            children: (
+              <Skeleton
+                variant="circular"
+                className={avatarClassName || 'avatar-skeleton'}
+              />
+            ),
+          },
         }}
-        primaryText={
-          disablePrimary
-            ? null
-            : {
-                title: <Skeleton className="primary-skeleton" />,
-                fontSize: primaryFontSize || '1.08rem',
-              }
-        }
-        secondaryText={
-          disableSecondary
-            ? null
-            : {
-                title: <Skeleton className="secondary-skeleton" />,
-                fontSize: secondaryFontSize || '0.85rem',
-              }
-        }
-        btnHeight={btnHeight || '5.1rem'}
       />
     </List>
   </MainLayoutLoaderStyled>

@@ -5,13 +5,13 @@ import { ListItem } from '..';
 
 const DataList = ({
   data,
-  // sliceDataBy,
+  dense = true,
+  dividerVariant = 'middle',
   selectedItem,
   handleClickListItem,
   className,
   scrollDependencies = [],
-  ellipsesLineClamp = '',
-  btnHeight = '',
+  WebkitLineClamp = 0,
 }: any) => {
   const { auth: { _id = '' } = {} } = useAuth();
   const [hasScrollbar, setHasScrollbar] = useState(false);
@@ -80,26 +80,34 @@ const DataList = ({
         <>
           <ListItem
             disableGutters
-            primaryText={{
-              title: member?.memberDetails?.name,
-              fontSize: '1.08rem',
-            }}
-            secondaryText={{
-              title: member?.memberDetails?.email,
-              fontSize: '0.85rem',
-              ellipsesLineClamp,
-            }}
-            avatar={{
-              src: member?.memberDetails?.picture,
-            }}
-            onClick={(_) => handleClick(_, obj, member)}
-            sx={hasScrollbar ? { mr: '1.5rem' } : {}}
-            selected={selected}
-            btnHeight={btnHeight}
-            // eslint-disable-next-line no-return-assign, no-param-reassign
             ref={itemsRef ? (el) => (itemsRef.current[idx] = el) : null}
+            sx={hasScrollbar ? { mr: '1.5rem' } : {}}
+            btnProps={{
+              alignItems: 'flex-start',
+              textProps: {
+                primary: member?.memberDetails?.name,
+                secondary: member?.memberDetails?.email,
+                primaryTypographyProps: {
+                  fontSize: '1.08rem',
+                },
+                secondaryTypographyProps: {
+                  fontSize: '0.85rem',
+                  style: {
+                    WebkitLineClamp,
+                  },
+                },
+              },
+              avatarProps: {
+                src: member?.memberDetails?.picture,
+              },
+              onClick: (_) => handleClick(_, obj, member),
+              selected,
+            }}
           />
-          <Divider variant="middle" sx={hasScrollbar ? { mr: '2.5rem' } : {}} />
+          <Divider
+            variant={dividerVariant}
+            sx={hasScrollbar ? { mr: '2.5rem' } : {}}
+          />
         </>
       );
     }
@@ -107,7 +115,7 @@ const DataList = ({
   };
 
   return (
-    <List dense disablePadding className={className} ref={listRef}>
+    <List dense={dense} disablePadding className={className} ref={listRef}>
       {data
         ?.slice(0, undefined)
         ?.map((obj: any, idx: number) =>

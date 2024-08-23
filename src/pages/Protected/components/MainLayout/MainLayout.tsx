@@ -1,3 +1,4 @@
+import { useOutletContext } from 'react-router-dom';
 import { Typography } from '@mui/material';
 import { SuccessErrorMessage } from '../../../../components';
 import { useSocket } from '../../../../hooks';
@@ -16,11 +17,12 @@ const MainLayout = ({
   onlyChildren = false,
   children,
 }: MainLayoutProps) => {
+  const [navbarHeight] = useOutletContext<any>();
   const { isLoading: isSocketLoading } = useSocket();
   const isLoading = (loading || isSocketLoading) && !disableLoader;
 
   return (
-    <MainLayoutStyled>
+    <MainLayoutStyled navbarHeight={navbarHeight}>
       {heading ? (
         <Typography className="main-layout-heading" fontWeight={700}>
           {heading}

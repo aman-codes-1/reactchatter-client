@@ -1,4 +1,4 @@
-import { styled } from '@mui/system';
+import { minWidth, styled } from '@mui/system';
 
 export const HomeStyled = styled('div')(({ theme }) => ({
   backgroundImage: 'url(/assets/images/cool-background.svg)',
@@ -26,7 +26,7 @@ export const HomeStyled = styled('div')(({ theme }) => ({
       },
     },
     '.home-sub-heading': {
-      margin: '8px 0px 8px 0px',
+      margin: '8px 0px',
       lineHeight: '32px',
       fontSize: '1.26rem',
       [theme.breakpoints.down('sm')]: {
@@ -34,17 +34,17 @@ export const HomeStyled = styled('div')(({ theme }) => ({
       },
     },
     '.home-login-btn': {
-      marginTop: 10,
+      marginTop: '10px',
       textTransform: 'none',
       fontWeight: 600,
       backgroundColor: `${theme.palette.action.active} !important`,
-      width: '120px',
-      height: '50px',
+      minWidth: '120px',
+      minHeight: '3.1rem',
       fontSize: '1rem',
       borderRadius: 7,
       [theme.breakpoints.down('sm')]: {
-        width: '100%',
-        height: 'auto',
+        width: 'auto',
+        minWidth: '100%',
       },
     },
     '.home-login-btn:hover': {

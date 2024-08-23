@@ -122,8 +122,8 @@ const AddFriend = () => {
   setFocus();
 
   return (
-    <MainLayout heading="Add Friend" disableLoader onlyChildren>
-      <AddFriendStyled>
+    <AddFriendStyled>
+      <MainLayout heading="Add Friend" disableLoader onlyChildren>
         <Typography className="add-friend-heading" fontWeight={600}>
           Add friend by email
         </Typography>
@@ -138,7 +138,6 @@ const AddFriend = () => {
               value={email}
               onKeyUp={(_: any) => handleKeyPress(_, handleClickAdd)}
               onChange={handleChangeEmail}
-              // onBlur={handleCheckEmail}
               inputRef={inputRef}
             />
             {isRequired && isTimeoutRunning ? (
@@ -169,8 +168,8 @@ const AddFriend = () => {
             </LoadingButton>
           </div>
         </div>
-      </AddFriendStyled>
-    </MainLayout>
+      </MainLayout>
+    </AddFriendStyled>
   );
 };
 

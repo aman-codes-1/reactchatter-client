@@ -4,18 +4,23 @@ export const theme = createTheme({
   palette: {
     primary: {
       main: '#0196DA',
-      light: '#ECF7FC',
-      dark: 'rgba(1, 150, 218, 0.28)',
+      light: '#e6f7ff',
+      dark: '#017ab2',
     },
     secondary: {
       main: '#4F46E5',
+      light: '#eae9fc',
+      dark: '#251dc9',
     },
     info: {
       main: '#0288d1',
+      light: '#03a9f4',
       contrastText: '#fff',
     },
     warning: {
-      main: '#F17602',
+      main: '#ed6c02',
+      light: '#ff9800',
+      dark: '#e65100',
       contrastText: '#fff',
     },
     success: {
@@ -39,12 +44,11 @@ export const theme = createTheme({
     grey: {
       50: '#F9FAFB',
       100: '#f5f5f5',
-      200: '#e8eaf6',
-      300: '#e0e0e0',
-      400: '#C8C8C8',
+      200: '#efefef',
+      300: '#e8eaf6',
+      400: '#e0e0e0',
       500: '#667781',
       600: '#9B9BA3',
-      // 9CA3AF
       700: 'rgba(255, 255, 255, 0.4)',
       800: '#71717A',
       900: '#111B21',

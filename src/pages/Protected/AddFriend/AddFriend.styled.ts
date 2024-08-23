@@ -1,8 +1,8 @@
 import { styled } from '@mui/system';
 
 export const AddFriendStyled = styled('div')(({ theme }) => ({
-  marginTop: '0.45rem',
   '.add-friend-heading': {
+    marginTop: '0.45rem',
     fontSize: '0.875rem',
     lineHeight: '1.5rem',
     color: theme.palette.text.primary,
@@ -23,13 +23,13 @@ export const AddFriendStyled = styled('div')(({ theme }) => ({
       },
       '.add-friend-email-input': {
         width: '18rem',
-        fontWeight: 600,
+        fontWeight: 501,
         [theme.breakpoints.down('md')]: {
           width: '100%',
         },
       },
       '.add-friend-email-input-props': {
-        fontWeight: 600,
+        fontWeight: 501,
       },
     },
     '.add-friend-email-btn-wrapper': {
@@ -38,12 +38,12 @@ export const AddFriendStyled = styled('div')(({ theme }) => ({
         textTransform: 'none',
         fontSize: '0.875rem',
         fontWeight: 700,
+        color: theme.palette.common.white,
         [theme.breakpoints.down('md')]: {
           width: '100%',
         },
       },
     },
-
     '.add-btn-active': {
       backgroundColor: `${theme.palette.action.active} !important`,
     },

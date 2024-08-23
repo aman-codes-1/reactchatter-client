@@ -1,10 +1,9 @@
-import { IconButton, List } from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
+import { List, Typography } from '@mui/material';
 import { useAuth } from '../../../../hooks';
-import { ListItem } from '../../../../components';
+import { Button, ListItem } from '../../../../components';
 import { FriendRequestStyled } from './FriendRequest.styled';
 import { useLayoutEffect, useRef, useState } from 'react';
+import { MainLayout } from '../MainLayout';
 
 const FriendRequest = ({
   data,
@@ -12,6 +11,7 @@ const FriendRequest = ({
   nameKey,
   emailKey,
   pictureKey,
+  mainLayoutProps,
   confirmBtnProps,
   deleteBtnProps,
 }: any) => {
@@ -64,68 +64,79 @@ const FriendRequest = ({
       isConfirmBtn={isConfirmBtn}
       hasScrollbar={hasScrollbar}
     >
-      <List disablePadding className="friend-request-list">
-        {data?.map((obj: any, idx: number) => (
-          <ListItem
-            key={obj?._id}
-            disableHover
-            disableGutters
-            primaryText={{
-              title: renderItem(obj, nameKey),
-              fontSize: '1.08rem',
-            }}
-            sx={{ gap: '1.2rem' }}
-            listItemTextSx={{ mt: 1.3, mb: 1.3 }}
-            secondaryText={{
-              title: (
-                <>
-                  {renderItem(obj, emailKey)}{' '}
-                  <div className="friend-request-action-btn-wrapper">
-                    {isConfirmBtn ? (
-                      <IconButton
-                        edge="start"
-                        size="small"
-                        className="friend-request-confirm-btn margin-left-right"
-                        onClick={(_) =>
-                          confirmBtnProps?.handleClickConfirm(_, idx, obj)
-                        }
-                      >
-                        <CheckCircleIcon
-                          fontSize="large"
-                          className="friend-request-confirm-btn-icon"
-                        />
-                      </IconButton>
-                    ) : null}
-                    {isDeleteBtn ? (
-                      <IconButton
-                        edge="end"
-                        size="small"
-                        className="friend-request-delete-btn margin-left-right"
-                        onClick={(_) =>
-                          deleteBtnProps?.handleClickDelete(_, idx, obj)
-                        }
-                      >
-                        <CancelIcon
-                          fontSize="large"
-                          className="friend-request-delete-btn-icon"
-                        />
-                      </IconButton>
-                    ) : null}
-                  </div>
-                </>
-              ),
-              fontSize: '0.975rem',
-            }}
-            avatar={{
-              width: 60,
-              height: 60,
-              src: renderItem(obj, pictureKey),
-            }}
-            btnClassName="friend-request-btn"
-            alignItems="flex-start"
-          />
-        ))}
-      </List>
+      <MainLayout
+        data={data}
+        loaderProps={{
+          secondaryFontSize: '0.975rem',
+          listClassName: 'friend-request-list',
+          btnAlignItems: 'flex-start',
+          btnClassName: 'friend-request-loader',
+          avatarClassName: 'friend-request-loader-avatar',
+          listItemTextClassName: 'friend-request-text-wrapper',
+        }}
+        {...mainLayoutProps}
+      >
+        <div className="friend-request-list-wrapper">
+          <List disablePadding className="friend-request-list">
+            {data?.map((obj: any, idx: number) => (
+              <ListItem
+                key={obj?._id}
+                disableGutters
+                disableHover
+                btnProps={{
+                  wrapperClassName: 'friend-request-list-item-btn',
+                  alignItems: 'flex-start',
+                  avatarProps: {
+                    src: renderItem(obj, pictureKey),
+                    className: 'friend-request-avatar',
+                  },
+                  textProps: {
+                    primary: renderItem(obj, nameKey),
+                    primaryTypographyProps: {
+                      fontSize: '1.08rem',
+                    },
+                    secondary: (
+                      <>
+                        {renderItem(obj, emailKey)}
+                        <div className="friend-request-action-btn-wrapper">
+                          {isConfirmBtn ? (
+                            <Button
+                              variant="contained"
+                              color="secondary"
+                              fullWidth
+                              onClick={(_) =>
+                                confirmBtnProps?.onClick(_, idx, obj)
+                              }
+                            >
+                              Confirm
+                            </Button>
+                          ) : null}
+                          {isDeleteBtn ? (
+                            <Button
+                              variant="contained"
+                              color="inherit"
+                              fullWidth
+                              onClick={(_) =>
+                                deleteBtnProps?.onClick(_, idx, obj)
+                              }
+                            >
+                              Delete
+                            </Button>
+                          ) : null}
+                        </div>
+                      </>
+                    ),
+                    secondaryTypographyProps: {
+                      fontSize: '0.975rem',
+                    },
+                    className: 'friend-request-text-wrapper',
+                  },
+                }}
+              />
+            ))}
+          </List>
+        </div>
+      </MainLayout>
     </FriendRequestStyled>
   );
 };

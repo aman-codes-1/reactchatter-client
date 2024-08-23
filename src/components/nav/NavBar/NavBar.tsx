@@ -1,9 +1,8 @@
 import { forwardRef, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '@mui/material';
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
-import { BaseSvg, ListItemButton } from '../..';
+import { BaseSvg, Button } from '../..';
 import { useAuth, useSocket } from '../../../hooks';
 import { ChatsAndFriendsContext } from '../../../contexts';
 import { NavBarStyled } from './NavBar.styled';
@@ -30,34 +29,21 @@ const NavBar = forwardRef(
           <BaseSvg id="logo" className="nav-logo-svg" />
         </Link>
         {chats?.length || otherFriends?.length ? (
-          <ListItemButton
-            denseListItemButton
-            startIcon={
-              <CommentOutlinedIcon
-                fontSize="small"
-                className="nav-new-chat-btn-icon"
-              />
-            }
-            primaryText={{
-              title: (
-                <div className="nav-new-chat-btn-title text-hidden">
-                  New Chat
-                </div>
-              ),
-              fontWeight: 501,
-            }}
-            width="auto"
+          <Button
+            color="secondary"
             variant="outlined"
-            btnHeight="2.35rem"
-            className="nav-new-chat-btn"
-          />
+            startIcon={<CommentOutlinedIcon />}
+            className="text-hidden-xs"
+          >
+            <div>New Chat</div>
+          </Button>
         ) : null}
         <Button
-          className="nav-menu-btn"
           endIcon={<MenuRoundedIcon />}
           onClick={onMenuClick}
+          className="nav-menu-btn text-hidden-xs"
         >
-          <div className="text-hidden">Menu</div>
+          <div>Menu</div>
         </Button>
       </NavBarStyled>
     );

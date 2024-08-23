@@ -7,6 +7,7 @@ import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import {
+  Button,
   DataList,
   ListItem,
   ListItemButton,
@@ -184,22 +185,30 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
     <SideBarListStyled
       toggleChats={toggleChats}
       toggleFriends={toggleFriends}
-      className={`${className} flex-item`}
+      className={`flex-item ${className}`}
     >
       {chats?.length ? (
         <>
           <ListItem
-            denseListItem
+            dense
             disablePadding
-            primaryText={{
-              title: 'Chats',
-              className: 'default-heading heading',
-              ellipsesLineClamp: '1',
+            btnProps={{
+              textProps: {
+                primary: 'Chats',
+                primaryTypographyProps: {
+                  className: 'default-heading heading',
+                  style: {
+                    WebkitLineClamp: 1,
+                  },
+                },
+              },
+              endIcon: toggleChats ? (
+                <ExpandLessIcon />
+              ) : (
+                <ExpandCircleDownIcon />
+              ),
+              onClick: (_) => handleToggle(_, setToggleChats),
             }}
-            endIcon={
-              toggleChats ? <ExpandLessIcon /> : <ExpandCircleDownIcon />
-            }
-            onClick={(_) => handleToggle(_, setToggleChats)}
           />
           {toggleChats ? (
             <DataList
@@ -208,8 +217,7 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
               handleClickListItem={handleClickChat}
               className="chats-wrapper"
               scrollDependencies={[toggleChats, toggleFriends]}
-              ellipsesLineClamp="2"
-              btnHeight="5.1rem"
+              WebkitLineClamp={2}
             />
           ) : null}
         </>
@@ -217,22 +225,28 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
       {otherFriends?.length ? (
         <>
           <ListItem
-            denseListItem
+            dense
             disablePadding
-            className={toggleChats && chats?.length ? 'margin-top' : ''}
-            primaryText={{
-              title: chats?.length ? 'New Chat' : 'Your Friends',
-              className: 'default-heading',
-              ellipsesLineClamp: '1',
-            }}
-            endIcon={
-              toggleFriends ? (
+            className={
+              toggleChats && chats?.length ? 'margin-top' : 'margin-top-2'
+            }
+            btnProps={{
+              textProps: {
+                primary: chats?.length ? 'New Chat' : 'Your Friends',
+                primaryTypographyProps: {
+                  className: 'default-heading',
+                  style: {
+                    WebkitLineClamp: 1,
+                  },
+                },
+              },
+              endIcon: toggleFriends ? (
                 <ExpandLessIcon fontSize="small" />
               ) : (
                 <ExpandCircleDownIcon fontSize="small" />
-              )
-            }
-            onClick={(_) => handleToggle(_, setToggleFriends)}
+              ),
+              onClick: (_) => handleToggle(_, setToggleFriends),
+            }}
           />
           {toggleFriends ? (
             <>
@@ -247,19 +261,17 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
                 handleClickListItem={handleClickFriend}
                 className="friends-wrapper"
                 scrollDependencies={[toggleChats, toggleFriends]}
-                ellipsesLineClamp="1"
+                WebkitLineClamp={1}
               />
               {toggleChats && chats?.length > 2 && otherFriends?.length > 2 ? (
-                <ListItemButton
-                  denseListItemButton
-                  primaryText={{
-                    title: 'View More',
-                    fontSize: '0.825rem',
-                    fontWeight: 501,
-                  }}
+                <Button
+                  color="secondary"
                   variant="outlined"
-                  sx={{ height: '2rem', textAlign: 'center' }}
-                />
+                  size="small"
+                  fullWidth
+                >
+                  View More
+                </Button>
               ) : null}
             </>
           ) : null}
@@ -268,7 +280,7 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
       {navLinks?.length ? (
         <>
           <ListItem
-            denseListItem
+            dense
             disablePadding
             disableHover
             className={
@@ -276,42 +288,53 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
               (!toggleChats && toggleFriends) ||
               (toggleChats && toggleFriends)
                 ? 'margin-top'
-                : ''
+                : 'margin-top-2'
             }
-            primaryText={{
-              title: 'Overview',
-              className: 'default-heading',
-              ellipsesLineClamp: '1',
+            btnProps={{
+              textProps: {
+                primary: 'Overview',
+                primaryTypographyProps: {
+                  className: 'default-heading',
+                  style: {
+                    WebkitLineClamp: 1,
+                  },
+                },
+              },
             }}
           />
           <div className="overview-wrapper">
             {navLinks.map((navLink, idx) => (
               <ListItem
-                disablePadding
-                denseListItem
-                sx={{ mb: '0.5rem' }}
                 key={navLink?.title}
-                startIcon={navLink?.icon}
-                primaryText={{
-                  title: navLink?.title || '',
-                  ellipsesLineClamp: '1',
+                dense
+                disablePadding
+                className="margin-bottom"
+                btnProps={{
+                  textProps: {
+                    primary: navLink?.title || '',
+                    primaryTypographyProps: {
+                      style: {
+                        WebkitLineClamp: 1,
+                      },
+                    },
+                  },
+                  startIcon: navLink?.icon,
+                  endIcon: (
+                    <Badge
+                      badgeContent={navLink?.count}
+                      color="secondary"
+                      overlap="circular"
+                      sx={{ mr: '0.5rem' }}
+                    />
+                  ),
+                  selected:
+                    idx ===
+                    navLinks.findIndex(
+                      (el) =>
+                        selectedOverviewLink === el?.link?.split?.('/')?.[1],
+                    ),
+                  onClick: (_) => handleClickOverviewItem(_, navLink?.link),
                 }}
-                endIcon={
-                  <Badge
-                    badgeContent={navLink?.count}
-                    color="secondary"
-                    overlap="circular"
-                    sx={{ mr: '0.5rem' }}
-                  />
-                }
-                selected={
-                  idx ===
-                  navLinks.findIndex(
-                    (el) =>
-                      selectedOverviewLink === el?.link?.split?.('/')?.[1],
-                  )
-                }
-                onClick={(_) => handleClickOverviewItem(_, navLink?.link)}
               />
             ))}
           </div>

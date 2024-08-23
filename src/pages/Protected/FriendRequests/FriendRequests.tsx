@@ -35,36 +35,27 @@ const FriendRequests = () => {
   };
 
   return (
-    <MainLayout
-      heading="Friend Requests"
-      defaultText="You have no friend requests."
-      loading={pendingRequestsLoading || !pendingRequestsCalled}
-      loaderProps={{
-        avatarWidth: 61,
-        avatarHeight: 61,
-        secondaryFontSize: '0.975rem',
-        btnHeight: '6.5rem',
-        sx: { gap: '1.2rem' },
+    <FriendRequest
+      mainLayoutProps={{
+        heading: 'Friend Requests',
+        defaultText: 'You have no friend requests.',
+        loading: pendingRequestsLoading || !pendingRequestsCalled,
+        error: pendingRequestsError?.graphQLErrors?.[0]?.message,
       }}
-      error={pendingRequestsError?.graphQLErrors?.[0]?.message}
       data={pendingRequests}
-    >
-      <FriendRequest
-        data={pendingRequests}
-        userObj="memberDetails"
-        nameKey="name"
-        emailKey="email"
-        pictureKey="picture"
-        confirmBtnProps={{
-          handleClickConfirm: (_: MouseEventHandler, __: number, ___: any) =>
-            handleClickRequest(_, __, ___, 'accepted'),
-        }}
-        deleteBtnProps={{
-          handleClickDelete: (_: MouseEventHandler, __: number, ___: any) =>
-            handleClickRequest(_, __, ___, 'rejected'),
-        }}
-      />
-    </MainLayout>
+      userObj="memberDetails"
+      nameKey="name"
+      emailKey="email"
+      pictureKey="picture"
+      confirmBtnProps={{
+        onClick: (_: MouseEventHandler, __: number, ___: any) =>
+          handleClickRequest(_, __, ___, 'accepted'),
+      }}
+      deleteBtnProps={{
+        onClick: (_: MouseEventHandler, __: number, ___: any) =>
+          handleClickRequest(_, __, ___, 'rejected'),
+      }}
+    />
   );
 };
 

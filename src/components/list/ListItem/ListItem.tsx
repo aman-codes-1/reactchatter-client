@@ -7,15 +7,9 @@ import { ListItemStyled } from './ListItem.styled';
 const ListItem = forwardRef((props: ListItemProps, ref: any) => {
   const {
     width = '',
-    btnWidth = '',
-    btnClassName = '',
-    btnChildren,
     disableHover = false,
-    denseListItem = false,
-    disableGutters = false,
-    disablePadding = false,
-    secondaryAction,
-    className,
+    wrapperClassName,
+    btnProps,
     children,
     ...rest
   } = props;
@@ -24,22 +18,11 @@ const ListItem = forwardRef((props: ListItemProps, ref: any) => {
     <ListItemStyled
       width={width}
       disableHover={disableHover}
-      className={className}
+      className={wrapperClassName}
     >
-      <MuiListItem
-        dense={denseListItem}
-        disableGutters={disableGutters}
-        disablePadding={disablePadding}
-        secondaryAction={secondaryAction}
-      >
-        <ListItemButton
-          width={btnWidth}
-          disableHover={disableHover}
-          className={btnClassName}
-          ref={ref}
-          {...rest}
-        >
-          {btnChildren || null}
+      <MuiListItem {...rest}>
+        <ListItemButton disableHover={disableHover} ref={ref} {...btnProps}>
+          {btnProps?.children || null}
         </ListItemButton>
         {children}
       </MuiListItem>

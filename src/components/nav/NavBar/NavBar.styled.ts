@@ -4,10 +4,10 @@ export const NavBarStyled = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  marginRight: '1.35rem',
+  marginRight: '0.6rem',
   gap: '1rem',
-  [theme.breakpoints.down('md')]: {
-    marginRight: '0.7rem',
+  [theme.breakpoints.between('sm', 'md')]: {
+    marginRight: '0.15rem',
   },
   [theme.breakpoints.down('sm')]: {
     margin: 0,
@@ -25,14 +25,14 @@ export const NavBarStyled = styled('div')(({ theme }) => ({
     [theme.breakpoints.down('sm')]: {
       flex: '0',
       flexBasis: '5.85rem',
-      padding: '0.5rem 1rem',
+      padding: '0.4rem 1rem',
       borderRadius: '8px',
       justifyContent: 'center',
-      backgroundColor: theme.palette.grey[200],
+      backgroundColor: theme.palette.grey[300],
     },
     [theme.breakpoints.down('xs')]: {
       flexBasis: '0',
-      padding: '0.62rem 1.4rem',
+      padding: '0.4rem 1.4rem',
     },
   },
   '.nav-logo-svg': {
@@ -50,59 +50,18 @@ export const NavBarStyled = styled('div')(({ theme }) => ({
   },
   '.nav-logo:hover': {
     [theme.breakpoints.down('sm')]: {
-      backgroundColor: theme.palette.grey[200],
+      backgroundColor: theme.palette.grey[300],
     },
-  },
-  '.nav-new-chat-btn': {
-    margin: '1.1rem 0rem',
-    [theme.breakpoints.down('sm')]: {
-      margin: 0,
-    },
-    // textTransform: 'none',
-    // fontWeight: 501,
-    // gap: '0.25rem',
-    // borderRadius: '0.375rem',
-    // padding: '0.4rem 1rem',
-    // [theme.breakpoints.down('xs')]: {
-    //   padding: '0.5rem 1rem',
-    //   '.MuiButton-startIcon': {
-    //     margin: 0,
-    //   },
-    // },
-  },
-  '.nav-new-chat-btn-icon': {
-    [theme.breakpoints.down('xs')]: {
-      margin: '0rem 0.26rem',
-    },
-  },
-  '.nav-new-chat-btn-title': {
-    marginLeft: '10px',
-    textAlign: 'center',
   },
   '.nav-menu-btn': {
-    textTransform: 'none',
-    fontWeight: 501,
-    backgroundColor: `${theme.palette.action.active} !important`,
+    padding: '0.4rem 1rem',
     color: theme.palette.common.white,
-    gap: '0.25rem',
-    borderRadius: '0.375rem',
-    padding: '0.45rem 1rem',
+    backgroundColor: `${theme.palette.action.active} !important`,
     [theme.breakpoints.up('sm')]: {
       display: 'none',
-    },
-    [theme.breakpoints.down('xs')]: {
-      padding: '0.59rem 1rem',
-      '.MuiButton-endIcon': {
-        margin: 0,
-      },
     },
   },
   '.nav-menu-btn:hover': {
     backgroundColor: `${theme.palette.action.hover} !important`,
-  },
-  '.text-hidden': {
-    [theme.breakpoints.down('xs')]: {
-      display: 'none',
-    },
   },
 }));

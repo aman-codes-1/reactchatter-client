@@ -4,7 +4,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import {
   AuthProvider,
-  ConnectionProvider,
+  // ConnectionProvider,
   SnackbarProvider,
   WebSocketProvider,
 } from './contexts';
@@ -20,13 +20,13 @@ const App = () => (
       <CssBaseline />
       <BrowserRouter>
         <SnackbarProvider>
-          <ConnectionProvider>
-            <AuthProvider>
-              <WebSocketProvider>
-                <AppRoutes />
-              </WebSocketProvider>
-            </AuthProvider>
-          </ConnectionProvider>
+          {/* <ConnectionProvider> */}
+          <AuthProvider>
+            <WebSocketProvider>
+              <AppRoutes />
+            </WebSocketProvider>
+          </AuthProvider>
+          {/* </ConnectionProvider> */}
         </SnackbarProvider>
       </BrowserRouter>
     </ThemeProvider>

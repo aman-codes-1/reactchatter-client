@@ -410,7 +410,7 @@ const ChatMessages = () => {
           InputProps={{
             style: {
               borderRadius: '10px',
-              background: 'white',
+              backgroundColor: '#FFFFFF',
               height: 44,
             },
           }}

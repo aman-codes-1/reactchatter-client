@@ -36,34 +36,25 @@ const SentRequests = () => {
   };
 
   return (
-    <MainLayout
-      heading="Sent Requests"
-      defaultText="You have not sent any friend requests."
-      loading={sentRequestsLoading || !sentRequestsCalled}
-      loaderProps={{
-        avatarWidth: 61,
-        avatarHeight: 61,
-        secondaryFontSize: '0.975rem',
-        btnHeight: '6.5rem',
-        sx: { gap: '1.2rem' },
+    <FriendRequest
+      mainLayoutProps={{
+        heading: 'Sent Requests',
+        defaultText: 'You have not sent any friend requests.',
+        loading: sentRequestsLoading || !sentRequestsCalled,
+        error: sentRequestsError?.graphQLErrors?.[0]?.message,
       }}
-      error={sentRequestsError?.graphQLErrors?.[0]?.message}
       data={sentRequests}
-    >
-      <FriendRequest
-        data={sentRequests}
-        userObj="memberDetails"
-        nameKey="name"
-        emailKey="email"
-        pictureKey="picture"
-        deleteBtnProps={{
-          handleClickDelete: updateRequestLoading
-            ? () => {}
-            : (_: MouseEventHandler, __: number, ___: any) =>
-                handleClickRequest(_, __, ___, 'cancelled'),
-        }}
-      />
-    </MainLayout>
+      userObj="memberDetails"
+      nameKey="name"
+      emailKey="email"
+      pictureKey="picture"
+      deleteBtnProps={{
+        onClick: updateRequestLoading
+          ? () => {}
+          : (_: MouseEventHandler, __: number, ___: any) =>
+              handleClickRequest(_, __, ___, 'cancelled'),
+      }}
+    />
   );
 };
 

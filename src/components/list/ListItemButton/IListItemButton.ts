@@ -1,26 +1,33 @@
 import { ReactNode } from 'react';
 import {
+  AvatarProps,
   ListItemButtonProps as MuiListItemButtonProps,
-  ListItemTextProps,
+  ListItemTextProps as MuiListItemTextProps,
 } from '@mui/material';
 
-export type ListItemButtonProps = {
+type TextStyles = {
+  marginTop?: string;
+  fontSize?: string;
+  fontWeight?: number;
+  ellipsesLineClamp?: number;
+};
+
+type StyleProps = {
+  primary?: TextStyles;
+  secondary?: TextStyles;
+};
+
+interface ListItemTextProps extends MuiListItemTextProps {
+  styleProps?: StyleProps;
+}
+
+export interface ListItemButtonProps extends MuiListItemButtonProps {
   width?: string;
-  btnHeight?: string;
-  variant?: string;
+  height?: string;
   disableHover?: boolean;
-  primaryText?: any;
-  secondaryText?: any;
-  avatar?: any;
   startIcon?: ReactNode;
   endIcon?: ReactNode;
-  alignItems?: MuiListItemButtonProps['alignItems'];
-  denseListItemButton?: MuiListItemButtonProps['dense'];
-  disabled?: MuiListItemButtonProps['disabled'];
-  selected?: MuiListItemButtonProps['selected'];
-  onClick?: MuiListItemButtonProps['onClick'];
-  sx?: MuiListItemButtonProps['sx'];
-  listItemTextSx?: ListItemTextProps['sx'];
-  className?: MuiListItemButtonProps['className'];
-  children?: MuiListItemButtonProps['children'];
-};
+  wrapperClassName?: string;
+  avatarProps?: AvatarProps;
+  textProps?: ListItemTextProps;
+}

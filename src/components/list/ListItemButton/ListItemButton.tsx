@@ -8,113 +8,86 @@ import { Avatar } from '../..';
 import { ListItemButtonProps } from './IListItemButton';
 import { ListItemButtonStyled } from './ListItemButton.styled';
 
-const ListItemButton = forwardRef(
-  (
-    {
-      width = '',
-      btnHeight = '',
-      variant = '',
-      disableHover = false,
-      primaryText,
-      secondaryText,
-      avatar,
-      startIcon,
-      endIcon,
-      alignItems = 'center',
-      denseListItemButton = false,
-      disabled,
-      selected,
-      onClick,
-      sx,
-      listItemTextSx,
-      className,
-      children,
-    }: ListItemButtonProps,
-    ref: any,
-  ) => {
-    const name = primaryText?.title;
-    const isAvatar = !!Object.keys(avatar || {})?.length;
+const ListItemButton = forwardRef((props: ListItemButtonProps, ref: any) => {
+  const {
+    width = '',
+    height = '',
+    disableHover = false,
+    startIcon,
+    endIcon,
+    wrapperClassName,
+    className,
+    avatarProps,
+    textProps,
+    children,
+    ...rest
+  } = props;
+  const name = (textProps?.primary as string) || '';
+  const isAvatar = !!Object.keys(avatarProps || {})?.length;
+  const isText = !!Object.keys(textProps || {})?.length;
 
-    const renderAvatar = () => {
-      if (name?.length && avatar?.src?.length) {
-        return (
-          <Avatar
-            alt={name}
-            src={avatar?.src}
-            width={avatar?.width}
-            height={avatar?.height}
-          />
-        );
-      }
+  const renderAvatar = () => {
+    if (name?.length && avatarProps?.src?.length) {
+      return <Avatar alt={name} {...avatarProps} />;
+    }
 
-      const nameFirstLetter = name?.length
-        ? name?.substring(0, 1).toUpperCase()
-        : null;
-
-      return (
-        <Avatar
-          alt={nameFirstLetter}
-          src=""
-          width={avatar?.width}
-          height={avatar?.height}
-        >
-          {nameFirstLetter}
-        </Avatar>
-      );
-    };
+    const nameFirstLetter = name?.length
+      ? name?.substring(0, 1).toUpperCase()
+      : null;
 
     return (
-      <ListItemButtonStyled
-        width={width}
-        btnHeight={btnHeight}
-        variant={variant}
-        disableHover={disableHover}
-        primaryTextMarginTop={primaryText?.marginTop}
-        primaryTextFontSize={primaryText?.fontSize}
-        primaryTextFontWeight={primaryText?.fontWeight}
-        primaryEllipsesLineClamp={primaryText?.ellipsesLineClamp}
-        secondaryTextMarginTop={secondaryText?.marginTop}
-        secondaryTextFontSize={secondaryText?.fontSize}
-        secondaryTextFontWeight={secondaryText?.fontWeight}
-        secondaryEllipsesLineClamp={secondaryText?.ellipsesLineClamp}
-        className={className}
-      >
-        <MuiListItemButton
-          dense={denseListItemButton}
-          disableRipple={disableHover}
-          disableTouchRipple={disableHover}
-          disabled={disabled}
-          selected={selected}
-          className="list-item-btn"
-          onClick={onClick}
-          sx={sx}
-          ref={ref}
-          alignItems={alignItems}
-        >
-          {isAvatar ? (
-            <ListItemAvatar>{avatar?.comp || renderAvatar()}</ListItemAvatar>
-          ) : null}
-          {}
-          {startIcon}
-          {primaryText || secondaryText ? (
-            <ListItemText
-              primary={primaryText?.title}
-              secondary={secondaryText?.title}
-              primaryTypographyProps={
-                primaryText?.className
-                  ? { className: primaryText?.className }
-                  : {}
-              }
-              sx={listItemTextSx}
-            />
-          ) : null}
-          {endIcon}
-          {children}
-        </MuiListItemButton>
-      </ListItemButtonStyled>
+      <Avatar alt={nameFirstLetter} src="" {...avatarProps}>
+        {nameFirstLetter}
+      </Avatar>
     );
-  },
-);
+  };
+
+  return (
+    <ListItemButtonStyled
+      width={width}
+      disableHover={disableHover}
+      primaryEllipsesLineClamp={
+        textProps?.primaryTypographyProps?.style?.WebkitLineClamp
+      }
+      secondaryEllipsesLineClamp={
+        textProps?.secondaryTypographyProps?.style?.WebkitLineClamp
+      }
+      className={wrapperClassName}
+    >
+      <MuiListItemButton
+        disableRipple={disableHover}
+        disableTouchRipple={disableHover}
+        className={`list-item-btn ${className}`}
+        ref={ref}
+        {...rest}
+      >
+        {isAvatar ? (
+          <ListItemAvatar>
+            {avatarProps?.children || renderAvatar()}
+          </ListItemAvatar>
+        ) : null}
+        {startIcon}
+        {isText ? (
+          <ListItemText
+            {...textProps}
+            primaryTypographyProps={{
+              fontSize: '0.875rem',
+              fontWeight: 501,
+              ...textProps?.primaryTypographyProps,
+            }}
+            secondaryTypographyProps={{
+              fontSize: '0.75rem',
+              fontWeight: 500,
+              ...textProps?.secondaryTypographyProps,
+            }}
+          />
+        ) : null}
+        {endIcon}
+        {children}
+      </MuiListItemButton>
+    </ListItemButtonStyled>
+  );
+});
 
 ListItemButton.displayName = 'ListItemButton';
 

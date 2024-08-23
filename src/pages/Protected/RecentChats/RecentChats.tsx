@@ -38,13 +38,13 @@ const RecentChats = () => {
       data={chats}
     >
       <DataList
+        dense={false}
+        dividerVariant="fullWidth"
         data={chats}
-        // sliceDataBy={3}
         selectedItem={selectedChat}
         handleClickListItem={handleClickChat}
         className="overflow-wrapper"
-        ellipsesLineClamp="2"
-        btnHeight="5.1rem"
+        WebkitLineClamp={2}
       />
     </MainLayout>
   );
