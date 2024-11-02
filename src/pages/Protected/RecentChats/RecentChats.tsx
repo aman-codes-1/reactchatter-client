@@ -11,26 +11,26 @@ const RecentChats = () => {
     chatsLoading,
     chatsCalled,
     setIsListItemClicked,
-    selectedChat,
-    setSelectedChat,
-    setSelectedFriend,
+    setLoadingQuery,
+    selectedItem,
+    setSelectedItem,
     setSelectedMember,
   } = useContext(ChatsAndFriendsContext);
-  const { getChatMessagesWithQueue } = useContext(MessagesContext);
+  const { setLoadingChatMessages, getChatMessagesWithQueue } =
+    useContext(MessagesContext);
 
   const handleClickChat = async (
     _: React.MouseEvent<HTMLDivElement, MouseEvent>,
     chat: any,
-    selectedMember: any,
   ) => {
     setIsListItemClicked((prev: boolean) => !prev);
 
     if (chat?._id) {
       try {
-        setSelectedFriend(undefined);
-        setSelectedChat(chat);
-        setSelectedMember(selectedMember);
-        await getChatMessagesWithQueue(chat?._id);
+        setLoadingQuery(false);
+        setLoadingChatMessages(false);
+        await getChatMessagesWithQueue(chat?._id, 'chatId');
+        setSelectedItem(chat);
         navigate(`/chat?id=${chat?._id}&type=chat`);
       } catch (error: any) {
         console.error('Error fetching messages:', error);
@@ -48,7 +48,7 @@ const RecentChats = () => {
       <DataList
         disableGutters
         data={chats}
-        selectedItem={selectedChat}
+        selectedItem={selectedItem}
         handleClickListItem={handleClickChat}
         className="overflow-wrapper"
         WebkitLineClamp={2}

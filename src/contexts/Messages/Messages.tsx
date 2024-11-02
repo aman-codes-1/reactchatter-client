@@ -8,17 +8,25 @@ import {
 } from '@apollo/client';
 import {
   MESSAGES_QUERY,
-  MESSAGE_QUEUED_QUERY,
   MESSAGE_GROUPS_QUERY,
+  MESSAGE_QUEUED_QUERY,
   CREATE_MESSAGE_MUTATION,
   UPDATE_MESSAGE_MUTATION,
   MESSAGE_ADDED_SUBSCRIPTION,
   MESSAGE_UPDATED_SUBSCRIPTION,
 } from './gql';
-import { groupMessages, mergeByDateLabel } from '../../helpers';
+import {
+  getDateLabel,
+  groupMessage,
+  groupMessages,
+  mergeAllByDateLabel,
+  unGroupMessages,
+  uniqueArrayElements,
+  updateGroupedQueuedMessage,
+} from '../../helpers';
 import { useAuth } from '../../hooks';
 import { MessageQueueService } from '../../services';
-import { ChatsAndFriendsContext } from '..';
+// import { ChatsAndFriendsContext } from '..';
 
 export const MessagesContext = createContext<any>({});
 
@@ -32,12 +40,12 @@ export const MessagesProvider = ({ children }: any) => {
     searchParams.get('type') === 'friend' ? searchParams.get('id') : null;
   const [loadingChatMessages, setLoadingChatMessages] = useState(true);
   const [loadingCreateMessage, setLoadingCreateMessage] = useState(false);
-  const [loadingProcessNextMessage, setLoadingProcessNextMessage] =
-    useState(false);
-  const [messageGroupsState, setMessageGroups] = useState<any[]>([]);
+  // const [loadingProcessNextMessage, setLoadingProcessNextMessage] = useState(false);
+  const [queuedMessages, setQueuedMessages] = useState<any[]>([]);
   const [scrollToBottom, setScrollToBottom] = useState(false);
+  const [scrollToPosition, setScrollToPosition] = useState(false);
   const { auth: { _id = '' } = {} } = useAuth();
-  const { createChat } = useContext(ChatsAndFriendsContext);
+  // const { createChat } = useContext(ChatsAndFriendsContext);
 
   const [
     messageQueuedQuery,
@@ -48,14 +56,17 @@ export const MessagesProvider = ({ children }: any) => {
       client: messageQueuedClient,
       called: messageQueuedCalled,
     },
-  ] = useLazyQuery(MESSAGE_QUEUED_QUERY, {
-    fetchPolicy: 'network-only',
-  });
+  ] = useLazyQuery(MESSAGE_QUEUED_QUERY);
 
   const [
     messagesQuery,
     {
-      data: { messages: { edges: messages = [], pageInfo = {} } = {} } = {},
+      data: {
+        messages: {
+          edges: messages = [],
+          pageInfo: messagesPageInfo = {},
+        } = {},
+      } = {},
       loading: messagesLoading,
       error: messagesError,
       client: messagesClient,
@@ -63,21 +74,22 @@ export const MessagesProvider = ({ children }: any) => {
       subscribeToMore: subscribeMessagesToMore,
       fetchMore: fetchMoreMessages,
     },
-  ] = useLazyQuery(MESSAGES_QUERY, {
-    fetchPolicy: 'no-cache',
-  });
+  ] = useLazyQuery(MESSAGES_QUERY);
 
   const {
     data: {
       messageGroups: {
-        data: messageGroups = [],
-        pageInfo: messagesPageInfo = {},
+        edges: messageGroups = [],
+        pageInfo: messageGroupsPageInfo = {},
+        queuedPageInfo: messageGroupsQueuedPageInfo = {},
+        scrollPosition: messageGroupsScrollPosition = -1,
       } = {},
     } = {},
     loading: messageGroupsLoading,
     error: messageGroupsError,
     client: messageGroupsClient,
     called: messageGroupsCalled,
+    subscribeToMore: subscribeMessageGroupsToMore,
   } = useQuery(MESSAGE_GROUPS_QUERY, {
     fetchPolicy: 'cache-only',
     variables: { chatId },
@@ -89,7 +101,70 @@ export const MessagesProvider = ({ children }: any) => {
     data: OnMessageAddedData,
     loading: OnMessageAddedLoading,
     error: OnMessageAddedError,
-  } = useSubscription(MESSAGE_ADDED_SUBSCRIPTION);
+  } = useSubscription(MESSAGE_ADDED_SUBSCRIPTION, {
+    onData: async (res) => {
+      const OnMessageAdded = res?.data?.data?.OnMessageAdded;
+      const OnMessageAddedChatId = OnMessageAdded?.chatId;
+      const OnMessageAddedMessage = OnMessageAdded?.message;
+      const OnMessageAddedQueueId = OnMessageAddedMessage?.queueId;
+
+      const isAlreadyExists = messageGroups?.length
+        ? messageGroups?.some((cachedMessageGroup: any) =>
+            cachedMessageGroup?.groups?.some((group: any) =>
+              group?.data?.some(
+                (msg: any) => msg?._id === OnMessageAddedMessage?._id,
+              ),
+            ),
+          )
+        : false;
+
+      const isChatExists = OnMessageAddedChatId === chatId;
+
+      if (!isAlreadyExists && isChatExists) {
+        let edges = [];
+        const pageInfo = {
+          endCursor: OnMessageAddedMessage?._id,
+          hasNextPage: false,
+        };
+        const queuedPageInfo = {
+          endCursor: '',
+          hasNextPage: false,
+        };
+
+        if (OnMessageAddedQueueId) {
+          edges = updateGroupedQueuedMessage(
+            messageGroups,
+            OnMessageAddedQueueId,
+            OnMessageAddedMessage,
+            _id,
+          );
+        } else {
+          edges = groupMessage(messageGroups, OnMessageAddedMessage, _id);
+        }
+
+        if (edges?.length) {
+          messageGroupsClient.writeQuery({
+            query: MESSAGE_GROUPS_QUERY,
+            data: {
+              messageGroups: {
+                edges,
+                pageInfo: messageGroupsPageInfo?.endCursor
+                  ? messageGroupsPageInfo
+                  : pageInfo,
+                queuedPageInfo: messageGroupsQueuedPageInfo?.endCursor
+                  ? messageGroupsQueuedPageInfo
+                  : queuedPageInfo,
+                scrollPosition: -1,
+              },
+            },
+            variables: { chatId },
+          });
+
+          setScrollToBottom((prev) => !prev);
+        }
+      }
+    },
+  });
 
   const {
     data: OnMessageUpdatedData,
@@ -115,58 +190,109 @@ export const MessagesProvider = ({ children }: any) => {
     },
   ] = useMutation(UPDATE_MESSAGE_MUTATION);
 
-  useEffect(() => {
-    const messageQueueService = new MessageQueueService(
-      createChat,
-      createMessage,
-      setMessageGroups,
-      setLoadingProcessNextMessage,
-    );
+  // useEffect(() => { // to do
+  //   const messageQueueService = new MessageQueueService(
+  //     createChat,
+  //     createMessage,
+  //     setLoadingProcessNextMessage,
+  //   );
 
-    const startQueueProcessing = async () => {
-      if (loadingCreateMessage || loadingProcessNextMessage) return;
-      await messageQueueService.processQueue();
-    };
+  //   const startQueueProcessing = async () => {
+  //     if (loadingCreateMessage || loadingProcessNextMessage || OnMessageAddedLoading) return;
+  //     await messageQueueService.processQueue();
+  //   };
 
-    startQueueProcessing();
+  //   startQueueProcessing();
 
-    const handleNetworkChange = () => {
-      if (navigator.onLine) {
-        startQueueProcessing();
-      }
-    };
+  //   const handleNetworkChange = () => {
+  //     if (navigator.onLine) {
+  //       startQueueProcessing();
+  //     }
+  //   };
 
-    const events = [
-      { name: 'online', handler: handleNetworkChange },
-      { name: 'visibilitychange', handler: startQueueProcessing },
-      { name: 'blur', handler: startQueueProcessing },
-      { name: 'focus', handler: startQueueProcessing },
-      { name: 'click', handler: startQueueProcessing },
-      { name: 'scroll', handler: startQueueProcessing },
-    ];
+  //   const events = [
+  //     { name: 'online', handler: handleNetworkChange },
+  //     { name: 'visibilitychange', handler: startQueueProcessing },
+  //     { name: 'blur', handler: startQueueProcessing },
+  //     { name: 'focus', handler: startQueueProcessing },
+  //     { name: 'click', handler: startQueueProcessing },
+  //     { name: 'scroll', handler: startQueueProcessing },
+  //   ];
 
-    events.forEach(({ name, handler }) => {
-      if (name === 'visibilitychange') {
-        document.addEventListener(name, handler);
-      } else {
-        window.addEventListener(name, handler);
-      }
-    });
+  //   events.forEach(({ name, handler }) => {
+  //     if (name === 'visibilitychange') {
+  //       document.addEventListener(name, handler);
+  //     } else {
+  //       window.addEventListener(name, handler);
+  //     }
+  //   });
 
-    return () => {
-      events.forEach(({ name, handler }) => {
-        if (name === 'visibilitychange') {
-          document.removeEventListener(name, handler);
+  //   return () => {
+  //     events.forEach(({ name, handler }) => {
+  //       if (name === 'visibilitychange') {
+  //         document.removeEventListener(name, handler);
+  //       } else {
+  //         window.removeEventListener(name, handler);
+  //       }
+  //     });
+  //   };
+  // }, [loadingCreateMessage, loadingProcessNextMessage, OnMessageAddedLoading]);
+
+  const getQueuedMessages = async (
+    id: string,
+    key: string,
+    isChat?: boolean,
+  ) => {
+    const res = await MessageQueue.getQueuedMessagesById(id, key, 25, 0);
+
+    if (res?.length && !isChat) {
+      const groupedMessages = groupMessages(res, _id);
+
+      setQueuedMessages((prev) => {
+        const prevCopy = [...prev];
+        const friendIndex = prev?.findIndex((el) => el?.friendId === id);
+
+        if (friendIndex < 0) {
+          const newMessageGroup = {
+            friendId: id,
+            messageGroups: groupedMessages,
+          };
+
+          prevCopy?.push(newMessageGroup);
         } else {
-          window.removeEventListener(name, handler);
+          prevCopy[friendIndex] = {
+            ...prevCopy[friendIndex],
+            messageGroups: groupedMessages,
+          };
         }
+
+        return prevCopy;
       });
-    };
-  }, [loadingCreateMessage, loadingProcessNextMessage]);
+
+      setScrollToBottom((prev: boolean) => !prev);
+    }
+
+    return res;
+  };
+
+  const groupAllMessages = (arr1: any[], arr2?: any[]) => {
+    let edges = [];
+
+    if (arr1?.length && arr2?.length) {
+      edges = groupMessages([...arr1, ...arr2], _id);
+    } else if (arr1?.length) {
+      edges = groupMessages(arr1, _id);
+    } else if (arr2?.length) {
+      edges = groupMessages(arr2, _id);
+    }
+
+    return edges;
+  };
 
   const fetchMessages = async (id: string) => {
     const res = await messagesQuery({
       variables: { chatId: id },
+      fetchPolicy: 'no-cache',
     });
 
     const error = res?.error?.message;
@@ -179,121 +305,99 @@ export const MessagesProvider = ({ children }: any) => {
       throw new Error(error);
     }
 
-    return res?.data?.messages || [];
-  };
-
-  const getQueuedMessages = async (
-    id: string,
-    key: string,
-    emptyMsgs?: boolean,
-  ) => {
-    try {
-      const queuedMessages = await MessageQueue.getQueuedMessagesById(
-        id,
-        key,
-        25,
-        0,
-      );
-
-      if (emptyMsgs) {
-        setMessageGroups([]);
-      }
-
-      return queuedMessages;
-    } catch (error: any) {
-      if (emptyMsgs) {
-        setMessageGroups([]);
-      }
-
-      throw new Error(error?.message);
-    }
-  };
-
-  const chunkArray = (array: any[], size: number) => {
-    const result = [];
-    for (let i = 0; i < array.length; i += size) {
-      result.push(array.slice(i, size + i));
-    }
-    return result;
-  };
-
-  const getCombinedMessages = async (id: string, key: string, msgs?: any[]) => {
-    try {
-      const queuedMessages = await getQueuedMessages(id, key, !msgs);
-
-      let combinedMessages = [];
-
-      if (msgs?.length && queuedMessages?.length) {
-        combinedMessages = [...msgs, ...queuedMessages];
-      } else if (queuedMessages?.length) {
-        combinedMessages = queuedMessages;
-      } else if (msgs?.length) {
-        combinedMessages = msgs;
-      } else {
-        combinedMessages = [];
-      }
-
-      if (combinedMessages?.length) {
-        const chunkedMessages = chunkArray(combinedMessages, 25);
-
-        for (const chunk of chunkedMessages) {
-          const groupedMessages = groupMessages(chunk, _id);
-          setMessageGroups((prevGroups) =>
-            mergeByDateLabel(prevGroups, groupedMessages),
-          );
-        }
-
-        if (key === 'chatId' && msgs) {
-          const groupedMessages = groupMessages(msgs, _id);
-          messageGroupsClient.writeQuery({
-            query: MESSAGE_GROUPS_QUERY,
-            data: {
-              messageGroups: groupedMessages,
-            },
-            variables: { chatId: id },
-          });
-        }
-      }
-    } catch (error: any) {
-      throw new Error(error?.message);
-    }
+    return res;
   };
 
   const getChatMessagesWithQueue = async (id: string, key: string) => {
     try {
-      // const cachedMessages = await messagesClient.readQuery({
-      //   query: MESSAGES_QUERY,
-      //   variables: { chatId: id },
-      // });
-
-      // console.log(cachedMessages);
-
       const cachedMessageGroups = await messageGroupsClient.readQuery({
         query: MESSAGE_GROUPS_QUERY,
         variables: { chatId: id },
       });
 
-      if (!cachedMessageGroups) {
-        const fetchedMessages = await fetchMessages(id);
+      const fetchedQueuedMessages =
+        (await getQueuedMessages(id, key, true)) || [];
 
-        if (fetchedMessages?.edges?.length) {
-          const groupedMessages = groupMessages(fetchedMessages?.edges, _id);
-          messageGroupsClient.writeQuery({
-            query: MESSAGE_GROUPS_QUERY,
-            data: {
-              messageGroups: {
-                data: groupedMessages,
-                pageInfo: fetchedMessages?.pageInfo,
-              },
-            },
-            variables: { chatId: id },
-          });
+      let edges = [];
+      let pageInfo = {
+        endCursor: '',
+        hasNextPage: false,
+      };
+      let queuedPageInfo = {
+        endCursor: '',
+        hasNextPage: false,
+      };
+      let scrollPosition = -1;
+
+      if (cachedMessageGroups) {
+        const cachedData = cachedMessageGroups?.messageGroups;
+        edges = cachedData?.edges;
+        pageInfo = cachedData?.pageInfo;
+        queuedPageInfo = cachedData?.queuedPageInfo;
+        scrollPosition = cachedData?.scrollPosition;
+
+        if (edges?.length) {
+          const firstGroup = edges?.[0];
+          const firstGroupDateLabel = firstGroup?.dateLabel;
+          const firstGroupData = firstGroup?.groups?.[0]?.data?.[0];
+          const firstGroupDataTimestamp = firstGroupData?.timestamp;
+          const dateLabel = firstGroupDataTimestamp
+            ? getDateLabel(firstGroupDataTimestamp)
+            : '';
+          if (
+            firstGroupDateLabel &&
+            dateLabel &&
+            firstGroupDateLabel !== dateLabel
+          ) {
+            const unGroupedMessages = unGroupMessages(edges);
+            edges = groupMessages(unGroupedMessages, _id);
+            scrollPosition = -1;
+          }
+
+          if (fetchedQueuedMessages?.length) {
+            const uniqueQueuedMessages = uniqueArrayElements(
+              edges,
+              fetchedQueuedMessages,
+            );
+
+            if (uniqueQueuedMessages?.length) {
+              const groupedMessages = groupMessages(uniqueQueuedMessages, _id);
+              edges = mergeAllByDateLabel(edges, groupedMessages);
+              scrollPosition = -1;
+            }
+          }
         }
+      } else {
+        const fetchedData = await fetchMessages(id);
+        const fetchedMessages = fetchedData?.data?.messages;
+        const fetchedMessagesEdges = fetchedMessages?.edges;
+        const fetchedMessagesPageInfo = fetchedMessages?.pageInfo;
+        edges = groupAllMessages(fetchedMessagesEdges, fetchedQueuedMessages);
+        pageInfo = fetchedMessagesPageInfo;
+        queuedPageInfo = fetchedMessagesPageInfo;
+        scrollPosition = -1;
       }
 
-      setScrollToBottom((prev) => !prev);
+      messageGroupsClient.writeQuery({
+        query: MESSAGE_GROUPS_QUERY,
+        data: {
+          messageGroups: {
+            edges,
+            pageInfo,
+            queuedPageInfo,
+            scrollPosition,
+          },
+        },
+        variables: { chatId: id },
+      });
 
-      // await getCombinedMessages(id, key, fetchedMessages);
+      if (scrollPosition === -1) {
+        setScrollToBottom((prev) => !prev);
+      }
+
+      if (scrollPosition >= 0) {
+        setScrollToPosition((prev) => !prev);
+      }
     } catch (error: any) {
       throw new Error(error);
     }
@@ -302,16 +406,6 @@ export const MessagesProvider = ({ children }: any) => {
   return (
     <MessagesContext.Provider
       value={{
-        // messages
-        messagesQuery,
-        messages,
-        pageInfo,
-        messagesLoading,
-        messagesError,
-        messagesClient,
-        messagesCalled,
-        subscribeMessagesToMore,
-        fetchMoreMessages,
         // messageQueued
         messageQueuedQuery,
         messageQueued,
@@ -319,13 +413,26 @@ export const MessagesProvider = ({ children }: any) => {
         messageQueuedError,
         messageQueuedClient,
         messageQueuedCalled,
+        // messages
+        messagesQuery,
+        messages,
+        messagesPageInfo,
+        messagesLoading,
+        messagesError,
+        messagesClient,
+        messagesCalled,
+        subscribeMessagesToMore,
+        fetchMoreMessages,
         // messageGroups
         messageGroups,
-        messagesPageInfo,
+        messageGroupsPageInfo,
+        messageGroupsQueuedPageInfo,
+        messageGroupsScrollPosition,
         messageGroupsLoading,
         messageGroupsError,
         messageGroupsClient,
         messageGroupsCalled,
+        subscribeMessageGroupsToMore,
         // OnMessageAdded
         OnMessageAddedData,
         OnMessageAddedLoading,
@@ -350,16 +457,19 @@ export const MessagesProvider = ({ children }: any) => {
         // loadingCreateMessage
         loadingCreateMessage,
         setLoadingCreateMessage,
-        // messageGroups
-        messageGroupsState,
-        setMessageGroups,
         // scrollToBottom
         scrollToBottom,
         setScrollToBottom,
+        // scrollToPosition
+        scrollToPosition,
+        setScrollToPosition,
+        // queuedMessages
+        queuedMessages,
+        setQueuedMessages,
         // getMessages
+        groupAllMessages,
         fetchMessages,
         getQueuedMessages,
-        getCombinedMessages,
         getChatMessagesWithQueue,
       }}
     >

@@ -1,7 +1,6 @@
 import { useLayoutEffect, useRef } from 'react';
 import { Divider, List } from '@mui/material';
 import { scrollToSelected } from '../../../helpers';
-import { useAuth } from '../../../hooks';
 import { ListItem } from '..';
 
 const DataList = ({
@@ -15,7 +14,6 @@ const DataList = ({
   scrollDependencies = [],
   WebkitLineClamp = 0,
 }: any) => {
-  const { auth: { _id = '' } = {} } = useAuth();
   const listRef = useRef<any>(null);
   const listItemsRef = useRef<any>([]);
 
@@ -34,57 +32,47 @@ const DataList = ({
   }, [data, selectedItem, ...scrollDependencies]);
 
   const renderList = (
-    obj: any,
+    item: any,
     idx: number,
     selected: boolean,
     handleClick: any,
-    itemsRef?: any,
+    itemsRef: any,
   ) => {
-    const member = obj?.members?.find(
-      (chatMember: any) => chatMember?._id !== _id,
+    return (
+      <div key={`${item?._id}-${idx}`}>
+        <ListItem
+          disableGutters={disableGutters}
+          ref={itemsRef ? (el) => (itemsRef.current[idx] = el) : null}
+          btnProps={{
+            alignItems: 'flex-start',
+            textProps: {
+              primary: item?.details?.name,
+              secondary: item?.details?.email,
+              primaryTypographyProps: {
+                fontSize: '1.0625rem',
+                // fontWeight: 600, // only when there are unread messages count
+                style: {
+                  WebkitLineClamp: 1,
+                },
+              },
+              secondaryTypographyProps: {
+                style: {
+                  WebkitLineClamp,
+                },
+              },
+            },
+            avatarProps: {
+              src: item?.details?.picture,
+            },
+            onClick: (_) => handleClick(_, item),
+            selected,
+          }}
+        />
+        <Divider
+          variant={dividerVariant || (disableGutters ? 'fullWidth' : 'middle')}
+        />
+      </div>
     );
-
-    if (member) {
-      return (
-        <div key={`${obj?._id}-${idx}`}>
-          <ListItem
-            disableGutters={disableGutters}
-            ref={itemsRef ? (el) => (itemsRef.current[idx] = el) : null}
-            btnProps={{
-              alignItems: 'flex-start',
-              textProps: {
-                primary: member?.memberDetails?.name,
-                secondary: member?.memberDetails?.email,
-                primaryTypographyProps: {
-                  fontSize: '1.0625rem',
-                  // fontWeight: 600, // only when there are unread messages count
-                  style: {
-                    WebkitLineClamp: 1,
-                  },
-                },
-                secondaryTypographyProps: {
-                  style: {
-                    WebkitLineClamp,
-                  },
-                },
-              },
-              avatarProps: {
-                src: member?.memberDetails?.picture,
-              },
-              onClick: (_) => handleClick(_, obj, member),
-              selected,
-            }}
-          />
-          <Divider
-            variant={
-              dividerVariant || (disableGutters ? 'fullWidth' : 'middle')
-            }
-          />
-        </div>
-      );
-    }
-
-    return null;
   };
 
   return (
@@ -96,11 +84,11 @@ const DataList = ({
     >
       {data
         ?.slice(0, undefined)
-        ?.map((obj: any, idx: number) =>
+        ?.map((item: any, idx: number) =>
           renderList(
-            obj,
+            item,
             idx,
-            obj?._id === selectedItem?._id,
+            item?._id === selectedItem?._id,
             handleClickListItem,
             listItemsRef,
           ),

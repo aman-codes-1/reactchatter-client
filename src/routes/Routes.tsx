@@ -29,13 +29,13 @@ const AppRoutes = () => {
     });
   }, []);
 
-  useLayoutEffect(() => {
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: 'smooth',
-    });
-  }, [pathname]);
+  // useLayoutEffect(() => {
+  //   window.scrollTo({
+  //     top: 0,
+  //     left: 0,
+  //     behavior: 'smooth',
+  //   });
+  // }, [pathname]);
 
   window.addEventListener('storage', () => {
     window.location.reload();

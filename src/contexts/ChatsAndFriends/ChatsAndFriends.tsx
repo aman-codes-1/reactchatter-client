@@ -1,5 +1,5 @@
 import { createContext, useLayoutEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   useLazyQuery,
   useMutation,
@@ -19,6 +19,7 @@ import {
   REQUEST_UPDATED_SUBSCRIPTION,
   SENT_REQUESTS_QUERY,
   UPDATE_REQUEST_MUTATION,
+  CHAT_ADDED_SUBSCRIPTION,
 } from '.';
 import { useAuth } from '../../hooks';
 
@@ -26,11 +27,10 @@ export const ChatsAndFriendsContext = createContext<any>({});
 
 export const ChatsAndFriendsProvider = ({ children }: any) => {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const [isListItemClicked, setIsListItemClicked] = useState(false);
   const [loadingQuery, setLoadingQuery] = useState(true);
-  const [selectedChat, setSelectedChat] = useState();
-  const [selectedFriend, setSelectedFriend] = useState();
-  const [selectedMember, setSelectedMember] = useState();
+  const [selectedItem, setSelectedItem] = useState();
   const { auth: { _id = '' } = {} } = useAuth();
 
   const [
@@ -44,14 +44,8 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     },
   ] = useLazyQuery(CHAT_QUERY, {
     onCompleted: (data) => {
-      const selChat = data?.chat;
-      if (selChat) {
-        setSelectedChat(selChat);
-        const selMember = selChat?.members?.find(
-          (chatMember: any) => chatMember?._id !== _id,
-        );
-        setSelectedMember(selMember);
-      }
+      const chatData = data?.chat;
+      setSelectedItem(chatData);
     },
   });
 
@@ -66,13 +60,11 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     },
   ] = useLazyQuery(FRIEND_QUERY, {
     onCompleted: (data) => {
-      const selFriend = data?.friend;
-      if (selFriend) {
-        setSelectedFriend(selFriend);
-        const selMember = selFriend?.members?.find(
-          (friendMember: any) => friendMember?._id !== _id,
-        );
-        setSelectedMember(selMember);
+      const friendData = data?.friend;
+      if (friendData?.hasChats === true) {
+        navigate('/');
+      } else {
+        setSelectedItem(friendData);
       }
     },
   });
@@ -84,6 +76,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     client: chatsClient,
     called: chatsCalled,
     subscribeToMore: subscribeChatsToMore,
+    refetch: refetchChats,
   } = useQuery(CHATS_QUERY, {
     variables: {
       userId: _id,
@@ -98,6 +91,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     client: otherFriendsClient,
     called: otherFriendsCalled,
     subscribeToMore: subscribeOtherFriendsToMore,
+    refetch: refetchOtherFriends,
   } = useQuery(OTHER_FRIENDS_QUERY, {
     variables: {
       userId: _id,
@@ -116,10 +110,12 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     error: pendingRequestsError,
     client: pendingRequestsClient,
     called: pendingRequestsCalled,
+    refetch: refetchPendingRequests,
   } = useQuery(PENDING_REQUESTS_QUERY, {
     variables: {
       userId: _id,
     },
+    fetchPolicy: 'network-only',
   });
 
   const {
@@ -133,9 +129,69 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     error: sentRequestsError,
     client: sentRequestsClient,
     called: sentRequestsCalled,
+    refetch: refetchSentRequests,
   } = useQuery(SENT_REQUESTS_QUERY, {
     variables: {
       userId: _id,
+    },
+    fetchPolicy: 'network-only',
+  });
+
+  const {
+    data: OnChatAddedData,
+    loading: OnChatAddedLoading,
+    error: OnChatAddedError,
+  } = useSubscription(CHAT_ADDED_SUBSCRIPTION, {
+    onData: (res) => {
+      const OnChatAdded = res?.data?.data?.OnChatAdded;
+      const OnChatAddedFriendId = OnChatAdded?.friendId;
+      const OnChatAddedChat = OnChatAdded?.chat;
+      const OnChatAddedMembers = OnChatAddedChat?.members;
+      const isChatAddedPrivate = OnChatAddedChat?.type === 'private';
+
+      const isAlreadyExists = chats?.length
+        ? chats?.some((chat: any) => chat?._id === OnChatAddedChat?._id)
+        : false;
+
+      const isMemberExists = OnChatAddedMembers?.length
+        ? OnChatAddedMembers.some((member: any) => member?._id === _id)
+        : false;
+
+      if (!isAlreadyExists && isMemberExists) {
+        if (isChatAddedPrivate) {
+          otherFriendsClient.writeQuery({
+            query: OTHER_FRIENDS_QUERY,
+            data: {
+              otherFriends: otherFriends?.length
+                ? otherFriends?.filter(
+                    (otherFriend: any) =>
+                      otherFriend?._id !== OnChatAddedFriendId,
+                  )
+                : otherFriends,
+            },
+            variables: {
+              userId: _id,
+            },
+          });
+        }
+
+        setSelectedItem(OnChatAddedChat);
+
+        const data = {
+          ...chats,
+          chats: chats?.length
+            ? [OnChatAddedChat, ...chats]
+            : [OnChatAddedChat],
+        };
+
+        chatsClient.writeQuery({
+          query: CHATS_QUERY,
+          data,
+          variables: {
+            userId: _id,
+          },
+        });
+      }
     },
   });
 
@@ -169,12 +225,12 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     },
   });
 
-  const checkIsMember = (OnRequestAddedMembers: any) => {
+  const checkIsMember = (OnRequestMembers: any) => {
     let isMemberExists = false;
     let isMemberExists2 = false;
 
-    if (OnRequestAddedMembers?.length) {
-      OnRequestAddedMembers.forEach((member: any) => {
+    if (OnRequestMembers?.length) {
+      OnRequestMembers?.forEach((member: any) => {
         if (member?._id === _id) {
           if (member?.hasSent === true) {
             isMemberExists = true;
@@ -323,9 +379,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
 
   useLayoutEffect(() => {
     if (!pathname?.includes('/chat')) {
-      setSelectedChat(undefined);
-      setSelectedFriend(undefined);
-      setSelectedMember(undefined);
+      setSelectedItem(undefined);
     }
   }, [pathname]);
 
@@ -353,6 +407,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         chatsClient,
         chatsCalled,
         subscribeChatsToMore,
+        refetchChats,
         // otherFriends
         otherFriends,
         otherFriendsLoading,
@@ -360,6 +415,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         otherFriendsClient,
         otherFriendsCalled,
         subscribeOtherFriendsToMore,
+        refetchOtherFriends,
         // pendingRequests
         pendingRequests,
         pendingRequestsCount,
@@ -367,6 +423,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         pendingRequestsError,
         pendingRequestsClient,
         pendingRequestsCalled,
+        refetchPendingRequests,
         // sentRequests
         sentRequests,
         sentRequestsCount,
@@ -374,6 +431,11 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         sentRequestsError,
         sentRequestsClient,
         sentRequestsCalled,
+        refetchSentRequests,
+        // OnChatAdded
+        OnChatAddedData,
+        OnChatAddedLoading,
+        OnChatAddedError,
         // OnFriendAdded
         OnFriendAddedData,
         OnFriendAddedLoading,
@@ -407,15 +469,9 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         // loadingQuery
         loadingQuery,
         setLoadingQuery,
-        // selectedChat
-        selectedChat,
-        setSelectedChat,
-        // selectedFriend
-        selectedFriend,
-        setSelectedFriend,
-        // selectedMember
-        selectedMember,
-        setSelectedMember,
+        // selectedItem
+        selectedItem,
+        setSelectedItem,
       }}
     >
       {children}

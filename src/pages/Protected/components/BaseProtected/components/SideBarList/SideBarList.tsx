@@ -1,11 +1,4 @@
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import { useContext, useLayoutEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Badge, List } from '@mui/material';
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
@@ -15,13 +8,9 @@ import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { Button, DataList, ListItem } from '../../../../../../components';
 import {
-  CHAT_ADDED_SUBSCRIPTION,
-  CHATS_QUERY,
   ChatsAndFriendsContext,
   MessagesContext,
-  OTHER_FRIENDS_QUERY,
 } from '../../../../../../contexts';
-import { useAuth } from '../../../../../../hooks';
 import { SideBarListStyled } from './SideBarList.styled';
 
 const SideBarList = ({ toggleDrawer, className }: any) => {
@@ -29,31 +18,25 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
   const { pathname } = useLocation();
   const selectedOverviewLink = pathname?.split?.('/')?.[1];
   const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
-  const { auth: { _id = '' } = {} } = useAuth();
   const {
     chats = [],
-    chatsClient,
-    subscribeChatsToMore,
+    refetchChats,
     otherFriends = [],
-    otherFriendsClient,
+    refetchOtherFriends,
     pendingRequestsCount = 0,
     sentRequestsCount = 0,
     setIsListItemClicked,
     setLoadingQuery,
-    selectedChat,
-    setSelectedChat,
-    selectedFriend,
-    setSelectedFriend,
-    setSelectedMember,
+    selectedItem,
+    setSelectedItem,
   } = useContext(ChatsAndFriendsContext);
   const {
     setLoadingChatMessages,
-    getCombinedMessages,
+    getQueuedMessages,
     getChatMessagesWithQueue,
   } = useContext(MessagesContext);
   const [toggleChats, setToggleChats] = useState(!!chats?.length);
   const [toggleFriends, setToggleFriends] = useState(!!otherFriends?.length);
-  const unsubscribeRef = useRef<() => void>();
 
   const navLinks = [
     {
@@ -98,88 +81,6 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
     }
   }, [otherFriends]);
 
-  const updateQuery = useCallback(
-    (prev: any, { subscriptionData }: any) => {
-      if (!subscriptionData?.data) return prev;
-
-      const OnChatAdded = subscriptionData?.data?.OnChatAdded;
-      const OnChatAddedFriendId = OnChatAdded?.friendId;
-      const OnChatAddedChat = OnChatAdded?.chat;
-      const OnChatAddedMembers = OnChatAddedChat?.members;
-      const isChatAddedPrivate = OnChatAddedChat?.type === 'private';
-
-      const isAlreadyExists = prev?.chats?.length
-        ? prev?.chats?.some((chat: any) => chat?._id === OnChatAddedChat?._id)
-        : false;
-
-      const isMemberExists = OnChatAddedMembers?.length
-        ? OnChatAddedMembers.some((member: any) => member?._id === _id)
-        : false;
-
-      if (!isAlreadyExists && isMemberExists) {
-        if (isChatAddedPrivate) {
-          otherFriendsClient.writeQuery({
-            query: OTHER_FRIENDS_QUERY,
-            data: {
-              otherFriends: otherFriends?.length
-                ? otherFriends?.filter(
-                    (otherFriend: any) =>
-                      otherFriend?._id !== OnChatAddedFriendId,
-                  )
-                : otherFriends,
-            },
-            variables: {
-              userId: _id,
-            },
-          });
-        }
-
-        setSelectedFriend();
-        setSelectedChat(OnChatAddedChat);
-
-        const data = {
-          ...prev,
-          chats: prev?.chats?.length
-            ? [OnChatAddedChat, ...prev.chats]
-            : [OnChatAddedChat],
-        };
-
-        chatsClient.writeQuery({
-          query: CHATS_QUERY,
-          data,
-          variables: {
-            userId: _id,
-          },
-        });
-
-        return data;
-      }
-
-      return prev;
-    },
-    [otherFriends, otherFriendsClient, chatsClient],
-  );
-
-  useEffect(() => {
-    if (unsubscribeRef?.current) {
-      unsubscribeRef?.current();
-    }
-
-    unsubscribeRef.current = subscribeChatsToMore({
-      document: CHAT_ADDED_SUBSCRIPTION,
-      updateQuery,
-      variables: {
-        userId: _id,
-      },
-    });
-
-    return () => {
-      if (unsubscribeRef?.current) {
-        unsubscribeRef?.current();
-      }
-    };
-  }, [subscribeChatsToMore, updateQuery]);
-
   const handleToggle = (
     _: React.MouseEvent<HTMLDivElement, MouseEvent>,
     setToggle: any,
@@ -190,7 +91,6 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
   const handleClickChat = async (
     _: React.MouseEvent<HTMLDivElement, MouseEvent>,
     chat: any,
-    selectedMember: any,
   ) => {
     setIsListItemClicked((prev: boolean) => !prev);
 
@@ -199,9 +99,7 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
         setLoadingQuery(false);
         setLoadingChatMessages(false);
         await getChatMessagesWithQueue(chat?._id, 'chatId');
-        setSelectedFriend(undefined);
-        setSelectedChat(chat);
-        setSelectedMember(selectedMember);
+        setSelectedItem(chat);
         navigate(`/chat?id=${chat?._id}&type=chat`);
         toggleDrawer?.();
       } catch (error: any) {
@@ -213,18 +111,21 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
   const handleClickFriend = async (
     _: React.MouseEvent<HTMLDivElement, MouseEvent>,
     friend: any,
-    selectedMember: any,
   ) => {
     setIsListItemClicked((prev: boolean) => !prev);
 
     if (friend?._id) {
       try {
+        if (friend?.hasChats === true) {
+          navigate('/');
+          refetchChats();
+          refetchOtherFriends();
+          return;
+        }
         setLoadingQuery(false);
         setLoadingChatMessages(false);
-        await getCombinedMessages(friend?._id, 'friendId');
-        setSelectedChat(undefined);
-        setSelectedFriend(friend);
-        setSelectedMember(selectedMember);
+        await getQueuedMessages(friend?._id, 'friendId');
+        setSelectedItem(friend);
         navigate(`/chat?id=${friend?._id}&type=friend`);
         toggleDrawer?.();
       } catch (error) {
@@ -272,7 +173,7 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
             <DataList
               dense
               data={chats}
-              selectedItem={selectedChat}
+              selectedItem={selectedItem}
               handleClickListItem={handleClickChat}
               className={toggleChats ? 'chats-wrapper margin-bottom' : ''}
               scrollDependencies={[toggleChats, toggleFriends]}
@@ -316,7 +217,7 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
                     ? 2
                     : undefined
                 }
-                selectedItem={selectedFriend}
+                selectedItem={selectedItem}
                 handleClickListItem={handleClickFriend}
                 className={toggleFriends ? 'friends-wrapper margin-bottom' : ''}
                 scrollDependencies={[toggleChats, toggleFriends]}

@@ -1,5 +1,4 @@
 import { List } from '@mui/material';
-import { useAuth } from '../../../../hooks';
 import { Button, ListItem } from '../../../../components';
 import { MainLayout } from '../MainLayout';
 import { FriendRequestStyled } from './FriendRequest.styled';
@@ -14,18 +13,12 @@ const FriendRequest = ({
   confirmBtnProps,
   deleteBtnProps,
 }: any) => {
-  const { auth: { _id = '' } = {} } = useAuth();
-
   const isConfirmBtn = !!Object.keys(confirmBtnProps || {})?.length;
   const isDeleteBtn = !!Object.keys(deleteBtnProps || {})?.length;
 
   const renderItem = (obj: any, key: string) => {
-    if (obj?.members?.length) {
-      const memberObj = obj.members?.find((member: any) => member?._id !== _id);
-      if (memberObj) {
-        return memberObj?.[userObj]?.[key];
-      }
-      return null;
+    if (obj && key) {
+      return obj?.[userObj]?.[key];
     }
     return null;
   };

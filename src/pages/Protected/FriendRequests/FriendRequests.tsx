@@ -1,6 +1,6 @@
 import { MouseEventHandler, useContext } from 'react';
 import { FriendRequest } from '..';
-import { useSnackbar } from '../../../hooks';
+import { useAuth, useSnackbar } from '../../../hooks';
 import { ChatsAndFriendsContext } from '../../../contexts';
 
 const FriendRequests = () => {
@@ -12,6 +12,7 @@ const FriendRequests = () => {
     pendingRequestsError,
     updateRequest,
   } = useContext(ChatsAndFriendsContext);
+  const { auth: { _id = '' } = {} } = useAuth();
 
   const handleClickRequest = async (
     _: MouseEventHandler,
@@ -22,6 +23,7 @@ const FriendRequests = () => {
     try {
       await updateRequest({
         variables: {
+          userId: _id,
           requestId: request?._id,
           status,
         },
@@ -43,7 +45,7 @@ const FriendRequests = () => {
         error: pendingRequestsError?.graphQLErrors?.[0]?.message,
       }}
       data={pendingRequests}
-      userObj="memberDetails"
+      userObj="details"
       nameKey="name"
       emailKey="email"
       pictureKey="picture"

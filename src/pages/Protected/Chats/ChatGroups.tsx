@@ -1,5 +1,4 @@
 import {
-  useCallback,
   useContext,
   useEffect,
   useLayoutEffect,
@@ -11,26 +10,16 @@ import { Chip } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { Avatar } from '../../../components';
 import { useAuth } from '../../../hooks';
-import {
-  ChatsAndFriendsContext,
-  MESSAGE_ADDED_SUBSCRIPTION,
-  MESSAGES_QUERY,
-  MessagesContext,
-} from '../../../contexts';
-import { MessageQueueService } from '../../../services';
+import { MESSAGE_GROUPS_QUERY, MessagesContext } from '../../../contexts';
 import {
   groupMessages,
-  groupNewMessageForOtherMember,
-  mergeByDateLabel,
+  mergeLastByDateLabel,
   scrollIntoView,
-  updateNewMessageInGroup,
 } from '../../../helpers';
 import ChatBubble from './ChatBubble';
 import { ChatGroupsStyled } from './Chats.styled';
-import { MESSAGE_GROUPS_QUERY } from '../../../contexts/Messages';
 
 const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
-  const MessageQueue = new MessageQueueService();
   const [navbarHeight] = useOutletContext<any>();
   const [searchParams] = useSearchParams();
   const chatId =
@@ -39,32 +28,46 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
     searchParams.get('type') === 'friend' ? searchParams.get('id') : null;
   const [isResize, setIsResize] = useState(false);
   const [prevScrollTop, setPrevScrollTop] = useState(0);
-  const [hasFetched, setHasFetched] = useState(false);
   const { auth: { _id = '' } = {} } = useAuth();
-  const { isListItemClicked } = useContext(ChatsAndFriendsContext);
   const {
-    messagesClient,
-    subscribeMessagesToMore,
     fetchMoreMessages,
-    loadingChatMessages,
-    setLoadingChatMessages,
     messageGroups = [],
-    messagesPageInfo = {},
+    messageGroupsPageInfo,
+    messageGroupsQueuedPageInfo,
+    messageGroupsScrollPosition,
     messageGroupsClient,
-    setMessageGroups,
+    loadingChatMessages,
+    loadingCreateMessage,
+    setLoadingChatMessages,
     scrollToBottom,
-    getCombinedMessages,
+    scrollToPosition,
+    queuedMessages = [],
+    getQueuedMessages,
     getChatMessagesWithQueue,
   } = useContext(MessagesContext);
   const scrollRef = useRef<any>(null);
   const scrollBottomRef = useRef<any>(null);
-  const unsubscribeRef = useRef<() => void>();
 
   useLayoutEffect(() => {
-    requestAnimationFrame(() => {
-      scrollIntoView(scrollBottomRef);
-    });
-  }, [scrollToBottom]);
+    const scrollBottom = () => {
+      // if (messageGroupsScrollPosition >= 0) return;
+      if (scrollBottomRef?.current) {
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      }
+    };
+    requestAnimationFrame(scrollBottom);
+  }, [loadingChatMessages, scrollToBottom]);
+
+  useLayoutEffect(() => {
+    if (scrollRef?.current && messageGroupsScrollPosition >= 0) {
+      const scrollPosition = () => {
+        if (scrollRef.current) {
+          scrollRef.current.scrollTop = messageGroupsScrollPosition;
+        }
+      };
+      requestAnimationFrame(scrollPosition);
+    }
+  }, [scrollToPosition]);
 
   useLayoutEffect(() => {
     const handleResize = () => {
@@ -78,101 +81,6 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
     };
   }, []);
 
-  const updateQuery = useCallback(
-    async (prev: any, { subscriptionData }: any) => {
-      if (!subscriptionData?.data) return prev;
-
-      const OnMessageAdded = subscriptionData?.data?.OnMessageAdded;
-      const OnMessageAddedChatId = OnMessageAdded?.chatId;
-      const OnMessageAddedMessage = OnMessageAdded?.message;
-      const OnMessageAddedQueueId = OnMessageAddedMessage?.queueId;
-      const OnMessageAddedOtherMembers = OnMessageAddedMessage?.otherMembers;
-
-      const isAlreadyExists = prev?.messages?.length
-        ? prev?.messages?.some(
-            (message: any) => message?._id === OnMessageAddedMessage?._id,
-          )
-        : false;
-
-      const isChatExists = OnMessageAddedChatId === chatId;
-
-      if (!isAlreadyExists && isChatExists) {
-        const isOtherMember = OnMessageAddedOtherMembers?.length
-          ? OnMessageAddedOtherMembers?.some(
-              (otherMember: any) => otherMember?._id === _id,
-            )
-          : false;
-
-        if (isOtherMember) {
-          // const messages = prev?.messages?.length
-          //   ? [...prev.messages, OnMessageAddedMessage]
-          //   : [OnMessageAddedMessage];
-
-          // const groupedMessages = groupMessages(messages, _id);
-          // setMessageGroups(groupedMessages);
-          setMessageGroups((prev: any) => {
-            const updatedMessageGroups = groupNewMessageForOtherMember(
-              prev,
-              OnMessageAddedMessage,
-            );
-            return updatedMessageGroups;
-          });
-        } else {
-          setMessageGroups((prev: any) => {
-            const updatedMessageGroups = updateNewMessageInGroup(
-              prev,
-              OnMessageAddedQueueId,
-              OnMessageAddedMessage,
-            );
-            return updatedMessageGroups;
-          });
-
-          await MessageQueue.deleteMessageFromQueue(OnMessageAddedQueueId);
-        }
-
-        const data = {
-          ...prev,
-          messages: prev?.messages?.length
-            ? [...prev.messages, OnMessageAddedMessage]
-            : [OnMessageAddedMessage],
-        };
-
-        messagesClient.writeQuery({
-          query: MESSAGES_QUERY,
-          data,
-          variables: {
-            chatId,
-          },
-        });
-
-        return data;
-      }
-
-      return prev;
-    },
-    [chatId, setMessageGroups, messagesClient],
-  );
-
-  useEffect(() => {
-    if (unsubscribeRef?.current) {
-      unsubscribeRef?.current();
-    }
-
-    unsubscribeRef.current = subscribeMessagesToMore({
-      document: MESSAGE_ADDED_SUBSCRIPTION,
-      updateQuery,
-      variables: {
-        chatId,
-      },
-    });
-
-    return () => {
-      if (unsubscribeRef?.current) {
-        unsubscribeRef?.current();
-      }
-    };
-  }, [chatId, subscribeMessagesToMore, updateQuery]);
-
   const fetchData = async (fetchFunction: any, id: string, key: string) => {
     try {
       await fetchFunction(id, key);
@@ -184,93 +92,112 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
   };
 
   useEffect(() => {
-    const fetchMessages = async () => {
+    const fetchChatMessages = async () => {
       if (chatId) {
         await fetchData(getChatMessagesWithQueue, chatId, 'chatId');
       }
 
       if (friendId) {
-        await fetchData(getCombinedMessages, friendId, 'friendId');
+        await fetchData(getQueuedMessages, friendId, 'friendId');
       }
     };
 
-    fetchMessages();
+    fetchChatMessages();
   }, []);
 
   if (loadingChatMessages) {
     return null;
   }
 
-  const handleScroll = async () => {
-    if (scrollRef?.current && messageGroups?.length) {
-      const currentScrollTop = scrollRef?.current?.scrollTop;
-      // const scrollHeight = scrollRef?.current?.scrollHeight;
-      const isScrollingUp = currentScrollTop < prevScrollTop;
-
-      const minScrollTop = 300;
+  const handleScroll = async (e: any) => {
+    if (scrollRef?.current) {
+      const scrollHeightBefore = scrollRef?.current?.scrollHeight;
+      const scrollTopBefore = scrollRef?.current?.scrollTop;
+      const isScrollingUp = scrollTopBefore < prevScrollTop;
+      const minScrollTop = scrollHeightBefore / 2;
 
       if (
-        messagesPageInfo?.hasNextPage === true &&
-        currentScrollTop < minScrollTop &&
-        isScrollingUp &&
-        !hasFetched
+        messageGroups?.length &&
+        messageGroupsPageInfo?.hasNextPage === true &&
+        scrollTopBefore < minScrollTop &&
+        isScrollingUp
       ) {
-        setHasFetched(true);
-        // const currentScrollPos = scrollHeight - currentScrollTop;
-        // scrollRef.current.scrollTop = minScrollTop;
+        try {
+          const moreMessages = await fetchMoreMessages({
+            variables: {
+              chatId,
+              after: messageGroupsPageInfo?.endCursor,
+            },
+            updateQuery: (prev: any, { fetchMoreResult }: any) => {
+              if (!fetchMoreResult) return prev;
+              return {
+                messages: fetchMoreResult?.messages,
+              };
+            },
+          });
 
-        const moreMessages = await fetchMoreMessages({
-          variables: {
-            chatId,
-            after: messagesPageInfo?.endCursor,
-          },
-          updateQuery: (prev: any, { fetchMoreResult }: any) => {
-            if (!fetchMoreResult) return prev;
-            return {
-              messages: fetchMoreResult?.messages,
-            };
-          },
-        });
+          const newMessagesData = moreMessages?.data?.messages;
+          const newMessages = newMessagesData?.edges;
+          const newPageInfo = newMessagesData?.pageInfo;
 
-        const newMessagesData = moreMessages?.data?.messages;
-        const newMessages = newMessagesData?.edges;
-        const newPageInfo = newMessagesData?.pageInfo;
+          let edges: any[] = [];
 
-        if (newMessages?.length) {
-          const groupedNewMessages = groupMessages(newMessages, _id);
-          const updatedNewMessageGroups = mergeByDateLabel(
-            messageGroups,
-            groupedNewMessages,
-          );
+          if (newMessages?.length) {
+            const groupedNewMessages = groupMessages(newMessages, _id);
+            edges = mergeLastByDateLabel(messageGroups, groupedNewMessages);
+          }
 
           messageGroupsClient.writeQuery({
             query: MESSAGE_GROUPS_QUERY,
             data: {
               messageGroups: {
-                data: updatedNewMessageGroups,
+                edges: edges?.length ? edges : messageGroups,
                 pageInfo: newPageInfo,
+                queuedPageInfo: messageGroupsQueuedPageInfo,
+                scrollPosition: scrollRef?.current?.scrollTop,
               },
             },
             variables: { chatId },
           });
+
+          const observer = new MutationObserver(() => {
+            const scrollHeightAfter = scrollRef?.current?.scrollHeight;
+            scrollRef.current.scrollTop =
+              scrollTopBefore + (scrollHeightAfter - scrollHeightBefore);
+
+            observer.disconnect();
+          });
+
+          observer.observe(scrollRef?.current, {
+            childList: true,
+            subtree: true,
+          });
+        } catch (error) {
+          console.error('Error fetching more messages', error);
         }
-
-        // setTimeout(() => {
-        //   if (scrollRef?.current) {
-        //     scrollRef.current.scrollTop =
-        //       scrollRef.current?.scrollHeight - currentScrollPos;
-        //   }
-        //   // setLoading(false);
-        // }, 0);
       }
 
-      if (currentScrollTop >= minScrollTop) {
-        setHasFetched(false);
-      }
+      messageGroupsClient.cache.modify({
+        fields: {
+          [`messageGroups({"input":{"chatId":"${chatId}"}})`](
+            existingData = {},
+          ) {
+            return {
+              ...existingData,
+              scrollPosition: scrollRef?.current?.scrollTop,
+            };
+          },
+        },
+      });
 
-      setPrevScrollTop(currentScrollTop);
+      setPrevScrollTop(scrollTopBefore);
     }
   };
+
+  const queuedMessageGroups = queuedMessages?.length
+    ? queuedMessages?.find((el: any) => el?.friendId === friendId)
+        ?.messageGroups
+    : [];
 
   return (
     <ChatGroupsStyled
@@ -279,13 +206,16 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
       textFieldHeight={textFieldHeight}
     >
       <div className="chat-container" ref={scrollRef} onScroll={handleScroll}>
-        {!messageGroups?.length ? (
+        {!messageGroups?.length && !queuedMessageGroups?.length ? (
           <div className="no-messages-wrapper">No Messages</div>
         ) : null}
-        {messageGroups?.length ? (
+        {messageGroups?.length || queuedMessageGroups?.length ? (
           <div className="chat-wrapper">
             <div className="chat-grid">
-              {messageGroups?.map((messageGroup: any, index: number) => (
+              {(messageGroups?.length
+                ? messageGroups
+                : queuedMessageGroups
+              )?.map((messageGroup: any, index: number) => (
                 <div
                   className="chat-group"
                   key={`${messageGroup?.dateLabel}-${index}`}
@@ -340,7 +270,7 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
                                     data={group?.data}
                                     side={group?.side}
                                     isResize={isResize}
-                                    key={`${msg?._id}-${i}-${isResize}`}
+                                    key={`${msg?._id || msg?.queueId}-${i}-${isResize}`}
                                   />
                                 ))}
                               </Grid>

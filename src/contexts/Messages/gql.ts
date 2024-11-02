@@ -11,6 +11,14 @@ const MESSAGES_QUERY = gql(/* GraphQL */ `
         message
         sender {
           _id
+          retryStatus {
+            isRetry
+            timestamp
+          }
+          queuedStatus {
+            isQueued
+            timestamp
+          }
           sentStatus {
             isSent
             timestamp
@@ -27,6 +35,7 @@ const MESSAGES_QUERY = gql(/* GraphQL */ `
             timestamp
           }
         }
+        timestamp
       }
       pageInfo {
         endCursor
@@ -36,18 +45,10 @@ const MESSAGES_QUERY = gql(/* GraphQL */ `
   }
 `) as DocumentNode;
 
-const MESSAGE_QUEUED_QUERY = gql(/* GraphQL */ `
-  query messageQueued($queueId: String!) {
-    messageQueued(input: { queueId: $queueId }) {
-      _id
-    }
-  }
-`) as DocumentNode;
-
 const MESSAGE_GROUPS_QUERY = gql(/* GraphQL */ `
   query messageGroups($chatId: String!) {
     messageGroups(input: { chatId: $chatId }) {
-      data {
+      edges {
         dateLabel
         groups {
           side
@@ -58,6 +59,14 @@ const MESSAGE_GROUPS_QUERY = gql(/* GraphQL */ `
             message
             sender {
               _id
+              retryStatus {
+                isRetry
+                timestamp
+              }
+              queuedStatus {
+                isQueued
+                timestamp
+              }
               sentStatus {
                 isSent
                 timestamp
@@ -74,6 +83,7 @@ const MESSAGE_GROUPS_QUERY = gql(/* GraphQL */ `
                 timestamp
               }
             }
+            timestamp
           }
         }
       }
@@ -81,6 +91,19 @@ const MESSAGE_GROUPS_QUERY = gql(/* GraphQL */ `
         endCursor
         hasNextPage
       }
+      queuedPageInfo {
+        endCursor
+        hasNextPage
+      }
+      scrollPosition
+    }
+  }
+`) as DocumentNode;
+
+const MESSAGE_QUEUED_QUERY = gql(/* GraphQL */ `
+  query messageQueued($queueId: String!) {
+    messageQueued(input: { queueId: $queueId }) {
+      _id
     }
   }
 `) as DocumentNode;
@@ -89,17 +112,23 @@ const CREATE_MESSAGE_MUTATION = gql(/* GraphQL */ `
   mutation createMessage(
     $chatId: String!
     $senderId: String!
-    $queueId: String
+    $queueId: String!
+    $isQueued: Boolean!
+    $queuedTimestamp: Float!
+    $isSent: Boolean!
+    $sentTimestamp: Float!
     $message: String!
-    $timestamp: Float!
   ) {
     createMessage(
       input: {
         chatId: $chatId
         senderId: $senderId
         queueId: $queueId
+        isQueued: $isQueued
+        queuedTimestamp: $queuedTimestamp
+        isSent: $isSent
+        sentTimestamp: $sentTimestamp
         message: $message
-        timestamp: $timestamp
       }
     ) {
       _id
@@ -111,16 +140,24 @@ const CREATE_MESSAGE_MUTATION = gql(/* GraphQL */ `
 const UPDATE_MESSAGE_MUTATION = gql(/* GraphQL */ `
   mutation updateMessage(
     $chatId: String!
-    $message: String!
     $senderId: String!
-    $timestamp: Float!
+    $queueId: String!
+    $isQueued: Boolean!
+    $queuedTimestamp: Float!
+    $isSent: Boolean!
+    $sentTimestamp: Float!
+    $message: String!
   ) {
     updateMessage(
       input: {
         chatId: $chatId
-        message: $message
         senderId: $senderId
-        timestamp: $timestamp
+        queueId: $queueId
+        isQueued: $isQueued
+        queuedTimestamp: $queuedTimestamp
+        isSent: $isSent
+        sentTimestamp: $sentTimestamp
+        message: $message
       }
     ) {
       _id
@@ -140,6 +177,14 @@ const MESSAGE_ADDED_SUBSCRIPTION = gql(/* GraphQL */ `
         message
         sender {
           _id
+          retryStatus {
+            isRetry
+            timestamp
+          }
+          queuedStatus {
+            isQueued
+            timestamp
+          }
           sentStatus {
             isSent
             timestamp
@@ -156,6 +201,7 @@ const MESSAGE_ADDED_SUBSCRIPTION = gql(/* GraphQL */ `
             timestamp
           }
         }
+        timestamp
       }
     }
   }
@@ -172,6 +218,14 @@ const MESSAGE_UPDATED_SUBSCRIPTION = gql(/* GraphQL */ `
         message
         sender {
           _id
+          retryStatus {
+            isRetry
+            timestamp
+          }
+          queuedStatus {
+            isQueued
+            timestamp
+          }
           sentStatus {
             isSent
             timestamp
@@ -188,6 +242,7 @@ const MESSAGE_UPDATED_SUBSCRIPTION = gql(/* GraphQL */ `
             timestamp
           }
         }
+        timestamp
       }
     }
   }
@@ -195,8 +250,8 @@ const MESSAGE_UPDATED_SUBSCRIPTION = gql(/* GraphQL */ `
 
 export {
   MESSAGES_QUERY,
-  MESSAGE_QUEUED_QUERY,
   MESSAGE_GROUPS_QUERY,
+  MESSAGE_QUEUED_QUERY,
   CREATE_MESSAGE_MUTATION,
   UPDATE_MESSAGE_MUTATION,
   MESSAGE_ADDED_SUBSCRIPTION,

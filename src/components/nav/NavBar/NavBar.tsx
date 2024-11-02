@@ -8,13 +8,26 @@ import { NavBarStyled } from './NavBar.styled';
 
 const NavBar = forwardRef(
   ({ onMenuClick, toggleDrawer, className }: any, ref: any) => {
-    const { chats = [], otherFriends = [] } = useContext(
-      ChatsAndFriendsContext,
-    );
+    const {
+      chats = [],
+      otherFriends = [],
+      refetchChats,
+      refetchOtherFriends,
+      refetchPendingRequests,
+      refetchSentRequests,
+    } = useContext(ChatsAndFriendsContext);
+
+    const handleClickLogo = () => {
+      toggleDrawer?.();
+      refetchChats();
+      refetchOtherFriends();
+      refetchPendingRequests();
+      refetchSentRequests();
+    };
 
     return (
       <NavBarStyled className={className} ref={ref}>
-        <Link to="/" className="nav-logo" onClick={() => toggleDrawer?.()}>
+        <Link to="/" className="nav-logo" onClick={handleClickLogo}>
           <BaseSvg id="logo" className="nav-logo-svg" />
         </Link>
         {chats?.length || otherFriends?.length ? (

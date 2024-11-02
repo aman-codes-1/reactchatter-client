@@ -15,9 +15,14 @@ import {
 import { AppBar, IconButton, List, TextField, Toolbar } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import { useAuth } from '../../../hooks';
-import { ChatsAndFriendsContext, MessagesContext } from '../../../contexts';
 import {
-  groupQueuedMessage,
+  ChatsAndFriendsContext,
+  MESSAGE_GROUPS_QUERY,
+  MessagesContext,
+} from '../../../contexts';
+import {
+  deleteKeyValuePairs,
+  groupMessage,
   handleKeyPress,
   setFocus,
   updateHeight,
@@ -26,7 +31,6 @@ import {
 import { ListItem } from '../../../components';
 import { MainLayoutLoader } from '../components';
 import { MessageQueueService } from '../../../services';
-import { MessageData } from '../../../contexts/Messages/IMessage';
 import ChatGroups from './ChatGroups';
 import { ChatsStyled } from './Chats.styled';
 
@@ -46,6 +50,7 @@ const Chats = ({ loadingFallback }: any) => {
   const { auth: { _id = '' } = {} } = useAuth();
   const {
     chatQuery,
+    chat,
     chatLoading,
     friendQuery,
     friendLoading,
@@ -53,10 +58,18 @@ const Chats = ({ loadingFallback }: any) => {
     isListItemClicked,
     loadingQuery,
     setLoadingQuery,
-    selectedMember,
+    selectedItem,
   } = useContext(ChatsAndFriendsContext);
-  const { createMessage, setLoadingCreateMessage, setMessageGroups } =
-    useContext(MessagesContext);
+  const {
+    messageGroups = [],
+    messageGroupsPageInfo,
+    messageGroupsQueuedPageInfo,
+    messageGroupsClient,
+    createMessage,
+    setLoadingCreateMessage,
+    setScrollToBottom,
+    setQueuedMessages,
+  } = useContext(MessagesContext);
   const inputRef = useRef<any>(null);
   const appBarRef = useRef<any>(null);
   const textFieldRef = useRef<any>(null);
@@ -108,14 +121,22 @@ const Chats = ({ loadingFallback }: any) => {
     } catch (error) {
       console.error('Error getting url:', error);
     }
-  }, [search, navigate]);
+  }, [search]);
+
+  useLayoutEffect(() => {
+    if (selectedItem?.hasChats === true) {
+      navigate('/');
+    }
+  }, [selectedItem, isListItemClicked]);
 
   const fetchData = async (fetchFunction: any, id: string, key: string) => {
     try {
       const res = await fetchFunction({
         variables: {
           [key]: id,
+          ...(key === 'friendId' ? { userId: _id } : {}),
         },
+        fetchPolicy: 'no-cache',
       });
 
       const error = res?.error?.message;
@@ -132,7 +153,7 @@ const Chats = ({ loadingFallback }: any) => {
   };
 
   useEffect(() => {
-    if (loadingFallback || selectedMember) return;
+    if (loadingFallback || selectedItem) return;
 
     const fetchQuery = async () => {
       if (chatId) {
@@ -145,7 +166,7 @@ const Chats = ({ loadingFallback }: any) => {
     };
 
     fetchQuery();
-  }, [loadingFallback, selectedMember]);
+  }, [loadingFallback, selectedItem]);
 
   const handleChangeMessage = (
     e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
@@ -153,24 +174,20 @@ const Chats = ({ loadingFallback }: any) => {
     setMessage(e?.target?.value);
   };
 
-  const addAndGetQueuedMessage = async (data: MessageData) => {
-    const queuedMessage = await MessageQueue.addMessageToQueue(data);
+  const getOtherMembers = (members: any[] = []) => {
+    if (members?.length) {
+      const otherMembers = members
+        ?.filter((member: any) => member?._id !== _id)
+        ?.map((member: any) => ({
+          _id: member?._id,
+          deliveredStatus: null,
+          readStatus: null,
+        }));
 
-    if (!queuedMessage) return null;
-
-    if (
-      queuedMessage?.chatId == chatId ||
-      queuedMessage?.friendId === friendId
-    ) {
-      setMessageGroups((prev: any) => {
-        const updatedMessageGroups = groupQueuedMessage(prev, queuedMessage);
-        return updatedMessageGroups;
-      });
-
-      return queuedMessage;
+      return otherMembers;
     }
 
-    return null;
+    return [];
   };
 
   const handleSendMessage = async () => {
@@ -183,86 +200,211 @@ const Chats = ({ loadingFallback }: any) => {
 
     try {
       let chatIdToUse = chatId || '';
-      let queuedMessage = null;
+      let queuedMessage: any;
+      let isAdded = false;
+      let isUpdated = false;
+
+      const queuedMessageData = {
+        _id: '',
+        queueId: crypto.randomUUID(),
+        message,
+        sender: {
+          _id,
+          retryStatus: null,
+          queuedStatus: {
+            isQueued: true,
+            timestamp,
+          },
+          sentStatus: null,
+        },
+        timestamp,
+      };
 
       if (!chatIdToUse && friendId) {
-        const QueuedMessage = await addAndGetQueuedMessage({
+        queuedMessage = {
           friendId,
-          message,
-          sender: {
-            _id,
-            sentStatus: {
-              isQueued: true,
-              timestamp,
-            },
-          },
-          timestamp,
-          selectedMember,
+          friendUserId: selectedItem?.details?._id,
+          ...queuedMessageData,
+        };
+
+        setQueuedMessages((prev: any) => {
+          const prevCopy = [...prev];
+          const friendIndex = prevCopy?.findIndex(
+            (el: any) => el?.friendId === friendId,
+          );
+
+          if (friendIndex < 0) {
+            const newMessageGroup = {
+              friendId,
+              messageGroups: groupMessage([], queuedMessage, _id),
+            };
+
+            prevCopy?.push(newMessageGroup);
+          } else {
+            const messageGroupsCopy = [...prevCopy[friendIndex].messageGroups];
+
+            prevCopy[friendIndex] = {
+              ...prevCopy[friendIndex],
+              messageGroups: groupMessage(
+                messageGroupsCopy,
+                queuedMessage,
+                _id,
+              ),
+            };
+          }
+
+          return prevCopy;
         });
 
-        queuedMessage = QueuedMessage;
+        setScrollToBottom((prev: boolean) => !prev);
+
+        const addedQueuedMessage = await MessageQueue.addMessageToQueue(
+          queuedMessage,
+        ).catch((err) => {
+          console.error('Error adding to queue:', err);
+          return null;
+        });
+
+        if (addedQueuedMessage) {
+          queuedMessage = addedQueuedMessage;
+          isAdded = true;
+        }
+
+        const queueId = queuedMessage?.queueId || '';
 
         const createdChat = await createChat({
           variables: {
             userId: _id,
             friendId,
-            queueId: QueuedMessage?.id,
+            queueId,
             type: 'private',
-            friendUserId: selectedMember?._id,
+            friendUserId: queuedMessage?.friendUserId,
           },
         });
 
         const createdChatData = createdChat?.data?.createChat;
         const createdChatId = createdChatData?._id;
+        const createdChatMembers = createdChatData?.members;
 
         if (!createdChatId) throw new Error('Failed to create chat');
+        // to do
+        // pop from setQueuedMessages
+        // setQueuedMessages([]);
 
         chatIdToUse = createdChatId;
+
+        const updatedQueuedMessage = await MessageQueue.updateMessageToQueue(
+          queueId,
+          {
+            chatId: chatIdToUse,
+            otherMembers: getOtherMembers(createdChatMembers),
+          },
+          ['friendId', 'friendUserId'],
+        ).catch((err) => {
+          console.error('Error updating to queue:', err);
+          return null;
+        });
+
+        if (updatedQueuedMessage) {
+          queuedMessage = updatedQueuedMessage;
+          isUpdated = true;
+        }
+
+        if (!isUpdated) {
+          queuedMessage = deleteKeyValuePairs(
+            ['friendId', 'friendUserId'],
+            queuedMessage,
+          );
+          queuedMessage = {
+            ...queuedMessage,
+            chatId: chatIdToUse,
+            otherMembers: getOtherMembers(createdChatMembers),
+          };
+        }
 
         setSearchParams((params) => {
           params.set('id', chatIdToUse);
           params.set('type', 'chat');
           return params;
         });
-
-        if (queuedMessage?.id) {
-          await MessageQueue.updateMessageToQueue(queuedMessage?.id, {
-            chatId: createdChatId,
-          });
-        }
       }
 
       if (chatIdToUse) {
-        queuedMessage =
-          queuedMessage ||
-          (await addAndGetQueuedMessage({
-            chatId: chatIdToUse,
-            message,
-            sender: {
-              _id,
-              sentStatus: {
-                isQueued: true,
-                timestamp,
-              },
+        queuedMessage = queuedMessage || {
+          chatId: chatIdToUse,
+          otherMembers: getOtherMembers(chat?.chat?.members),
+          ...queuedMessageData,
+        };
+
+        const edges = groupMessage(messageGroups, queuedMessage, _id);
+        const pageInfo = {
+          endCursor: '',
+          hasNextPage: false,
+        };
+
+        messageGroupsClient.writeQuery({
+          query: MESSAGE_GROUPS_QUERY,
+          data: {
+            messageGroups: {
+              edges,
+              pageInfo: messageGroupsPageInfo?.endCursor
+                ? messageGroupsPageInfo
+                : pageInfo,
+              queuedPageInfo: messageGroupsQueuedPageInfo?.endCursor
+                ? messageGroupsQueuedPageInfo
+                : pageInfo,
+              scrollPosition: -1,
             },
-            timestamp,
-            selectedMember,
-          }));
+          },
+          variables: { chatId },
+        });
+
+        setScrollToBottom((prev: boolean) => !prev);
+
+        if (!isAdded) {
+          const addedQueuedMessage = await MessageQueue.addMessageToQueue(
+            queuedMessage,
+          ).catch((err) => {
+            console.error('Error adding to queue:', err);
+            return null;
+          });
+
+          if (addedQueuedMessage) {
+            queuedMessage = addedQueuedMessage;
+            isAdded = true;
+          }
+        }
+
+        const queueId = queuedMessage?.queueId || '';
+        const queuedMessageSender = queuedMessage?.sender;
+        const queuedMessageQueuedStatus = queuedMessageSender?.queuedStatus;
+        const queuedMessageQueuedStatusIsQueued =
+          queuedMessageQueuedStatus?.isQueued || true;
+        const queuedMessageQueuedStatusTimestamp =
+          queuedMessageQueuedStatus?.timestamp || timestamp;
 
         const createdMessage = await createMessage({
           variables: {
             chatId: chatIdToUse,
             senderId: _id,
-            queueId: queuedMessage?.id,
+            queueId,
+            isQueued: queuedMessageQueuedStatusIsQueued,
+            queuedTimestamp: queuedMessageQueuedStatusTimestamp,
+            isSent: true,
+            sentTimestamp: Date.now(),
             message,
-            timestamp,
           },
         });
 
         const createdMessageData = createdMessage?.data?.createMessage;
         const createdMessageId = createdMessageData?._id;
+        const createdMessageQueueId = createdMessageData?.queueId;
 
         if (!createdMessageId) throw new Error('Failed to create message');
+
+        if (createdMessageQueueId) {
+          await MessageQueue.deleteMessageFromQueue(createdMessageQueueId);
+        }
       }
     } catch (error) {
       console.error('Error sending message:', error);
@@ -294,8 +436,8 @@ const Chats = ({ loadingFallback }: any) => {
                     disableGutters: true,
                     alignItems: 'flex-start',
                     textProps: {
-                      primary: selectedMember?.memberDetails?.name,
-                      secondary: selectedMember?.memberDetails?.email,
+                      primary: selectedItem?.details?.name,
+                      secondary: selectedItem?.details?.email,
                       primaryTypographyProps: {
                         fontSize: '1.0625rem',
                         style: {
@@ -309,7 +451,7 @@ const Chats = ({ loadingFallback }: any) => {
                       },
                     },
                     avatarProps: {
-                      src: selectedMember?.memberDetails?.picture,
+                      src: selectedItem?.details?.picture,
                     },
                   }}
                 />

@@ -1,8 +1,7 @@
-import { MessageData } from '../contexts/Messages/IMessage';
+import { MessageData } from '../contexts';
+import { deleteKeyValuePairs } from '../helpers';
 
 export class MessageQueueService {
-  private isSending: boolean = false;
-  private intervalId: any = null;
   private createChat: any;
   private createMessage: any;
   private setMessageGroups: any;
@@ -20,22 +19,6 @@ export class MessageQueueService {
     this.setLoadingProcessNextMessage = setLoadingProcessMessage || null;
   }
 
-  start() {
-    if (!this.isSending) {
-      this.isSending = true;
-      this.processQueue();
-      this.intervalId = setInterval(this.processQueue.bind(this), 5000);
-    }
-  }
-
-  stop() {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-      this.intervalId = null;
-      this.isSending = false;
-    }
-  }
-
   openDatabase() {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open('messageQueueDatabase', 1);
@@ -45,7 +28,7 @@ export class MessageQueueService {
           const db = event?.target?.result;
           if (!db.objectStoreNames.contains('messageQueueStore')) {
             const objectStore = db.createObjectStore('messageQueueStore', {
-              keyPath: 'id',
+              keyPath: 'queueId',
             });
             objectStore.createIndex('chatId', 'chatId', { unique: false });
             objectStore.createIndex('timestamp', 'timestamp', {
@@ -79,6 +62,41 @@ export class MessageQueueService {
     const db: any = await this.openDatabase();
 
     if (db) {
+      return new Promise<MessageData>((resolve, reject) => {
+        const transaction = db?.transaction?.('messageQueueStore', 'readwrite');
+
+        if (transaction) {
+          const objectStore = transaction?.objectStore?.('messageQueueStore');
+
+          if (objectStore) {
+            const messageDataCopy = { ...messageData };
+            if (!messageDataCopy?.queueId) {
+              messageDataCopy.queueId = crypto.randomUUID();
+            }
+
+            const request = objectStore?.add?.(messageData);
+
+            if (request) {
+              request.onsuccess = (event: any) => {
+                const queueId = event?.target?.result;
+                messageDataCopy.queueId = queueId || '';
+                resolve(messageDataCopy);
+              };
+
+              request.onerror = () => {
+                reject('Error retrieving chat');
+              };
+            }
+          }
+        }
+      });
+    }
+  }
+
+  async updateMessageToQueue(queueId: string, obj: any, keysToDelete?: any[]) {
+    const db: any = await this.openDatabase();
+
+    if (db) {
       return new Promise<MessageData | null>((resolve, reject) => {
         const transaction = db?.transaction?.('messageQueueStore', 'readwrite');
 
@@ -86,18 +104,33 @@ export class MessageQueueService {
           const objectStore = transaction?.objectStore?.('messageQueueStore');
 
           if (objectStore) {
-            if (!messageData?.id) {
-              messageData.id = crypto.randomUUID();
-            }
-
-            const request = objectStore?.add?.(messageData);
+            const request = objectStore?.get?.(queueId);
 
             if (request) {
               request.onsuccess = (event: any) => {
-                const id = event?.target?.result;
-                if (id) {
-                  messageData.id = id;
-                  resolve(messageData);
+                const messageData = event?.target?.result;
+                if (messageData) {
+                  let messageDataCopy = { ...messageData };
+                  messageDataCopy = keysToDelete
+                    ? deleteKeyValuePairs(keysToDelete, messageDataCopy)
+                    : messageDataCopy;
+
+                  Object.keys(obj || {}).forEach((key) => {
+                    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                      messageDataCopy[key] = obj[key];
+                    }
+                  });
+
+                  const updateRequest = objectStore?.put?.(messageDataCopy);
+                  if (updateRequest) {
+                    updateRequest.onsuccess = () => {
+                      resolve(messageDataCopy);
+                    };
+
+                    updateRequest.onerror = () => {
+                      reject('Error updating message');
+                    };
+                  }
                 } else {
                   resolve(null);
                 }
@@ -113,7 +146,7 @@ export class MessageQueueService {
     }
   }
 
-  async updateMessageToQueue<T>(id: string, obj: Partial<T>) {
+  async deleteMessageFromQueue(queueId: string) {
     const db: any = await this.openDatabase();
 
     if (db) {
@@ -124,54 +157,7 @@ export class MessageQueueService {
           const objectStore = transaction?.objectStore?.('messageQueueStore');
 
           if (objectStore) {
-            const request = objectStore?.get?.(id);
-
-            if (request) {
-              request.onsuccess = (event: any) => {
-                const messageData = event?.target?.result;
-                if (messageData) {
-                  for (const key in obj) {
-                    if (Object.prototype.hasOwnProperty.call(obj, key)) {
-                      messageData[key] = obj[key];
-                    }
-                  }
-                  const updateRequest = objectStore?.put?.(messageData);
-                  if (updateRequest) {
-                    updateRequest.onsuccess = () => {
-                      resolve(true);
-                    };
-
-                    updateRequest.onerror = () => {
-                      reject('Error updating message');
-                    };
-                  }
-                } else {
-                  resolve(false);
-                }
-              };
-
-              request.onerror = () => {
-                reject('Error retrieving chat');
-              };
-            }
-          }
-        }
-      });
-    }
-  }
-
-  async deleteMessageFromQueue(id: string) {
-    const db: any = await this.openDatabase();
-
-    if (db) {
-      return new Promise<boolean>((resolve, reject) => {
-        const transaction = db?.transaction?.('messageQueueStore', 'readwrite');
-
-        if (transaction) {
-          const objectStore = transaction?.objectStore?.('messageQueueStore');
-
-          if (objectStore) {
-            const deleteRequest = objectStore?.delete?.(id);
+            const deleteRequest = objectStore?.delete?.(queueId);
 
             if (deleteRequest) {
               deleteRequest.onsuccess = () => {
@@ -188,7 +174,8 @@ export class MessageQueueService {
     }
   }
 
-  async getQueuedMessageById(id: number | null) {
+  async getQueuedMessageById(queueId: number | null) {
+    // to do: implement cursor pagination
     const db: any = await this.openDatabase();
 
     if (db) {
@@ -199,7 +186,7 @@ export class MessageQueueService {
           const objectStore = transaction?.objectStore?.('messageQueueStore');
 
           if (objectStore) {
-            const request = objectStore?.get?.(id);
+            const request = objectStore?.get?.(queueId);
 
             if (request) {
               request.onsuccess = (event: any) => {
@@ -223,7 +210,7 @@ export class MessageQueueService {
   }
 
   async getQueuedMessagesById(
-    id: string,
+    queueId: string,
     key: string,
     limit: number,
     offset: number,
@@ -241,8 +228,8 @@ export class MessageQueueService {
             const index = objectStore?.index?.(`${key}_timestamp`);
 
             if (index) {
-              const lowerBound = [id, -Infinity]; //
-              const upperBound = [id, Infinity]; //
+              const lowerBound = [queueId, -Infinity]; //
+              const upperBound = [queueId, Infinity]; //
               const range = IDBKeyRange.bound(lowerBound, upperBound);
 
               const request = index?.openCursor?.(range, 'next');
@@ -340,14 +327,16 @@ export class MessageQueueService {
     return this.processNextMessage(0);
   }
 
-  async removeFromQueueAndRestart(id: string) {
-    await this.deleteMessageFromQueue(id);
+  async removeFromQueueAndRestart(queueId: string) {
+    await this.deleteMessageFromQueue(queueId);
 
     this.setMessageGroups?.((prevGroup: any) => {
       if (!prevGroup?.length) return prevGroup;
 
       const updatedGroups = prevGroup?.map((group: any) => {
-        const index = group?.data?.findIndex((item: any) => item?.id === id);
+        const index = group?.data?.findIndex(
+          (item: any) => item?.queueId === queueId,
+        );
 
         if (index < 0) return group;
 
@@ -366,7 +355,7 @@ export class MessageQueueService {
   }
 
   async shouldRetryAndProcessNext(
-    id: string,
+    queueId: string,
     retryCount: number,
     isRetry: boolean,
     offset: number,
@@ -377,16 +366,16 @@ export class MessageQueueService {
     }
 
     if (!isRetry) {
-      await this.updateMessageToQueue(id, { isRetry: true });
+      await this.updateMessageToQueue(queueId, { isRetry: true });
     }
 
     return this.processNextMessage(0, offset + 1);
   }
 
   async createChatAndUpdateToQueue(
-    id: string,
+    queueId: string,
     friendId: string,
-    selectedMember: any,
+    friendUserId: string,
     retryCount: number,
     senderId: string,
     isRetry: boolean,
@@ -396,18 +385,23 @@ export class MessageQueueService {
       variables: {
         userId: senderId,
         friendId,
-        queueId: id,
+        queueId,
         type: 'private',
-        friendUserId: selectedMember?._id,
+        friendUserId,
       },
     });
 
     const createdChatData = createdChat?.data?.createChat;
     const createdChatId = createdChatData?._id;
     if (!createdChatId)
-      await this.shouldRetryAndProcessNext(id, retryCount, isRetry, offset);
+      await this.shouldRetryAndProcessNext(
+        queueId,
+        retryCount,
+        isRetry,
+        offset,
+      );
 
-    await this.updateMessageToQueue(id, {
+    await this.updateMessageToQueue(queueId, {
       chatId: createdChatId,
     });
 
@@ -415,7 +409,7 @@ export class MessageQueueService {
   }
 
   async createMessageAndProcessNext(
-    id: string,
+    queueId: string,
     chatId: string,
     rest: any,
     retryCount: number,
@@ -428,14 +422,19 @@ export class MessageQueueService {
         ...rest,
         chatId,
         senderId,
-        queueId: id,
+        queueId,
       },
     });
 
     const createdMessageData = createdMessage?.data?.createMessage;
     const createdMessageId = createdMessageData?._id;
     if (!createdMessageId)
-      await this.shouldRetryAndProcessNext(id, retryCount, isRetry, offset);
+      await this.shouldRetryAndProcessNext(
+        queueId,
+        retryCount,
+        isRetry,
+        offset,
+      );
   }
 
   async getNextMessageForProcessing(offset: number): Promise<any> {
@@ -444,15 +443,16 @@ export class MessageQueueService {
   }
 
   async processNextMessage(retryCount = 0, offset = 0): Promise<void> {
+    // to do
     const { message, cursor } =
       (await this.getNextMessageForProcessing(offset)) || {};
 
     if (!message) return;
 
-    const { id, sender, chatId, friendId, selectedMember, ...rest } =
+    const { queueId, sender, chatId, friendId, friendUserId, ...rest } =
       message || {};
 
-    if (!id) await this.removeCursorFromQueueAndRestart(cursor);
+    if (!queueId) await this.removeCursorFromQueueAndRestart(cursor);
 
     const senderId = sender?._id;
     const isRetry = sender?.sentStatus?.isRetry || false;
@@ -462,11 +462,11 @@ export class MessageQueueService {
     this.setLoadingProcessNextMessage(true);
 
     try {
-      if (!chatIdToUse && friendId) {
+      if (!chatIdToUse && friendId && friendUserId) {
         chatIdToUse = await this.createChatAndUpdateToQueue(
-          id,
+          queueId,
           friendId,
-          selectedMember,
+          friendUserId,
           retryCount,
           senderId,
           isRetry,
@@ -476,7 +476,7 @@ export class MessageQueueService {
 
       if (chatIdToUse) {
         await this.createMessageAndProcessNext(
-          id,
+          queueId,
           chatIdToUse,
           rest,
           retryCount,
@@ -485,20 +485,30 @@ export class MessageQueueService {
           offset,
         );
 
-        await this.removeFromQueueAndRestart(id);
+        await this.removeFromQueueAndRestart(queueId);
       }
 
-      await this.shouldRetryAndProcessNext(id, retryCount, isRetry, offset);
+      await this.shouldRetryAndProcessNext(
+        queueId,
+        retryCount,
+        isRetry,
+        offset,
+      );
     } catch (error: any) {
       const errorMessage = error?.message || '';
       const isDuplicateRecordFound = errorMessage?.includes?.('Duplicate');
       const isChatNotFoundError = errorMessage?.includes?.('Chat not found');
 
       if (isDuplicateRecordFound || isChatNotFoundError) {
-        await this.removeFromQueueAndRestart(id);
+        await this.removeFromQueueAndRestart(queueId);
       }
 
-      await this.shouldRetryAndProcessNext(id, retryCount, isRetry, offset);
+      await this.shouldRetryAndProcessNext(
+        queueId,
+        retryCount,
+        isRetry,
+        offset,
+      );
     } finally {
       this.setLoadingProcessNextMessage(false);
     }

@@ -18,11 +18,14 @@ export {
 export {
   MessagesContext,
   MessagesProvider,
-  CREATE_MESSAGE_MUTATION,
+  type MessageData,
   MESSAGES_QUERY,
+  MESSAGE_QUEUED_QUERY,
+  MESSAGE_GROUPS_QUERY,
+  CREATE_MESSAGE_MUTATION,
+  UPDATE_MESSAGE_MUTATION,
   MESSAGE_ADDED_SUBSCRIPTION,
   MESSAGE_UPDATED_SUBSCRIPTION,
-  UPDATE_MESSAGE_MUTATION,
 } from './Messages';
 export { ConnectionContext, ConnectionProvider } from './Connection';
 export { SnackbarContext, SnackbarProvider } from './Snackbar';

@@ -4,34 +4,37 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import DoneRoundedIcon from '@mui/icons-material/DoneRounded';
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
 import { getTime } from '../../../helpers';
-import { useAuth } from '../../../hooks';
 import { ChatsAndFriendsContext } from '../../../contexts';
 import { ChatBubbleStyled } from './Chats.styled';
 
 const ChatBubble = ({ msg, index, data, side, isResize }: any) => {
   const [isOverflow, setIsOverflow] = useState(false);
-  const { auth: { _id = '' } = {} } = useAuth();
   const { selectedChat } = useContext(ChatsAndFriendsContext);
   const containerRef = useRef<any>(null);
   const messageRef = useRef<any>(null);
 
   const sender = msg?.sender;
+  const queuedStatus = sender?.queuedStatus;
+  const isQueued = queuedStatus?.isQueued === true;
+  const queuedTimestamp = queuedStatus?.timestamp;
   const sentStatus = sender?.sentStatus;
-  const sentTimeStamp = sentStatus?.timestamp;
-  const isQueued = sentStatus?.isQueued;
-  const isSent = sentStatus?.isSent;
+  const isSent = sentStatus?.isSent === true && isQueued;
 
+  let deliveredStatus;
+  let deliveredTimestamp;
+  let isDelivered;
   let readStatus;
   let readTimestamp;
   let isRead;
 
   if (selectedChat && selectedChat?.type === 'private') {
-    const receivers = msg?.otherMembers;
-    readStatus =
-      receivers?.length === 1 &&
-      receivers?.find((otherMember: any) => otherMember?._id !== _id);
+    const receiver = msg?.otherMembers?.[0];
+    deliveredStatus = receiver?.deliveredStatus;
+    deliveredTimestamp = deliveredStatus?.timestamp;
+    isDelivered = deliveredStatus?.isDelivered === true && isSent;
+    readStatus = receiver?.readStatus;
     readTimestamp = readStatus?.timestamp;
-    isRead = readStatus?.isRead;
+    isRead = readStatus?.isRead === true && isDelivered;
   }
 
   useLayoutEffect(() => {
@@ -51,7 +54,7 @@ const ChatBubble = ({ msg, index, data, side, isResize }: any) => {
     };
 
     checkOverflow();
-  }, [msg?._id, isResize]);
+  }, [msg?._id, msg?.queueId, isResize]);
 
   const attachClass = () => {
     if (index === 0) {
@@ -66,9 +69,9 @@ const ChatBubble = ({ msg, index, data, side, isResize }: any) => {
   return (
     <ChatBubbleStyled>
       <div
-        className={`msg msg-${side} ${attachClass()} ${isQueued ? 'msg-animation' : ''} ${isOverflow ? 'msg-overflow' : ''}`}
+        className={`msg msg-${side} ${attachClass()} ${isQueued && !isSent ? 'msg-animation' : ''} ${isOverflow ? 'msg-overflow' : ''}`}
         ref={containerRef}
-        key={`${msg?._id}-${index}`}
+        key={`${msg?._id || msg?.queueId}-${index}`}
       >
         {msg?.message ? (
           <Typography
@@ -79,35 +82,32 @@ const ChatBubble = ({ msg, index, data, side, isResize }: any) => {
             {msg?.message}
           </Typography>
         ) : null}
-        {sentStatus || readStatus ? (
-          <span
-            className={`msg-timestamp ${isOverflow ? 'msg-timestamp-overflow' : ''}`}
-          >
-            {sentTimeStamp ? (
-              <Typography
-                variant="caption"
-                whiteSpace="nowrap"
-                fontWeight={500}
-                className={`msg-timestamp-text-${side}`}
-              >
-                {getTime(sentTimeStamp)}
-              </Typography>
-            ) : null}
-            {side === 'right' ? (
-              <>
-                {isQueued === true ? (
-                  <AccessTimeIcon fontSize="inherit" />
-                ) : null}
-                {isSent === true ? (
-                  <DoneRoundedIcon fontSize="inherit" />
-                ) : null}
-                {isRead === true ? (
-                  <DoneAllRoundedIcon fontSize="inherit" />
-                ) : null}
-              </>
-            ) : null}
-          </span>
-        ) : null}
+        <span
+          className={`msg-timestamp ${isOverflow ? 'msg-timestamp-overflow' : ''}`}
+        >
+          {queuedTimestamp ? (
+            <Typography
+              variant="caption"
+              whiteSpace="nowrap"
+              fontWeight={500}
+              className={`msg-timestamp-text-${side}`}
+            >
+              {getTime(queuedTimestamp)}
+            </Typography>
+          ) : null}
+          {side === 'right' ? (
+            <>
+              {isQueued && !isSent ? (
+                <AccessTimeIcon fontSize="inherit" />
+              ) : null}
+              {isSent ? <DoneRoundedIcon fontSize="inherit" /> : null}
+              {isDelivered ? <DoneAllRoundedIcon fontSize="inherit" /> : null}
+              {isRead ? (
+                <DoneAllRoundedIcon fontSize="inherit" color="primary" />
+              ) : null}
+            </>
+          ) : null}
+        </span>
       </div>
     </ChatBubbleStyled>
   );

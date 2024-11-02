@@ -1,5 +1,7 @@
 export { MessagesContext, MessagesProvider } from './Messages';
 
+export type { MessageData } from './IMessage';
+
 export {
   MESSAGES_QUERY,
   MESSAGE_QUEUED_QUERY,
