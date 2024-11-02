@@ -170,6 +170,7 @@ export const groupMessages = (messages: any[] = [], _id: string) => {
         .map((msgGroups: any, idx: number) => ({
           side: msgGroups?.[0]?.sender?._id === _id ? 'right' : 'left',
           data: msgGroups,
+          // to do: include group details
           groupDetails:
             msgGroups?.[0]?.sender?._id === _id
               ? msgGroups?.[0]?.sender
@@ -202,6 +203,7 @@ export const groupMessage = (
   const newGroup = {
     side,
     data: [message],
+    // to do: include group details
     groupDetails: message?.sender,
   };
 
