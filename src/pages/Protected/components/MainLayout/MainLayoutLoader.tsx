@@ -34,7 +34,7 @@ const MainLayoutLoader = ({
               : {
                   primary: <Skeleton className="primary-skeleton" />,
                   primaryTypographyProps: {
-                    fontSize: primaryFontSize || '1.125',
+                    fontSize: primaryFontSize || '1rem',
                   },
                 }),
             ...(disableSecondary

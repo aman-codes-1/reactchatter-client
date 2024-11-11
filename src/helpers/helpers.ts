@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { MessageData, OtherMember } from '../contexts';
 
 export const formatDate = (dateValue: string | number | Date) => {
   const date = new Date(dateValue);
@@ -91,9 +92,9 @@ export const scrollIntoView = (ref: any) => {
 };
 
 export const scrollToSelected = (
-  listItems: any[],
   ref: any,
   itemsRef: any,
+  listItems: any[],
   selectedListItem: any,
 ) => {
   const selectedItemIndex = listItems?.findIndex(
@@ -167,14 +168,10 @@ export const groupMessages = (messages: any[] = [], _id: string) => {
           }
           return acc;
         }, [])
-        .map((msgGroups: any, idx: number) => ({
+        .map((msgGroups: any) => ({
           side: msgGroups?.[0]?.sender?._id === _id ? 'right' : 'left',
           data: msgGroups,
-          // to do: include group details
-          groupDetails:
-            msgGroups?.[0]?.sender?._id === _id
-              ? msgGroups?.[0]?.sender
-              : msgGroups?.[idx]?.sender,
+          groupDetails: msgGroups?.[0]?.sender,
         })),
     }),
   );
@@ -346,6 +343,84 @@ export const mergeLastByDateLabel = (prevArray: any[], newArray: any[]) => {
   }
 
   return [...newArray, ...prevArray];
+};
+
+export const renderMember = (members: any[], _id: string) => {
+  let currentMember;
+  let otherMember;
+
+  for (const member of members) {
+    if (member?._id === _id) {
+      currentMember = member;
+    } else if (member?._id !== _id) {
+      otherMember = member;
+    }
+  }
+
+  return { currentMember, otherMember };
+};
+
+export const checkIsMemberExists = (
+  members: any[],
+  key: string,
+  _id: string,
+) => {
+  let isCurrentMember = false;
+  let isOtherMember = false;
+
+  for (const member of members) {
+    if (member?._id === _id) {
+      if (member[key] === true) {
+        isCurrentMember = true;
+      } else if (member[key] === false) {
+        isOtherMember = true;
+      }
+    }
+    if (isCurrentMember && isOtherMember) break;
+  }
+
+  return { isCurrentMember, isOtherMember };
+};
+
+export const checkMessageStatus = (msg: MessageData, selectedItem: any) => {
+  let isQueued;
+  let isSent;
+  let isDelivered;
+  let isRead;
+
+  const sender = msg?.sender;
+  const queuedStatus = sender?.queuedStatus;
+  isQueued = queuedStatus?.isQueued;
+  const sentStatus = sender?.sentStatus;
+  isSent = sentStatus?.isSent;
+
+  if (selectedItem?.type === 'private') {
+    const receiver = msg?.otherMembers?.[0];
+    const deliveredStatus = receiver?.deliveredStatus;
+    isDelivered = deliveredStatus?.isDelivered;
+    const readStatus = receiver?.readStatus;
+    isRead = true;
+  }
+
+  if (selectedItem?.type === 'group') {
+    isDelivered = msg?.otherMembers?.every(
+      (el: OtherMember) => el?.deliveredStatus?.isDelivered,
+    );
+    isRead = msg?.otherMembers?.every(
+      (el: OtherMember) => el?.readStatus?.isRead,
+    );
+  }
+
+  isDelivered = isDelivered && !isRead;
+  isSent = isSent && !isDelivered && !isRead;
+  isQueued = isQueued && !isSent && !isDelivered && !isRead;
+
+  return {
+    isQueued,
+    isSent,
+    isDelivered,
+    isRead,
+  };
 };
 
 export const uniqueArrayElements = (arr: any[], arrayToFilter: any[]) => {

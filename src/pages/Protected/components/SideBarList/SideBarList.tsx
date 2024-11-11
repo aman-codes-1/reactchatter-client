@@ -1,4 +1,4 @@
-import { useContext, useLayoutEffect, useState } from 'react';
+import { useContext, useLayoutEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Badge, List } from '@mui/material';
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
@@ -6,35 +6,31 @@ import Face4OutlinedIcon from '@mui/icons-material/Face4Outlined';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { Button, DataList, ListItem } from '../../../../../../components';
-import {
-  ChatsAndFriendsContext,
-  MessagesContext,
-} from '../../../../../../contexts';
+import { ChatsAndFriendsContext } from '../../../../contexts';
+import { ListItem } from '../../../../components';
+import { DataList } from '..';
 import { SideBarListStyled } from './SideBarList.styled';
 
 const SideBarList = ({ toggleDrawer, className }: any) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const selectedOverviewLink = pathname?.split?.('/')?.[1];
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
   const {
     chats = [],
+    chatsLoading,
     refetchChats,
     otherFriends = [],
+    otherFriendsLoading,
     refetchOtherFriends,
     pendingRequestsCount = 0,
     sentRequestsCount = 0,
     setIsListItemClicked,
-    setLoadingQuery,
     selectedItem,
     setSelectedItem,
-  } = useContext(ChatsAndFriendsContext);
-  const {
-    setLoadingChatMessages,
+    setSelectedDetails,
     getQueuedMessages,
     getChatMessagesWithQueue,
-  } = useContext(MessagesContext);
+  } = useContext(ChatsAndFriendsContext);
   const [toggleChats, setToggleChats] = useState(!!chats?.length);
   const [toggleFriends, setToggleFriends] = useState(!!otherFriends?.length);
 
@@ -57,13 +53,6 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
       count: sentRequestsCount,
     },
   ];
-
-  useLayoutEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 900);
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   useLayoutEffect(() => {
     if (chats?.length) {
@@ -91,15 +80,15 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
   const handleClickChat = async (
     _: React.MouseEvent<HTMLDivElement, MouseEvent>,
     chat: any,
+    details: any,
   ) => {
     setIsListItemClicked((prev: boolean) => !prev);
 
     if (chat?._id) {
       try {
-        setLoadingQuery(false);
-        setLoadingChatMessages(false);
         await getChatMessagesWithQueue(chat?._id, 'chatId');
         setSelectedItem(chat);
+        setSelectedDetails(details);
         navigate(`/chat?id=${chat?._id}&type=chat`);
         toggleDrawer?.();
       } catch (error: any) {
@@ -111,6 +100,7 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
   const handleClickFriend = async (
     _: React.MouseEvent<HTMLDivElement, MouseEvent>,
     friend: any,
+    details: any,
   ) => {
     setIsListItemClicked((prev: boolean) => !prev);
 
@@ -122,10 +112,9 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
           refetchOtherFriends();
           return;
         }
-        setLoadingQuery(false);
-        setLoadingChatMessages(false);
         await getQueuedMessages(friend?._id, 'friendId');
         setSelectedItem(friend);
+        setSelectedDetails(details);
         navigate(`/chat?id=${friend?._id}&type=friend`);
         toggleDrawer?.();
       } catch (error) {
@@ -144,13 +133,12 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
   };
 
   return (
-    <SideBarListStyled chats={chats} className={`flex-item ${className}`}>
+    <SideBarListStyled className={className}>
       {chats?.length ? (
         <>
           <ListItem
             dense
-            disablePadding
-            disableGutters
+            sx={{ pt: 0 }}
             btnProps={{
               textProps: {
                 primary: 'Chats',
@@ -173,12 +161,12 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
             <DataList
               dense
               data={chats}
+              type="chats"
+              loading={chatsLoading}
               selectedItem={selectedItem}
               handleClickListItem={handleClickChat}
-              className={toggleChats ? 'chats-wrapper margin-bottom' : ''}
+              className="flex-list-item margin-bottom"
               scrollDependencies={[toggleChats, toggleFriends]}
-              WebkitLineClamp={1}
-              disableGutters={isMobile}
             />
           ) : null}
         </>
@@ -187,8 +175,7 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
         <>
           <ListItem
             dense
-            disablePadding
-            disableGutters
+            sx={!chats?.length ? { pt: 0 } : {}}
             btnProps={{
               textProps: {
                 primary: chats?.length ? 'New Chat' : 'Your Friends',
@@ -212,28 +199,13 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
               <DataList
                 dense
                 data={otherFriends}
-                sliceDataBy={
-                  toggleChats && chats?.length > 2 && otherFriends?.length > 2
-                    ? 2
-                    : undefined
-                }
+                type="otherFriends"
+                loading={otherFriendsLoading}
                 selectedItem={selectedItem}
                 handleClickListItem={handleClickFriend}
-                className={toggleFriends ? 'friends-wrapper margin-bottom' : ''}
+                className="flex-list-item margin-bottom"
                 scrollDependencies={[toggleChats, toggleFriends]}
-                WebkitLineClamp={1}
-                disableGutters={isMobile}
               />
-              {toggleChats && chats?.length > 2 && otherFriends?.length > 2 ? (
-                <Button
-                  color="secondary"
-                  variant="outlined"
-                  size="small"
-                  fullWidth
-                >
-                  View More
-                </Button>
-              ) : null}
             </>
           ) : null}
         </>
@@ -242,8 +214,7 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
         <>
           <ListItem
             dense
-            disablePadding
-            disableGutters
+            sx={!chats?.length && !otherFriends?.length ? { pt: 0 } : {}}
             disableHover
             btnProps={{
               textProps: {
@@ -257,7 +228,7 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
               },
             }}
           />
-          <List dense disablePadding>
+          <List dense disablePadding className="flex-list-item">
             {navLinks.map((navLink, idx) => (
               <ListItem
                 key={`${navLink?.title}-${idx}`}
@@ -265,6 +236,7 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
                   textProps: {
                     primary: navLink?.title || '',
                     primaryTypographyProps: {
+                      fontSize: '0.875rem',
                       style: {
                         WebkitLineClamp: 1,
                       },
@@ -287,7 +259,6 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
                     ),
                   onClick: (_) => handleClickOverviewItem(_, navLink?.link),
                 }}
-                disableGutters={isMobile}
               />
             ))}
           </List>

@@ -33,7 +33,7 @@ const ListItemButton = forwardRef((props: ListItemButtonProps, ref: any) => {
 
     const nameFirstLetter = name?.length
       ? name?.substring(0, 1).toUpperCase()
-      : null;
+      : '';
 
     return (
       <Avatar alt={nameFirstLetter} src="" {...avatarProps}>
@@ -71,11 +71,12 @@ const ListItemButton = forwardRef((props: ListItemButtonProps, ref: any) => {
           <ListItemText
             {...textProps}
             primaryTypographyProps={{
+              fontSize: '1rem',
               fontWeight: 500,
               ...textProps?.primaryTypographyProps,
             }}
             secondaryTypographyProps={{
-              fontWeight: 500,
+              fontWeight: 470,
               ...textProps?.secondaryTypographyProps,
             }}
             sx={{

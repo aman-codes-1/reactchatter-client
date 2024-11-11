@@ -10,12 +10,11 @@ import { Chip } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { Avatar } from '../../../components';
 import { useAuth } from '../../../hooks';
-import { MESSAGE_GROUPS_QUERY, MessagesContext } from '../../../contexts';
 import {
-  groupMessages,
-  mergeLastByDateLabel,
-  scrollIntoView,
-} from '../../../helpers';
+  ChatsAndFriendsContext,
+  MESSAGE_GROUPS_QUERY,
+} from '../../../contexts';
+import { groupMessages, mergeLastByDateLabel } from '../../../helpers';
 import ChatBubble from './ChatBubble';
 import { ChatGroupsStyled } from './Chats.styled';
 
@@ -30,33 +29,31 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
   const [prevScrollTop, setPrevScrollTop] = useState(0);
   const { auth: { _id = '' } = {} } = useAuth();
   const {
+    messagesLoading,
     fetchMoreMessages,
     messageGroups = [],
     messageGroupsPageInfo,
     messageGroupsQueuedPageInfo,
     messageGroupsScrollPosition,
     messageGroupsClient,
-    loadingChatMessages,
-    loadingCreateMessage,
-    setLoadingChatMessages,
+    loadingQueued,
+    queuedMessages = [],
     scrollToBottom,
     scrollToPosition,
-    queuedMessages = [],
+    isRefetching,
     getQueuedMessages,
-    getChatMessagesWithQueue,
-  } = useContext(MessagesContext);
+  } = useContext(ChatsAndFriendsContext);
   const scrollRef = useRef<any>(null);
   const scrollBottomRef = useRef<any>(null);
 
   useLayoutEffect(() => {
     const scrollBottom = () => {
-      // if (messageGroupsScrollPosition >= 0) return;
       if (scrollBottomRef?.current) {
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
       }
     };
     requestAnimationFrame(scrollBottom);
-  }, [loadingChatMessages, scrollToBottom]);
+  }, [messagesLoading, loadingQueued, scrollToBottom]);
 
   useLayoutEffect(() => {
     if (scrollRef?.current && messageGroupsScrollPosition >= 0) {
@@ -81,33 +78,17 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
     };
   }, []);
 
-  const fetchData = async (fetchFunction: any, id: string, key: string) => {
-    try {
-      await fetchFunction(id, key);
-    } catch (error: any) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoadingChatMessages(false);
-    }
-  };
-
   useEffect(() => {
-    const fetchChatMessages = async () => {
-      if (chatId) {
-        await fetchData(getChatMessagesWithQueue, chatId, 'chatId');
-      }
-
+    const fetchQueuedMessages = async () => {
       if (friendId) {
-        await fetchData(getQueuedMessages, friendId, 'friendId');
+        await getQueuedMessages(friendId, 'friendId');
       }
     };
 
-    fetchChatMessages();
+    fetchQueuedMessages();
   }, []);
 
-  if (loadingChatMessages) {
-    return null;
-  }
+  if ((messagesLoading && !isRefetching) || loadingQueued) return null;
 
   const handleScroll = async (e: any) => {
     if (scrollRef?.current) {
@@ -223,7 +204,7 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
                   {messageGroup?.dateLabel ? (
                     <div className="date-label-wrapper">
                       <Chip
-                        size="small"
+                        // size="small"
                         variant="outlined"
                         label={messageGroup?.dateLabel}
                         className="date-label-chip"
@@ -246,11 +227,15 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
                             }
                             alignItems="flex-end"
                           >
-                            {group?.side === 'left' && (
+                            {group?.side === 'left' ? (
                               <Grid>
-                                <Avatar src="" width={32} height={32} />
+                                <Avatar
+                                  alt={group?.groupDetails?.name}
+                                  src={group?.groupDetails?.picture}
+                                  sx={{ width: 32, height: 32 }}
+                                />
                               </Grid>
-                            )}
+                            ) : null}
                             {group?.data?.length ? (
                               <Grid
                                 size={8.15}

@@ -8,10 +8,8 @@ export const SideBarStyled = styled('div')(({ theme }) => ({
   height: '100svh',
   borderRight: `1px solid ${theme.palette.grey[300]}`,
   overflow: 'auto',
-  [theme.breakpoints.up('sm')]: {
-    '.flex-item:nth-last-of-type(1)': {
-      paddingTop: '1rem',
-    },
+  '.flex-item:nth-last-of-type(1)': {
+    paddingTop: '1rem',
   },
   [theme.breakpoints.down('xl')]: {
     maxWidth: '30%',

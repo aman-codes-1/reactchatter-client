@@ -32,10 +32,6 @@ export const MainLayoutStyled = styled('div')<{ navbarHeight: number }>(
       marginTop: '0.5rem',
       color: theme.palette.grey[800],
     },
-    '.overflow-wrapper': {
-      width: '100%',
-      overflow: 'auto',
-    },
   }),
 );
 

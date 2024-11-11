@@ -1,16 +1,26 @@
-import { Avatar as MuiAvatar } from '@mui/material';
+import {
+  Avatar as MuiAvatar,
+  AvatarProps as MuiAvatarProps,
+} from '@mui/material';
 import { AvatarStyled } from './Avatar.styled';
 
-const Avatar = ({ alt, src, width, height, className, children }: any) => (
-  <AvatarStyled width={width} height={height} className={className}>
-    <MuiAvatar
-      alt={alt}
-      src={src}
-      slotProps={{ img: { referrerPolicy: 'no-referrer' } }}
-    >
-      {children}
-    </MuiAvatar>
-  </AvatarStyled>
-);
+interface AvatarProps extends MuiAvatarProps {
+  wrapperClassName?: string;
+}
+
+const Avatar = (props: AvatarProps) => {
+  const { wrapperClassName, children, ...rest } = props;
+
+  return (
+    <AvatarStyled className={wrapperClassName}>
+      <MuiAvatar
+        slotProps={{ img: { referrerPolicy: 'no-referrer' } }}
+        {...rest}
+      >
+        {children}
+      </MuiAvatar>
+    </AvatarStyled>
+  );
+};
 
 export default Avatar;

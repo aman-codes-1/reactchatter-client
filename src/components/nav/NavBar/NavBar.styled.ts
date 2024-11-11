@@ -6,7 +6,6 @@ export const NavBarStyled = styled('div')(({ theme }) => ({
   justifyContent: 'space-between',
   gap: '1rem',
   [theme.breakpoints.down('sm')]: {
-    margin: 0,
     padding: '0.75rem 1rem',
     backgroundColor: theme.palette.grey[100],
   },
@@ -14,17 +13,16 @@ export const NavBarStyled = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     flex: '1 1 auto',
-    padding: '1.375rem 0rem 1rem 1.5rem',
+    padding: '1.25rem 0rem 1.25rem 1.25rem',
     [theme.breakpoints.down('sm')]: {
-      flex: '0',
-      flexBasis: '5.875rem',
       padding: '0.375rem 1rem',
+      flex: '0 0 5.875rem',
       borderRadius: '8px',
       justifyContent: 'center',
       backgroundColor: theme.palette.grey[400],
     },
     [theme.breakpoints.down('xs')]: {
-      flexBasis: '0',
+      flex: '0',
       padding: '0.375rem 1.375rem',
     },
   },

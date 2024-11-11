@@ -1,12 +1,11 @@
 import { ReactNode, Suspense, useLayoutEffect, useState } from 'react';
-import { Outlet, Route, Routes, useLocation } from 'react-router-dom';
+import { Outlet, Route, Routes } from 'react-router-dom';
 import { useAuth } from '../hooks';
 import { routesConfig } from './config';
 import { IRouteConfig } from './IRoutes';
 import { BaseProtected } from '../pages';
 
 const AppRoutes = () => {
-  const { pathname } = useLocation();
   const { auth } = useAuth();
   const [defaultRoutes, setDefaultRoutes] = useState<ReactNode[]>([]);
   const [privateRoutes, setPrivateRoutes] = useState<ReactNode[]>([]);
@@ -28,14 +27,6 @@ const AppRoutes = () => {
       }
     });
   }, []);
-
-  // useLayoutEffect(() => {
-  //   window.scrollTo({
-  //     top: 0,
-  //     left: 0,
-  //     behavior: 'smooth',
-  //   });
-  // }, [pathname]);
 
   window.addEventListener('storage', () => {
     window.location.reload();

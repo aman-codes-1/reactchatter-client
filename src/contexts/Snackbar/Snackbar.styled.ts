@@ -39,7 +39,7 @@ export const SnackbarStyled = styled('div')(({ theme }) => ({
         color: theme.palette.success.dark,
       },
       '.title': {
-        fontSize: '1.0625rem',
+        fontSize: '1rem',
         marginBottom: '2.5px',
       },
       '.message': {

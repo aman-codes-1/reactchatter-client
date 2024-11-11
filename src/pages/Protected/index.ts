@@ -1,9 +1,4 @@
-export {
-  BaseProtected,
-  FriendRequest,
-  MainLayout,
-  MainLayoutLoader,
-} from './components';
+export { BaseProtected } from './components';
 export { AddFriend } from './AddFriend';
 export { Chats } from './Chats';
 export { FriendRequests } from './FriendRequests';

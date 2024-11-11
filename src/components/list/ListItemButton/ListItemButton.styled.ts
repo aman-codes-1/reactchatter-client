@@ -50,21 +50,10 @@ export const ListItemButtonStyled = styled('div')<{
     '.list-item-btn:hover': {
       backgroundColor: disableHover ? 'transparent' : theme.palette.grey[100],
       cursor: disableHover ? 'default' : 'pointer',
-      color: disableHover ? '' : theme.palette.secondary.main,
-      '.MuiTypography-root, .Mui-selected': {
-        color: disableHover ? '' : theme.palette.secondary.main,
-      },
-      '.list-item-icon': {
-        color: disableHover ? '' : theme.palette.secondary.main,
-        outline: disableHover
-          ? ''
-          : `1px solid ${theme.palette.secondary.main}`,
-        backgroundColor: disableHover ? '' : theme.palette.common.white,
-      },
     },
     '.MuiButtonBase-root.MuiListItemButton-root.Mui-selected': {
       backgroundColor: theme.palette.primary.light,
-      '.MuiTypography-root': {
+      '.MuiListItemText-primary': {
         color: theme.palette.secondary.main,
       },
       '.list-item-icon': {

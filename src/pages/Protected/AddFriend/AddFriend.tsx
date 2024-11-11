@@ -5,14 +5,13 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useLocation } from 'react-router-dom';
 import { TextField, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { SuccessErrorMessage } from '../../../components';
 import { handleKeyPress, regex, setFocus } from '../../../helpers';
 import { useAuth, useTimeout } from '../../../hooks';
 import { ChatsAndFriendsContext } from '../../../contexts';
-import { MainLayout } from '..';
+import { MainLayout } from '../components';
 import { AddFriendStyled } from './AddFriend.styled';
 
 const AddFriend = () => {

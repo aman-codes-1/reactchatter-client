@@ -30,7 +30,7 @@ type Sender = {
   sentStatus: SentStatus;
 };
 
-type OtherMember = {
+export type OtherMember = {
   _id: string;
   deliveredStatus: DeliveredStatus;
   readStatus: ReadStatus;

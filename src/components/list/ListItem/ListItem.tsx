@@ -15,6 +15,8 @@ const ListItem = forwardRef((props: ListItemProps, ref: any) => {
     ...rest
   } = props;
 
+  const isListItemButton = !!Object.keys(btnProps || {})?.length;
+
   return (
     <ListItemStyled
       width={width}
@@ -22,9 +24,11 @@ const ListItem = forwardRef((props: ListItemProps, ref: any) => {
       className={wrapperClassName}
     >
       <MuiListItem {...rest} sx={{ ...sx, cursor: 'default' }}>
-        <ListItemButton disableHover={disableHover} ref={ref} {...btnProps}>
-          {btnProps?.children || null}
-        </ListItemButton>
+        {isListItemButton ? (
+          <ListItemButton disableHover={disableHover} ref={ref} {...btnProps}>
+            {btnProps?.children || null}
+          </ListItemButton>
+        ) : null}
         {children}
       </MuiListItem>
     </ListItemStyled>

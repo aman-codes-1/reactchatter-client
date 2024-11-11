@@ -1,7 +1,6 @@
 import {
   ChangeEvent,
   useContext,
-  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -18,7 +17,6 @@ import { useAuth } from '../../../hooks';
 import {
   ChatsAndFriendsContext,
   MESSAGE_GROUPS_QUERY,
-  MessagesContext,
 } from '../../../contexts';
 import {
   deleteKeyValuePairs,
@@ -29,12 +27,12 @@ import {
   validateSearchParams,
 } from '../../../helpers';
 import { ListItem } from '../../../components';
-import { MainLayoutLoader } from '../components';
 import { MessageQueueService } from '../../../services';
+import { MainLayoutLoader } from '../components';
 import ChatGroups from './ChatGroups';
 import { ChatsStyled } from './Chats.styled';
 
-const Chats = ({ loadingFallback }: any) => {
+const Chats = () => {
   const MessageQueue = new MessageQueueService();
   const navigate = useNavigate();
   const { search } = useLocation();
@@ -49,27 +47,23 @@ const Chats = ({ loadingFallback }: any) => {
   const [textFieldHeight, setTextFieldHeight] = useState(0);
   const { auth: { _id = '' } = {} } = useAuth();
   const {
-    chatQuery,
-    chat,
     chatLoading,
-    friendQuery,
+    chatCalled,
     friendLoading,
-    createChat,
-    isListItemClicked,
-    loadingQuery,
-    setLoadingQuery,
-    selectedItem,
-  } = useContext(ChatsAndFriendsContext);
-  const {
+    friendCalled,
     messageGroups = [],
     messageGroupsPageInfo,
     messageGroupsQueuedPageInfo,
     messageGroupsClient,
     createMessage,
+    createChat,
+    isListItemClicked,
+    selectedItem,
+    selectedDetails,
     setLoadingCreateMessage,
-    setScrollToBottom,
     setQueuedMessages,
-  } = useContext(MessagesContext);
+    setScrollToBottom,
+  } = useContext(ChatsAndFriendsContext);
   const inputRef = useRef<any>(null);
   const appBarRef = useRef<any>(null);
   const textFieldRef = useRef<any>(null);
@@ -123,51 +117,6 @@ const Chats = ({ loadingFallback }: any) => {
     }
   }, [search]);
 
-  useLayoutEffect(() => {
-    if (selectedItem?.hasChats === true) {
-      navigate('/');
-    }
-  }, [selectedItem, isListItemClicked]);
-
-  const fetchData = async (fetchFunction: any, id: string, key: string) => {
-    try {
-      const res = await fetchFunction({
-        variables: {
-          [key]: id,
-          ...(key === 'friendId' ? { userId: _id } : {}),
-        },
-        fetchPolicy: 'no-cache',
-      });
-
-      const error = res?.error?.message;
-
-      if (error) {
-        navigate('/');
-        throw new Error(error);
-      }
-    } catch (error: any) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoadingQuery(false);
-    }
-  };
-
-  useEffect(() => {
-    if (loadingFallback || selectedItem) return;
-
-    const fetchQuery = async () => {
-      if (chatId) {
-        await fetchData(chatQuery, chatId, 'chatId');
-      }
-
-      if (friendId) {
-        await fetchData(friendQuery, friendId, 'friendId');
-      }
-    };
-
-    fetchQuery();
-  }, [loadingFallback, selectedItem]);
-
   const handleChangeMessage = (
     e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
   ) => {
@@ -178,16 +127,37 @@ const Chats = ({ loadingFallback }: any) => {
     if (members?.length) {
       const otherMembers = members
         ?.filter((member: any) => member?._id !== _id)
-        ?.map((member: any) => ({
-          _id: member?._id,
-          deliveredStatus: null,
-          readStatus: null,
-        }));
+        ?.map((member: any) => {
+          const { hasCreated, ...rest } = member || {};
+          return {
+            ...rest,
+            deliveredStatus: null,
+            readStatus: null,
+          };
+        });
 
       return otherMembers;
     }
 
     return [];
+  };
+
+  const getSender = (members: any[], timestamp: number) => {
+    if (members?.length) {
+      const sender = members?.find((member: any) => member?._id === _id);
+      const { hasCreated, ...rest } = sender || {};
+      return {
+        ...rest,
+        retryStatus: null,
+        queuedStatus: {
+          isQueued: true,
+          timestamp,
+        },
+        sentStatus: null,
+      };
+    }
+
+    return {};
   };
 
   const handleSendMessage = async () => {
@@ -208,22 +178,13 @@ const Chats = ({ loadingFallback }: any) => {
         _id: '',
         queueId: crypto.randomUUID(),
         message,
-        sender: {
-          _id,
-          retryStatus: null,
-          queuedStatus: {
-            isQueued: true,
-            timestamp,
-          },
-          sentStatus: null,
-        },
         timestamp,
       };
 
       if (!chatIdToUse && friendId) {
         queuedMessage = {
           friendId,
-          friendUserId: selectedItem?.details?._id,
+          friendUserId: selectedDetails?._id,
           ...queuedMessageData,
         };
 
@@ -275,10 +236,10 @@ const Chats = ({ loadingFallback }: any) => {
         const createdChat = await createChat({
           variables: {
             userId: _id,
-            friendId,
             queueId,
             type: 'private',
-            friendUserId: queuedMessage?.friendUserId,
+            friendIds: [friendId],
+            friendUserIds: [queuedMessage?.friendUserId],
           },
         });
 
@@ -287,17 +248,26 @@ const Chats = ({ loadingFallback }: any) => {
         const createdChatMembers = createdChatData?.members;
 
         if (!createdChatId) throw new Error('Failed to create chat');
-        // to do
-        // pop from setQueuedMessages
-        // setQueuedMessages([]);
 
         chatIdToUse = createdChatId;
+
+        setSearchParams((params) => {
+          params.set('id', chatIdToUse);
+          params.set('type', 'chat');
+          return params;
+        });
+
+        // to do
+        // add chatId to state
+        // then, pop from setQueuedMessages
+        // setQueuedMessages([]);
 
         const updatedQueuedMessage = await MessageQueue.updateMessageToQueue(
           queueId,
           {
             chatId: chatIdToUse,
             otherMembers: getOtherMembers(createdChatMembers),
+            sender: getSender(createdChatMembers, timestamp),
           },
           ['friendId', 'friendUserId'],
         ).catch((err) => {
@@ -319,20 +289,16 @@ const Chats = ({ loadingFallback }: any) => {
             ...queuedMessage,
             chatId: chatIdToUse,
             otherMembers: getOtherMembers(createdChatMembers),
+            sender: getSender(createdChatMembers, timestamp),
           };
         }
-
-        setSearchParams((params) => {
-          params.set('id', chatIdToUse);
-          params.set('type', 'chat');
-          return params;
-        });
       }
 
       if (chatIdToUse) {
         queuedMessage = queuedMessage || {
           chatId: chatIdToUse,
-          otherMembers: getOtherMembers(chat?.chat?.members),
+          otherMembers: getOtherMembers(selectedItem?.members),
+          sender: getSender(selectedItem?.members, timestamp),
           ...queuedMessageData,
         };
 
@@ -385,8 +351,8 @@ const Chats = ({ loadingFallback }: any) => {
 
         const createdMessage = await createMessage({
           variables: {
+            userId: _id,
             chatId: chatIdToUse,
-            senderId: _id,
             queueId,
             isQueued: queuedMessageQueuedStatusIsQueued,
             queuedTimestamp: queuedMessageQueuedStatusTimestamp,
@@ -413,7 +379,7 @@ const Chats = ({ loadingFallback }: any) => {
     }
   };
 
-  const loading = loadingQuery || chatLoading || friendLoading;
+  const loading = chatLoading || chatCalled || friendLoading || friendCalled;
 
   return (
     <ChatsStyled
@@ -436,10 +402,9 @@ const Chats = ({ loadingFallback }: any) => {
                     disableGutters: true,
                     alignItems: 'flex-start',
                     textProps: {
-                      primary: selectedItem?.details?.name,
-                      secondary: selectedItem?.details?.email,
+                      primary: selectedDetails?.name,
+                      secondary: selectedDetails?.email,
                       primaryTypographyProps: {
-                        fontSize: '1.0625rem',
                         style: {
                           WebkitLineClamp: 1,
                         },
@@ -451,7 +416,7 @@ const Chats = ({ loadingFallback }: any) => {
                       },
                     },
                     avatarProps: {
-                      src: selectedItem?.details?.picture,
+                      src: selectedDetails?.picture,
                     },
                   }}
                 />
@@ -460,12 +425,10 @@ const Chats = ({ loadingFallback }: any) => {
           </Toolbar>
         </AppBar>
       </div>
-      {loading ? null : (
-        <ChatGroups
-          appBarHeight={appBarHeight}
-          textFieldHeight={textFieldHeight}
-        />
-      )}
+      <ChatGroups
+        appBarHeight={appBarHeight}
+        textFieldHeight={textFieldHeight}
+      />
       <div className="text-field-wrapper" ref={textFieldRef}>
         <AppBar position="static" className="app-bar text-field-app-bar">
           <Toolbar disableGutters variant="dense">

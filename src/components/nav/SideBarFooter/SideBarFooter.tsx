@@ -28,7 +28,6 @@ const SideBarFooter = ({ className }: any) => {
               primary: name,
               secondary: email,
               primaryTypographyProps: {
-                fontSize: '1rem',
                 style: {
                   WebkitLineClamp: 1,
                 },

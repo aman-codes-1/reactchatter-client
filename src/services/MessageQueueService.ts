@@ -210,7 +210,7 @@ export class MessageQueueService {
   }
 
   async getQueuedMessagesById(
-    queueId: string,
+    id: string,
     key: string,
     limit: number,
     offset: number,
@@ -228,8 +228,8 @@ export class MessageQueueService {
             const index = objectStore?.index?.(`${key}_timestamp`);
 
             if (index) {
-              const lowerBound = [queueId, -Infinity]; //
-              const upperBound = [queueId, Infinity]; //
+              const lowerBound = [id, -Infinity]; //
+              const upperBound = [id, Infinity]; //
               const range = IDBKeyRange.bound(lowerBound, upperBound);
 
               const request = index?.openCursor?.(range, 'next');
@@ -373,17 +373,17 @@ export class MessageQueueService {
   }
 
   async createChatAndUpdateToQueue(
+    userId: string,
     queueId: string,
     friendId: string,
     friendUserId: string,
     retryCount: number,
-    senderId: string,
     isRetry: boolean,
     offset: number,
   ) {
     const createdChat = await this.createChat?.({
       variables: {
-        userId: senderId,
+        userId,
         friendId,
         queueId,
         type: 'private',
@@ -409,19 +409,19 @@ export class MessageQueueService {
   }
 
   async createMessageAndProcessNext(
+    userId: string,
     queueId: string,
     chatId: string,
     rest: any,
     retryCount: number,
-    senderId: any,
     isRetry: boolean,
     offset: number,
   ) {
     const createdMessage = await this.createMessage?.({
       variables: {
         ...rest,
+        userId,
         chatId,
-        senderId,
         queueId,
       },
     });
@@ -443,7 +443,6 @@ export class MessageQueueService {
   }
 
   async processNextMessage(retryCount = 0, offset = 0): Promise<void> {
-    // to do
     const { message, cursor } =
       (await this.getNextMessageForProcessing(offset)) || {};
 
@@ -454,7 +453,7 @@ export class MessageQueueService {
 
     if (!queueId) await this.removeCursorFromQueueAndRestart(cursor);
 
-    const senderId = sender?._id;
+    const userId = sender?._id;
     const isRetry = sender?.sentStatus?.isRetry || false;
 
     let chatIdToUse = chatId || '';
@@ -464,11 +463,11 @@ export class MessageQueueService {
     try {
       if (!chatIdToUse && friendId && friendUserId) {
         chatIdToUse = await this.createChatAndUpdateToQueue(
+          userId,
           queueId,
           friendId,
           friendUserId,
           retryCount,
-          senderId,
           isRetry,
           offset,
         );
@@ -476,11 +475,11 @@ export class MessageQueueService {
 
       if (chatIdToUse) {
         await this.createMessageAndProcessNext(
+          userId,
           queueId,
           chatIdToUse,
           rest,
           retryCount,
-          senderId,
           isRetry,
           offset,
         );

@@ -113,13 +113,14 @@ export const ChatGroupsStyled = styled('div')<{
       margin: '1.75rem 0rem 0.875rem 0rem',
     },
     '.date-label-chip': {
-      height: 'auto',
+      // height: 'auto',
+      borderRadius: '8px',
       '& .MuiChip-label': {
         fontWeight: 500,
         display: 'block',
         whiteSpace: 'normal',
         textTransform: 'uppercase',
-        fontSize: '0.725rem',
+        fontSize: '0.75rem',
       },
     },
   },
@@ -169,7 +170,6 @@ export const ChatBubbleStyled = styled('div')(({ theme }) => ({
     borderTopLeftRadius: 16,
     borderBottomLeftRadius: 16,
     backgroundColor: theme.palette.primary.main,
-    color: theme.palette.common.white,
   },
   '.msg-left-first': {
     borderTopLeftRadius: 16,
@@ -185,7 +185,7 @@ export const ChatBubbleStyled = styled('div')(({ theme }) => ({
   },
   '.msg-content': {
     wordBreak: 'break-all',
-    fontWeight: 470,
+    fontSize: '0.938rem',
   },
   '.msg-content-left': {
     color: theme.palette.grey[900],
@@ -199,7 +199,7 @@ export const ChatBubbleStyled = styled('div')(({ theme }) => ({
     alignItems: 'center',
     position: 'relative',
     float: 'right',
-    top: '8px',
+    top: '10px',
     marginBottom: '4px',
     marginLeft: '0.75rem',
     whiteSpace: 'nowrap',
@@ -209,10 +209,13 @@ export const ChatBubbleStyled = styled('div')(({ theme }) => ({
     top: 4,
     marginBottom: 0,
   },
+  '.msg-timestamp-text': {
+    fontSize: '0.688rem',
+  },
   '.msg-timestamp-text-left': {
     color: theme.palette.grey[700],
   },
   '.msg-timestamp-text-right': {
-    color: theme.palette.primary.contrastText,
+    color: theme.palette.grey[400],
   },
 }));

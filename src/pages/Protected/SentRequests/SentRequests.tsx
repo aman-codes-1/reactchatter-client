@@ -1,14 +1,13 @@
 import { MouseEventHandler, useContext } from 'react';
-import { FriendRequest } from '..';
 import { useAuth, useSnackbar } from '../../../hooks';
 import { ChatsAndFriendsContext } from '../../../contexts';
+import { FriendRequest } from '../components';
 
 const SentRequests = () => {
   const { openSnackbar } = useSnackbar();
   const {
     sentRequests = [],
     sentRequestsLoading,
-    sentRequestsCalled,
     sentRequestsError,
     updateRequest,
     updateRequestLoading,
@@ -42,11 +41,10 @@ const SentRequests = () => {
       mainLayoutProps={{
         heading: 'Sent Requests',
         defaultText: 'You have not sent any friend requests.',
-        loading: sentRequestsLoading || !sentRequestsCalled,
+        loading: sentRequestsLoading,
         error: sentRequestsError?.graphQLErrors?.[0]?.message,
       }}
       data={sentRequests}
-      userObj="details"
       nameKey="name"
       emailKey="email"
       pictureKey="picture"

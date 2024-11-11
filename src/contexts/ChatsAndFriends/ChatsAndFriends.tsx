@@ -1,72 +1,200 @@
 import { createContext, useLayoutEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useMutation, useQuery, useSubscription } from '@apollo/client';
+import { useAuth } from '../../hooks';
 import {
-  useLazyQuery,
-  useMutation,
-  useQuery,
-  useSubscription,
-} from '@apollo/client';
+  checkIsMemberExists,
+  getDateLabel,
+  groupMessage,
+  groupMessages,
+  mergeAllByDateLabel,
+  renderMember,
+  unGroupMessages,
+  uniqueArrayElements,
+  updateGroupedQueuedMessage,
+} from '../../helpers';
+import { MessageQueueService } from '../../services';
 import {
-  CHAT_QUERY,
   CHATS_QUERY,
+  CHAT_ADDED_SUBSCRIPTION,
+  CHAT_QUERY,
+  CHAT_UPDATED_SUBSCRIPTION,
   CREATE_CHAT_MUTATION,
+  CREATE_MESSAGE_MUTATION,
   CREATE_REQUEST_MUTATION,
   FRIEND_ADDED_SUBSCRIPTION,
-  PENDING_REQUESTS_QUERY,
+  MESSAGES_QUERY,
+  MESSAGE_ADDED_SUBSCRIPTION,
+  MESSAGE_GROUPS_QUERY,
   FRIEND_QUERY,
+  MESSAGE_UPDATED_SUBSCRIPTION,
   OTHER_FRIENDS_QUERY,
+  PENDING_REQUESTS_QUERY,
   REQUEST_ADDED_SUBSCRIPTION,
   REQUEST_UPDATED_SUBSCRIPTION,
+  UPDATE_CHAT_MUTATION,
+  UPDATE_MESSAGE_MUTATION,
   SENT_REQUESTS_QUERY,
   UPDATE_REQUEST_MUTATION,
-  CHAT_ADDED_SUBSCRIPTION,
 } from '.';
-import { useAuth } from '../../hooks';
 
 export const ChatsAndFriendsContext = createContext<any>({});
 
 export const ChatsAndFriendsProvider = ({ children }: any) => {
+  const MessageQueue = new MessageQueueService();
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const chatId =
+    searchParams.get('type') === 'chat' ? searchParams.get('id') : null;
+  const friendId =
+    searchParams.get('type') === 'friend' ? searchParams.get('id') : null;
   const [isListItemClicked, setIsListItemClicked] = useState(false);
-  const [loadingQuery, setLoadingQuery] = useState(true);
   const [selectedItem, setSelectedItem] = useState();
+  const [selectedDetails, setSelectedDetails] = useState();
+  const [loadingCreateMessage, setLoadingCreateMessage] = useState(false);
+  // const [loadingProcessNextMessage, setLoadingProcessNextMessage] = useState(false);
+  const [loadingQueued, setLoadingQueued] = useState(true);
+  const [queuedMessages, setQueuedMessages] = useState<any[]>([]);
+  const [scrollToBottom, setScrollToBottom] = useState(false);
+  const [scrollToPosition, setScrollToPosition] = useState(false);
+  const [isRefetching, setIsRefetching] = useState(false);
   const { auth: { _id = '' } = {} } = useAuth();
 
-  const [
-    chatQuery,
-    {
-      data: chat,
-      loading: chatLoading,
-      error: chatError,
-      client: chatClient,
-      called: chatCalled,
-    },
-  ] = useLazyQuery(CHAT_QUERY, {
+  const {
+    data: chat,
+    loading: chatLoading,
+    error: chatError,
+    client: chatClient,
+    called: chatCalled,
+  } = useQuery(CHAT_QUERY, {
     onCompleted: (data) => {
-      const chatData = data?.chat;
-      setSelectedItem(chatData);
-    },
-  });
-
-  const [
-    friendQuery,
-    {
-      data: friend,
-      loading: friendLoading,
-      error: friendError,
-      client: friendClient,
-      called: friendCalled,
-    },
-  ] = useLazyQuery(FRIEND_QUERY, {
-    onCompleted: (data) => {
-      const friendData = data?.friend;
-      if (friendData?.hasChats === true) {
-        navigate('/');
-      } else {
-        setSelectedItem(friendData);
+      const item = data?.chat;
+      const isPrivateChat = item?.type === 'private';
+      const isGroupChat = item?.type === 'group';
+      if (isPrivateChat) {
+        const { otherMember } = renderMember(item?.members, _id);
+        setSelectedItem(item);
+        setSelectedDetails(otherMember);
+      }
+      if (isGroupChat) {
+        setSelectedItem(item);
+        setSelectedDetails(item?.groupDetails);
       }
     },
+    onError: () => {
+      navigate('/');
+    },
+    fetchPolicy: 'no-cache',
+    variables: {
+      chatId,
+    },
+    skip: !chatId || !!friendId || !!selectedItem || !!selectedDetails,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const {
+    data: friend,
+    loading: friendLoading,
+    error: friendError,
+    client: friendClient,
+    called: friendCalled,
+  } = useQuery(FRIEND_QUERY, {
+    onCompleted: (data) => {
+      const item = data?.friend;
+      const itemHasChats = item?.hasChats === true;
+      if (itemHasChats) {
+        navigate('/');
+      } else {
+        const { otherMember } = renderMember(item?.members, _id);
+        setSelectedItem(item);
+        setSelectedDetails(otherMember);
+      }
+    },
+    onError: () => {
+      navigate('/');
+    },
+    fetchPolicy: 'no-cache',
+    variables: {
+      friendId,
+      userId: _id,
+    },
+    skip: !friendId || !!chatId || !!selectedItem || !!selectedDetails,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const {
+    data: {
+      messageGroups: {
+        edges: messageGroups = [],
+        pageInfo: messageGroupsPageInfo = {},
+        queuedPageInfo: messageGroupsQueuedPageInfo = {},
+        scrollPosition: messageGroupsScrollPosition = -1,
+      } = {},
+    } = {},
+    loading: messageGroupsLoading,
+    error: messageGroupsError,
+    client: messageGroupsClient,
+    called: messageGroupsCalled,
+    subscribeToMore: subscribeMessageGroupsToMore,
+  } = useQuery(MESSAGE_GROUPS_QUERY, {
+    fetchPolicy: 'cache-only',
+    variables: { chatId },
+    skip: !chatId || !!friendId,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const {
+    data: {
+      messages: { edges: messages = [], pageInfo: messagesPageInfo = {} } = {},
+    } = {},
+    loading: messagesLoading,
+    error: messagesError,
+    client: messagesClient,
+    called: messagesCalled,
+    subscribeToMore: subscribeMessagesToMore,
+    fetchMore: fetchMoreMessages,
+    refetch: refetchMessages,
+    networkStatus: messagesNetworkStatus,
+  } = useQuery(MESSAGES_QUERY, {
+    onCompleted: async (data) => {
+      const messages = data?.messages;
+      let edges = messages?.edges;
+      const pageInfo = messages?.pageInfo;
+      const queuedPageInfo = messages?.pageInfo;
+      const scrollPosition = -1;
+
+      if (chatId && !isRefetching) {
+        const fetchedQueuedMessages =
+          (await getQueuedMessages(chatId, 'chatId', true)) || [];
+        edges = groupAllMessages(edges, fetchedQueuedMessages);
+        messageGroupsClient.writeQuery({
+          query: MESSAGE_GROUPS_QUERY,
+          data: {
+            messageGroups: {
+              edges,
+              pageInfo,
+              queuedPageInfo,
+              scrollPosition,
+            },
+          },
+          variables: { chatId },
+        });
+
+        setScrollToBottom((prev: boolean) => !prev);
+      }
+
+      setIsRefetching(false);
+    },
+    onError: (error) => {
+      const err = error?.message;
+      if (err?.includes('Chat not found')) {
+        navigate('/');
+      }
+    },
+    fetchPolicy: 'no-cache',
+    variables: { chatId },
+    skip: !chatId || !!friendId || !!selectedItem || !!selectedDetails,
   });
 
   const {
@@ -81,7 +209,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     variables: {
       userId: _id,
     },
-    fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true,
   });
 
   const {
@@ -96,7 +224,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     variables: {
       userId: _id,
     },
-    fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true,
   });
 
   const {
@@ -115,7 +243,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     variables: {
       userId: _id,
     },
-    fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true,
   });
 
   const {
@@ -134,7 +262,84 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     variables: {
       userId: _id,
     },
-    fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const {
+    data: OnMessageAddedData,
+    loading: OnMessageAddedLoading,
+    error: OnMessageAddedError,
+  } = useSubscription(MESSAGE_ADDED_SUBSCRIPTION, {
+    onData: async (res) => {
+      // to do: fix caching of messages not working properly when new message received
+      const OnMessageAdded = res?.data?.data?.OnMessageAdded;
+      const OnMessageAddedChatId = OnMessageAdded?.chatId;
+      const OnMessageAddedMessage = OnMessageAdded?.message;
+      const OnMessageAddedQueueId = OnMessageAddedMessage?.queueId;
+      const OnMessageAddedSender = OnMessageAddedMessage?.sender;
+      const OnMessageAddedOtherMembers = OnMessageAddedMessage?.otherMembers;
+
+      const isChatExists = OnMessageAddedChatId?._id === chatId;
+      const isMemberExists = OnMessageAddedSender?._id === _id;
+      const isOtherMemberExists = OnMessageAddedOtherMembers?.length
+        ? OnMessageAddedOtherMembers.some((member: any) => member?._id === _id)
+        : false;
+
+      if (isChatExists || isMemberExists || isOtherMemberExists) {
+        let edges = [];
+        const pageInfo = {
+          endCursor: OnMessageAddedMessage?._id,
+          hasNextPage: false,
+        };
+        const queuedPageInfo = {
+          endCursor: '',
+          hasNextPage: false,
+        };
+
+        if (OnMessageAddedQueueId) {
+          edges = updateGroupedQueuedMessage(
+            messageGroups,
+            OnMessageAddedQueueId,
+            OnMessageAddedMessage,
+            _id,
+          );
+        } else {
+          edges = groupMessage(messageGroups, OnMessageAddedMessage, _id);
+        }
+
+        if (edges?.length) {
+          messageGroupsClient.writeQuery({
+            query: MESSAGE_GROUPS_QUERY,
+            data: {
+              messageGroups: {
+                edges,
+                pageInfo: messageGroupsPageInfo?.endCursor
+                  ? messageGroupsPageInfo
+                  : pageInfo,
+                queuedPageInfo: messageGroupsQueuedPageInfo?.endCursor
+                  ? messageGroupsQueuedPageInfo
+                  : queuedPageInfo,
+                scrollPosition: -1,
+              },
+            },
+            variables: { chatId: OnMessageAddedChatId },
+          });
+
+          setScrollToBottom((prev) => !prev);
+        }
+      }
+    },
+  });
+
+  const {
+    data: OnMessageUpdatedData,
+    loading: OnMessageUpdatedLoading,
+    error: OnMessageUpdatedError,
+  } = useSubscription(MESSAGE_UPDATED_SUBSCRIPTION, {
+    onData: (res) => {
+      // to do
+      // deliver message, read message
+    },
   });
 
   const {
@@ -144,38 +349,48 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   } = useSubscription(CHAT_ADDED_SUBSCRIPTION, {
     onData: (res) => {
       const OnChatAdded = res?.data?.data?.OnChatAdded;
-      const OnChatAddedFriendId = OnChatAdded?.friendId;
+      const OnChatAddedFriendIds = OnChatAdded?.friendIds;
       const OnChatAddedChat = OnChatAdded?.chat;
       const OnChatAddedMembers = OnChatAddedChat?.members;
       const isChatAddedPrivate = OnChatAddedChat?.type === 'private';
 
-      const isAlreadyExists = chats?.length
-        ? chats?.some((chat: any) => chat?._id === OnChatAddedChat?._id)
-        : false;
+      const { isCurrentMember, isOtherMember } = checkIsMemberExists(
+        OnChatAddedMembers,
+        'hasCreated',
+        _id,
+      );
 
-      const isMemberExists = OnChatAddedMembers?.length
-        ? OnChatAddedMembers.some((member: any) => member?._id === _id)
-        : false;
+      const { otherMember } = renderMember(OnChatAddedMembers, _id);
 
-      if (!isAlreadyExists && isMemberExists) {
-        if (isChatAddedPrivate) {
-          otherFriendsClient.writeQuery({
-            query: OTHER_FRIENDS_QUERY,
-            data: {
-              otherFriends: otherFriends?.length
-                ? otherFriends?.filter(
-                    (otherFriend: any) =>
-                      otherFriend?._id !== OnChatAddedFriendId,
-                  )
-                : otherFriends,
-            },
-            variables: {
-              userId: _id,
-            },
+      if (isCurrentMember || isOtherMember) {
+        if (isChatAddedPrivate && OnChatAddedFriendIds?.length) {
+          OnChatAddedFriendIds?.forEach((OnChatAddedFriendId: string) => {
+            otherFriendsClient.writeQuery({
+              query: OTHER_FRIENDS_QUERY,
+              data: {
+                otherFriends: otherFriends?.length
+                  ? otherFriends?.filter(
+                      (otherFriend: any) =>
+                        otherFriend?._id !== OnChatAddedFriendId,
+                    )
+                  : otherFriends,
+              },
+              variables: {
+                userId: _id,
+              },
+            });
+
+            if (OnChatAddedFriendId === friendId) {
+              setSearchParams((params) => {
+                params.set('id', OnChatAddedChat?._id);
+                params.set('type', 'chat');
+                return params;
+              });
+              setSelectedItem(OnChatAddedChat);
+              setSelectedDetails(otherMember);
+            }
           });
         }
-
-        setSelectedItem(OnChatAddedChat);
 
         const data = {
           ...chats,
@@ -196,6 +411,17 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   });
 
   const {
+    data: OnChatUpdatedData,
+    loading: OnChatUpdatedLoading,
+    error: OnChatUpdatedError,
+  } = useSubscription(CHAT_UPDATED_SUBSCRIPTION, {
+    onData: (res) => {
+      // to do
+      // get chat with updated last message
+    },
+  });
+
+  const {
     data: OnFriendAddedData,
     loading: OnFriendAddedLoading,
     error: OnFriendAddedError,
@@ -205,11 +431,13 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       const OnFriendAddedFriend = OnFriendAdded?.friend;
       const OnFriendAddedMembers = OnFriendAddedFriend?.members;
 
-      const isMemberExists = OnFriendAddedMembers?.length
-        ? OnFriendAddedMembers?.some((member: any) => member?._id === _id)
-        : false;
+      const { isCurrentMember, isOtherMember } = checkIsMemberExists(
+        OnFriendAddedMembers,
+        'hasConfirmed',
+        _id,
+      );
 
-      if (isMemberExists) {
+      if (isCurrentMember || isOtherMember) {
         otherFriendsClient.writeQuery({
           query: OTHER_FRIENDS_QUERY,
           data: {
@@ -225,25 +453,6 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     },
   });
 
-  const checkIsMember = (OnRequestMembers: any) => {
-    let isMemberExists = false;
-    let isMemberExists2 = false;
-
-    if (OnRequestMembers?.length) {
-      OnRequestMembers?.forEach((member: any) => {
-        if (member?._id === _id) {
-          if (member?.hasSent === true) {
-            isMemberExists = true;
-          } else if (member?.hasSent === false) {
-            isMemberExists2 = true;
-          }
-        }
-      });
-    }
-
-    return { isMemberExists, isMemberExists2 };
-  };
-
   const {
     data: OnRequestAddedData,
     loading: OnRequestAddedLoading,
@@ -254,11 +463,13 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       const OnRequestAddedRequest = OnRequestAdded?.request;
       const OnRequestAddedMembers = OnRequestAddedRequest?.members;
 
-      const { isMemberExists, isMemberExists2 } = checkIsMember(
+      const { isCurrentMember, isOtherMember } = checkIsMemberExists(
         OnRequestAddedMembers,
+        'hasSent',
+        _id,
       );
 
-      if (isMemberExists) {
+      if (isCurrentMember) {
         sentRequestsClient.writeQuery({
           query: SENT_REQUESTS_QUERY,
           data: {
@@ -275,7 +486,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         });
       }
 
-      if (isMemberExists2) {
+      if (isOtherMember) {
         pendingRequestsClient.writeQuery({
           query: PENDING_REQUESTS_QUERY,
           data: {
@@ -304,11 +515,13 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       const OnRequestUpdatedRequest = OnRequestUpdated?.request;
       const OnRequestUpdatedMembers = OnRequestUpdatedRequest?.members;
 
-      const { isMemberExists, isMemberExists2 } = checkIsMember(
+      const { isCurrentMember, isOtherMember } = checkIsMemberExists(
         OnRequestUpdatedMembers,
+        'hasSent',
+        _id,
       );
 
-      if (isMemberExists) {
+      if (isCurrentMember) {
         sentRequestsClient.writeQuery({
           query: SENT_REQUESTS_QUERY,
           data: {
@@ -328,7 +541,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         });
       }
 
-      if (isMemberExists2) {
+      if (isOtherMember) {
         pendingRequestsClient.writeQuery({
           query: PENDING_REQUESTS_QUERY,
           data: {
@@ -351,6 +564,24 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   });
 
   const [
+    createMessage,
+    {
+      data: createMessageData,
+      loading: createMessageLoading,
+      error: createMessageError,
+    },
+  ] = useMutation(CREATE_MESSAGE_MUTATION);
+
+  const [
+    updateMessage,
+    {
+      data: updateMessageData,
+      loading: updateMessageLoading,
+      error: updateMessageError,
+    },
+  ] = useMutation(UPDATE_MESSAGE_MUTATION);
+
+  const [
     createChat,
     {
       data: createChatData,
@@ -358,6 +589,15 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       error: createChatError,
     },
   ] = useMutation(CREATE_CHAT_MUTATION);
+
+  const [
+    updateChat,
+    {
+      data: updateChatData,
+      loading: updateChatLoading,
+      error: updateChatError,
+    },
+  ] = useMutation(UPDATE_CHAT_MUTATION);
 
   const [
     createRequest,
@@ -380,26 +620,266 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   useLayoutEffect(() => {
     if (!pathname?.includes('/chat')) {
       setSelectedItem(undefined);
+      setSelectedDetails(undefined);
     }
   }, [pathname]);
+
+  // useEffect(() => { // to do
+  //   const messageQueueService = new MessageQueueService(
+  //     createChat,
+  //     createMessage,
+  //     setLoadingProcessNextMessage,
+  //   );
+
+  //   const startQueueProcessing = async () => {
+  //     if (loadingCreateMessage || loadingProcessNextMessage || OnMessageAddedLoading) return;
+  //     await messageQueueService.processQueue();
+  //   };
+
+  //   startQueueProcessing();
+
+  //   const handleNetworkChange = () => {
+  //     if (navigator.onLine) {
+  //       startQueueProcessing();
+  //     }
+  //   };
+
+  //   const events = [
+  //     { name: 'online', handler: handleNetworkChange },
+  //     { name: 'visibilitychange', handler: startQueueProcessing },
+  //     { name: 'blur', handler: startQueueProcessing },
+  //     { name: 'focus', handler: startQueueProcessing },
+  //     { name: 'click', handler: startQueueProcessing },
+  //     { name: 'scroll', handler: startQueueProcessing },
+  //   ];
+
+  //   events.forEach(({ name, handler }) => {
+  //     if (name === 'visibilitychange') {
+  //       document.addEventListener(name, handler);
+  //     } else {
+  //       window.addEventListener(name, handler);
+  //     }
+  //   });
+
+  //   return () => {
+  //     events.forEach(({ name, handler }) => {
+  //       if (name === 'visibilitychange') {
+  //         document.removeEventListener(name, handler);
+  //       } else {
+  //         window.removeEventListener(name, handler);
+  //       }
+  //     });
+  //   };
+  // }, [loadingCreateMessage, loadingProcessNextMessage, OnMessageAddedLoading]);
+
+  const groupAllMessages = (arr1: any[], arr2?: any[]) => {
+    let edges = [];
+
+    if (arr1?.length && arr2?.length) {
+      edges = groupMessages([...arr1, ...arr2], _id);
+    } else if (arr1?.length) {
+      edges = groupMessages(arr1, _id);
+    } else if (arr2?.length) {
+      edges = groupMessages(arr2, _id);
+    }
+
+    return edges;
+  };
+
+  const fetchMessages = async (id: string) => {
+    try {
+      const res = await refetchMessages({ chatId: id });
+      return res;
+    } catch (err: any) {
+      const error = err?.message;
+      if (error) {
+        if (error?.includes('Chat not found')) {
+          navigate('/');
+        }
+        throw new Error(error);
+      }
+    }
+  };
+
+  const getQueuedMessages = async (
+    id: string,
+    key: string,
+    isChat?: boolean,
+  ) => {
+    const res = await MessageQueue.getQueuedMessagesById(id, key, 25, 0);
+    if (res?.length) {
+      if (!isChat) {
+        const groupedMessages = groupMessages(res, _id);
+
+        setQueuedMessages((prev) => {
+          const prevCopy = [...prev];
+          const friendIndex = prev?.findIndex((el) => el?.friendId === id);
+
+          if (friendIndex < 0) {
+            const newMessageGroup = {
+              friendId: id,
+              messageGroups: groupedMessages,
+            };
+
+            prevCopy?.push(newMessageGroup);
+          } else {
+            prevCopy[friendIndex] = {
+              ...prevCopy[friendIndex],
+              messageGroups: groupedMessages,
+            };
+          }
+
+          return prevCopy;
+        });
+      }
+
+      setScrollToBottom((prev: boolean) => !prev);
+    }
+
+    setLoadingQueued(false);
+    return res;
+  };
+
+  const getChatMessagesWithQueue = async (id: string, key: string) => {
+    try {
+      const [cachedMessageGroups, fetchedQueuedMessages]: any =
+        await Promise.all([
+          messageGroupsClient.readQuery({
+            query: MESSAGE_GROUPS_QUERY,
+            variables: { chatId: id },
+          }),
+          getQueuedMessages(id, key, true),
+        ]);
+
+      let edges = [];
+      let pageInfo = {
+        endCursor: '',
+        hasNextPage: false,
+      };
+      let queuedPageInfo = {
+        endCursor: '',
+        hasNextPage: false,
+      };
+      let scrollPosition = -1;
+      let isWrite = false;
+
+      if (cachedMessageGroups) {
+        const cachedData = cachedMessageGroups?.messageGroups;
+        edges = cachedData?.edges;
+        pageInfo = cachedData?.pageInfo;
+        queuedPageInfo = cachedData?.queuedPageInfo;
+        scrollPosition = cachedData?.scrollPosition;
+
+        if (edges?.length) {
+          const firstGroup = edges?.[0];
+          const firstGroupDateLabel = firstGroup?.dateLabel;
+          const firstGroupData = firstGroup?.groups?.[0]?.data?.[0];
+          const firstGroupDataTimestamp = firstGroupData?.timestamp;
+          const dateLabel = firstGroupDataTimestamp
+            ? getDateLabel(firstGroupDataTimestamp)
+            : '';
+          if (
+            firstGroupDateLabel &&
+            dateLabel &&
+            firstGroupDateLabel !== dateLabel
+          ) {
+            const unGroupedMessages = unGroupMessages(edges);
+            edges = groupMessages(unGroupedMessages, _id);
+            scrollPosition = -1;
+            isWrite = true;
+          }
+
+          if (fetchedQueuedMessages?.length) {
+            const uniqueQueuedMessages = uniqueArrayElements(
+              edges,
+              fetchedQueuedMessages,
+            );
+
+            if (uniqueQueuedMessages?.length) {
+              const groupedMessages = groupMessages(uniqueQueuedMessages, _id);
+              edges = mergeAllByDateLabel(edges, groupedMessages);
+              scrollPosition = -1;
+              isWrite = true;
+            }
+          }
+        }
+      } else {
+        setIsRefetching(true);
+        const fetchedData = await fetchMessages(id);
+        const fetchedMessages = fetchedData?.data?.messages;
+        const fetchedMessagesEdges = fetchedMessages?.edges;
+        const fetchedMessagesPageInfo = fetchedMessages?.pageInfo;
+        edges = groupAllMessages(fetchedMessagesEdges, fetchedQueuedMessages);
+        pageInfo = fetchedMessagesPageInfo;
+        queuedPageInfo = fetchedMessagesPageInfo;
+        scrollPosition = -1;
+        isWrite = true;
+      }
+
+      if (isWrite) {
+        messageGroupsClient.writeQuery({
+          query: MESSAGE_GROUPS_QUERY,
+          data: {
+            messageGroups: {
+              edges,
+              pageInfo,
+              queuedPageInfo,
+              scrollPosition,
+            },
+          },
+          variables: { chatId: id },
+        });
+      }
+
+      if (scrollPosition === -1) {
+        setScrollToBottom((prev) => !prev);
+      }
+
+      if (scrollPosition >= 0) {
+        setScrollToPosition((prev) => !prev);
+      }
+    } catch (error: any) {
+      throw new Error(error);
+    }
+  };
 
   return (
     <ChatsAndFriendsContext.Provider
       value={{
+        // query
         // chat
-        chatQuery,
         chat,
         chatLoading,
         chatError,
         chatClient,
         chatCalled,
         // friend
-        friendQuery,
         friend,
         friendLoading,
         friendError,
         friendClient,
         friendCalled,
+        // messages
+        messages,
+        messagesPageInfo,
+        messagesLoading,
+        messagesError,
+        messagesClient,
+        messagesCalled,
+        subscribeMessagesToMore,
+        fetchMoreMessages,
+        refetchMessages,
+        messagesNetworkStatus,
+        // messageGroups
+        messageGroups,
+        messageGroupsPageInfo,
+        messageGroupsQueuedPageInfo,
+        messageGroupsScrollPosition,
+        messageGroupsLoading,
+        messageGroupsError,
+        messageGroupsClient,
+        messageGroupsCalled,
+        subscribeMessageGroupsToMore,
         // chats
         chats,
         chatsLoading,
@@ -432,10 +912,24 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         sentRequestsClient,
         sentRequestsCalled,
         refetchSentRequests,
+
+        // subscription
+        // OnMessageAdded
+        OnMessageAddedData,
+        OnMessageAddedLoading,
+        OnMessageAddedError,
+        // OnMessageUpdated
+        OnMessageUpdatedData,
+        OnMessageUpdatedLoading,
+        OnMessageUpdatedError,
         // OnChatAdded
         OnChatAddedData,
         OnChatAddedLoading,
         OnChatAddedError,
+        // OnChatUpdated
+        OnChatUpdatedData,
+        OnChatUpdatedLoading,
+        OnChatUpdatedError,
         // OnFriendAdded
         OnFriendAddedData,
         OnFriendAddedLoading,
@@ -448,11 +942,28 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         OnRequestUpdatedData,
         OnRequestUpdatedLoading,
         OnRequestUpdatedError,
+
+        // mutation
+        // createMessage
+        createMessage,
+        createMessageData,
+        createMessageLoading,
+        createMessageError,
+        // updateMessage
+        updateMessage,
+        updateMessageData,
+        updateMessageLoading,
+        updateMessageError,
         // createChat
         createChat,
         createChatData,
         createChatLoading,
         createChatError,
+        // updateChat
+        updateChat,
+        updateChatData,
+        updateChatLoading,
+        updateChatError,
         // createRequest
         createRequest,
         createRequestData,
@@ -463,15 +974,44 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         updateRequestData,
         updateRequestLoading,
         updateRequestError,
+
+        // state
         // isListItemClicked
         isListItemClicked,
         setIsListItemClicked,
-        // loadingQuery
-        loadingQuery,
-        setLoadingQuery,
         // selectedItem
         selectedItem,
         setSelectedItem,
+        // selectedDetails
+        selectedDetails,
+        setSelectedDetails,
+        // loadingCreateMessage
+        loadingCreateMessage,
+        setLoadingCreateMessage,
+        // loadingProcessNextMessage
+        // loadingProcessNextMessage,
+        // setLoadingProcessNextMessage,
+        // loadingQueued
+        loadingQueued,
+        setLoadingQueued,
+        // queuedMessages
+        queuedMessages,
+        setQueuedMessages,
+        // scrollToBottom
+        scrollToBottom,
+        setScrollToBottom,
+        // scrollToPosition
+        scrollToPosition,
+        setScrollToPosition,
+        // isRefetching
+        isRefetching,
+        setIsRefetching,
+
+        // function
+        groupAllMessages,
+        fetchMessages,
+        getQueuedMessages,
+        getChatMessagesWithQueue,
       }}
     >
       {children}

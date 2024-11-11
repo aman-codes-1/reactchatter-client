@@ -4,24 +4,12 @@ export const FriendRequestStyled = styled('div')<{
   isConfirmBtn: boolean;
 }>(({ theme, isConfirmBtn }) => ({
   '.friend-request-loader': {
-    gap: '1.2rem',
+    gap: '1.125rem',
     [theme.breakpoints.down('md')]: {
-      gap: '0.4rem',
+      gap: '0.5rem',
     },
     [theme.breakpoints.down('xs')]: {
       gap: '0rem',
-    },
-  },
-  '.friend-request-loader-avatar': {
-    width: 55,
-    height: 55,
-    [theme.breakpoints.down('md')]: {
-      width: 45,
-      height: 45,
-    },
-    [theme.breakpoints.down('xs')]: {
-      width: 40,
-      height: 40,
     },
   },
   '.friend-request-list-wrapper': {
@@ -35,9 +23,9 @@ export const FriendRequestStyled = styled('div')<{
     border: `1px solid ${theme.palette.grey[500]}`,
     borderRadius: '8px',
     '.MuiButtonBase-root': {
-      gap: '1.2rem',
+      gap: '1rem',
       [theme.breakpoints.down('md')]: {
-        gap: '0.4rem',
+        gap: '0.375rem',
       },
       [theme.breakpoints.down('xs')]: {
         gap: '0rem',
@@ -45,19 +33,18 @@ export const FriendRequestStyled = styled('div')<{
     },
   },
   '.friend-request-avatar': {
-    '.MuiAvatar-root': {
-      fontSize: '1rem',
-      width: 55,
-      height: 55,
-      [theme.breakpoints.down('md')]: {
-        fontSize: '0.5rem',
-        width: 45,
-        height: 45,
-      },
-      [theme.breakpoints.down('xs')]: {
-        width: 40,
-        height: 40,
-      },
+    fontSize: '1.75rem',
+    width: '55px',
+    height: '55px',
+    [theme.breakpoints.down('md')]: {
+      fontSize: '1.5rem',
+      width: '45px',
+      height: '45px',
+    },
+    [theme.breakpoints.down('xs')]: {
+      fontSize: '1.25rem',
+      width: '40px',
+      height: '40px',
     },
   },
   '.friend-request-action-btn-wrapper': {

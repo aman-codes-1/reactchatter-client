@@ -1,41 +1,20 @@
 import { useContext, useLayoutEffect, useRef, useState } from 'react';
-import { Typography } from '@mui/material';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import DoneRoundedIcon from '@mui/icons-material/DoneRounded';
-import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
-import { getTime } from '../../../helpers';
+import { Typography, useTheme } from '@mui/material';
 import { ChatsAndFriendsContext } from '../../../contexts';
+import { checkMessageStatus, getTime } from '../../../helpers';
+import { MessageStatus } from '../components';
 import { ChatBubbleStyled } from './Chats.styled';
 
 const ChatBubble = ({ msg, index, data, side, isResize }: any) => {
+  const theme = useTheme();
   const [isOverflow, setIsOverflow] = useState(false);
-  const { selectedChat } = useContext(ChatsAndFriendsContext);
+  const { selectedItem } = useContext(ChatsAndFriendsContext);
   const containerRef = useRef<any>(null);
   const messageRef = useRef<any>(null);
 
-  const sender = msg?.sender;
-  const queuedStatus = sender?.queuedStatus;
-  const isQueued = queuedStatus?.isQueued === true;
-  const queuedTimestamp = queuedStatus?.timestamp;
-  const sentStatus = sender?.sentStatus;
-  const isSent = sentStatus?.isSent === true && isQueued;
-
-  let deliveredStatus;
-  let deliveredTimestamp;
-  let isDelivered;
-  let readStatus;
-  let readTimestamp;
-  let isRead;
-
-  if (selectedChat && selectedChat?.type === 'private') {
-    const receiver = msg?.otherMembers?.[0];
-    deliveredStatus = receiver?.deliveredStatus;
-    deliveredTimestamp = deliveredStatus?.timestamp;
-    isDelivered = deliveredStatus?.isDelivered === true && isSent;
-    readStatus = receiver?.readStatus;
-    readTimestamp = readStatus?.timestamp;
-    isRead = readStatus?.isRead === true && isDelivered;
-  }
+  const timestamp = msg?.timestamp;
+  const messageStatus = checkMessageStatus(msg, selectedItem);
+  const { isQueued } = messageStatus || {};
 
   useLayoutEffect(() => {
     const checkOverflow = () => {
@@ -45,7 +24,7 @@ const ChatBubble = ({ msg, index, data, side, isResize }: any) => {
         const containerHeight = containerElement?.offsetHeight;
         const messageHeight = messageElement?.offsetHeight;
         const height = containerHeight - messageHeight;
-        if (!isNaN(height) && height > 23) {
+        if (!isNaN(height) && height > 24) {
           setIsOverflow(true);
         } else {
           setIsOverflow(false);
@@ -69,7 +48,7 @@ const ChatBubble = ({ msg, index, data, side, isResize }: any) => {
   return (
     <ChatBubbleStyled>
       <div
-        className={`msg msg-${side} ${attachClass()} ${isQueued && !isSent ? 'msg-animation' : ''} ${isOverflow ? 'msg-overflow' : ''}`}
+        className={`msg msg-${side} ${attachClass()} ${isQueued ? 'msg-animation' : ''} ${isOverflow ? 'msg-overflow' : ''}`}
         ref={containerRef}
         key={`${msg?._id || msg?.queueId}-${index}`}
       >
@@ -77,6 +56,7 @@ const ChatBubble = ({ msg, index, data, side, isResize }: any) => {
           <Typography
             component="span"
             className={`msg-content msg-content-${side}`}
+            fontWeight={470}
             ref={messageRef}
           >
             {msg?.message}
@@ -85,27 +65,22 @@ const ChatBubble = ({ msg, index, data, side, isResize }: any) => {
         <span
           className={`msg-timestamp ${isOverflow ? 'msg-timestamp-overflow' : ''}`}
         >
-          {queuedTimestamp ? (
+          {timestamp ? (
             <Typography
               variant="caption"
               whiteSpace="nowrap"
               fontWeight={500}
-              className={`msg-timestamp-text-${side}`}
+              className={`msg-timestamp-text msg-timestamp-text-${side}`}
             >
-              {getTime(queuedTimestamp)}
+              {getTime(timestamp)}
             </Typography>
           ) : null}
           {side === 'right' ? (
-            <>
-              {isQueued && !isSent ? (
-                <AccessTimeIcon fontSize="inherit" />
-              ) : null}
-              {isSent ? <DoneRoundedIcon fontSize="inherit" /> : null}
-              {isDelivered ? <DoneAllRoundedIcon fontSize="inherit" /> : null}
-              {isRead ? (
-                <DoneAllRoundedIcon fontSize="inherit" color="primary" />
-              ) : null}
-            </>
+            <MessageStatus
+              messageStatus={messageStatus}
+              color={theme.palette.grey[400]}
+              readColor={theme.palette.primary.contrastText}
+            />
           ) : null}
         </span>
       </div>
