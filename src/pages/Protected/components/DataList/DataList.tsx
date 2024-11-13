@@ -53,8 +53,9 @@ const DataList = ({
   }, [loading]);
 
   const renderSecondary = (item: any, details: any) => {
-    if (isChats) {
-      const msg = item?.lastMessage;
+    const msg = item?.lastMessage;
+
+    if (msg) {
       return (
         <div
           style={{
@@ -81,9 +82,7 @@ const DataList = ({
       );
     }
 
-    if (isFriends || isOtherFriends) {
-      return details?.email;
-    }
+    return details?.email;
   };
 
   const renderList = (
@@ -115,7 +114,6 @@ const DataList = ({
             disableGutters={disableGutters}
             ref={itemsRef ? (el) => (itemsRef.current[idx] = el) : null}
             btnProps={{
-              alignItems: 'flex-start',
               textProps: {
                 primary: details?.name,
                 secondary,

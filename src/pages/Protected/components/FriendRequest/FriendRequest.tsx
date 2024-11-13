@@ -34,10 +34,8 @@ const FriendRequest = ({
           primaryFontSize: '1.125rem',
           secondaryFontSize: '1rem',
           listClassName: 'friend-request-list',
-          btnAlignItems: 'flex-start',
           btnClassName: 'friend-request-loader',
           avatarClassName: 'friend-request-avatar',
-          listItemTextClassName: 'friend-request-text-wrapper',
         }}
         {...mainLayoutProps}
       >
@@ -49,55 +47,13 @@ const FriendRequest = ({
                 disableGutters
                 disableHover
                 btnProps={{
-                  wrapperClassName: 'friend-request-list-item-btn',
-                  alignItems: 'flex-start',
                   avatarProps: {
                     src: renderItem(item, pictureKey),
                     className: 'friend-request-avatar',
                   },
                   textProps: {
                     primary: renderItem(item, nameKey),
-                    secondary: (
-                      <>
-                        <span
-                          style={{
-                            display: '-webkit-box',
-                            WebkitLineClamp: 1,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                          }}
-                        >
-                          {renderItem(item, emailKey)}
-                        </span>
-                        <div className="friend-request-action-btn-wrapper">
-                          {isConfirmBtn ? (
-                            <Button
-                              variant="contained"
-                              color="secondary"
-                              fullWidth
-                              onClick={(_) =>
-                                confirmBtnProps?.onClick(_, idx, item)
-                              }
-                            >
-                              Confirm
-                            </Button>
-                          ) : null}
-                          {isDeleteBtn ? (
-                            <Button
-                              variant="contained"
-                              color="inherit"
-                              fullWidth
-                              onClick={(_) =>
-                                deleteBtnProps?.onClick(_, idx, item)
-                              }
-                            >
-                              Delete
-                            </Button>
-                          ) : null}
-                        </div>
-                      </>
-                    ),
+                    secondary: renderItem(item, emailKey),
                     primaryTypographyProps: {
                       fontSize: '1.125rem',
                       style: {
@@ -106,10 +62,44 @@ const FriendRequest = ({
                     },
                     secondaryTypographyProps: {
                       fontSize: '1rem',
-                      component: 'div' as any,
+                      style: {
+                        WebkitLineClamp: 1,
+                      },
                     },
-                    className: 'friend-request-text-wrapper',
                   },
+                  wrapperClassName: 'friend-request-list-item-btn',
+                  wrapperChildren: (
+                    <div className="friend-request-action-btn-wrapper">
+                      {isConfirmBtn ? (
+                        <Button
+                          variant="contained"
+                          color="secondary"
+                          fullWidth
+                          onClick={(_) =>
+                            confirmBtnProps?.onClick(_, idx, item)
+                          }
+                          wrapperClassName="flex-item-action-btn"
+                        >
+                          Confirm
+                        </Button>
+                      ) : null}
+                      {isDeleteBtn ? (
+                        <Button
+                          variant="contained"
+                          color="inherit"
+                          fullWidth
+                          onClick={(_) => deleteBtnProps?.onClick(_, idx, item)}
+                          wrapperClassName={
+                            isConfirmBtn
+                              ? 'flex-item-action-btn'
+                              : 'flex-item-action-btn-2'
+                          }
+                        >
+                          Delete
+                        </Button>
+                      ) : null}
+                    </div>
+                  ),
                 }}
               />
             ))}

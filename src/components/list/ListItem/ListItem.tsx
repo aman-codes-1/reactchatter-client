@@ -25,9 +25,7 @@ const ListItem = forwardRef((props: ListItemProps, ref: any) => {
     >
       <MuiListItem {...rest} sx={{ ...sx, cursor: 'default' }}>
         {isListItemButton ? (
-          <ListItemButton disableHover={disableHover} ref={ref} {...btnProps}>
-            {btnProps?.children || null}
-          </ListItemButton>
+          <ListItemButton disableHover={disableHover} ref={ref} {...btnProps} />
         ) : null}
         {children}
       </MuiListItem>

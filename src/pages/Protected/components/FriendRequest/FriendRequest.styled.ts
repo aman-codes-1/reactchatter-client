@@ -16,10 +16,12 @@ export const FriendRequestStyled = styled('div')<{
     overflow: 'auto',
   },
   '.friend-request-list': {
-    width: '400px',
+    width: '370px',
     maxWidth: '100%',
   },
   '.friend-request-list-item-btn': {
+    display: 'flex',
+    flexDirection: 'column',
     border: `1px solid ${theme.palette.grey[500]}`,
     borderRadius: '8px',
     '.MuiButtonBase-root': {
@@ -48,24 +50,48 @@ export const FriendRequestStyled = styled('div')<{
     },
   },
   '.friend-request-action-btn-wrapper': {
-    marginTop: '0.85rem',
     display: 'flex',
-    justifyContent: isConfirmBtn ? 'space-between' : 'flex-end',
-    gap: '1rem',
-    '@media(min-width: 600px) and (max-width: 735px)': {
-      flexDirection: 'column',
-    },
-    '@media(min-width: 0px) and (max-width: 425px)': {
-      flexDirection: 'column',
-    },
-  },
-  '.friend-request-text-wrapper': {
-    margin: '0.7rem 0rem',
+    padding: '0.25rem 1rem 1rem 1rem',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: '0.75rem',
+    marginLeft: '4.625rem',
     [theme.breakpoints.down('md')]: {
-      margin: '0.42rem 0rem',
+      marginLeft: '4rem',
+    },
+    '@media(min-width: 600px) and (max-width: 642px)': {
+      margin: 0,
+      ...(!isConfirmBtn
+        ? {
+            flexDirection: 'column',
+            alignItems: 'unset',
+          }
+        : {}),
     },
     [theme.breakpoints.down('xs')]: {
-      margin: '0.25rem 0rem',
+      margin: 0,
+      ...(!isConfirmBtn
+        ? {
+            flexDirection: 'column',
+            alignItems: 'unset',
+          }
+        : {}),
+    },
+    '@media(min-width: 0px) and (max-width: 276px)': {
+      flexDirection: 'column',
+      alignItems: 'unset',
+    },
+  },
+  '.flex-item-action-btn': {
+    flex: '1 1 auto',
+  },
+  '.flex-item-action-btn-2': {
+    flex: '0 0 7.46rem',
+    '@media(min-width: 600px) and (max-width: 642px)': {
+      flex: '1 1 auto',
+    },
+    [theme.breakpoints.down('xs')]: {
+      flex: '1 1 auto',
     },
   },
 }));

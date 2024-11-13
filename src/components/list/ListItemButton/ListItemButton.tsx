@@ -16,6 +16,7 @@ const ListItemButton = forwardRef((props: ListItemButtonProps, ref: any) => {
     startIcon,
     endIcon,
     wrapperClassName,
+    wrapperChildren,
     className,
     avatarProps,
     textProps,
@@ -88,6 +89,7 @@ const ListItemButton = forwardRef((props: ListItemButtonProps, ref: any) => {
         {endIcon}
         {children}
       </MuiListItemButton>
+      {wrapperChildren}
     </ListItemButtonStyled>
   );
 });

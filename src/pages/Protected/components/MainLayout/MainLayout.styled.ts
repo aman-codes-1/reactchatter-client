@@ -21,6 +21,7 @@ export const MainLayoutStyled = styled('div')<{ navbarHeight: number }>(
       marginBottom: '2rem',
       color: theme.palette.text.primary,
       [theme.breakpoints.down('sm')]: {
+        marginBottom: '1.75rem',
         fontSize: '2.75rem',
       },
       [theme.breakpoints.down('xs')]: {
