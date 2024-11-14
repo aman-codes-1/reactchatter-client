@@ -2,8 +2,8 @@ import { DocumentNode } from 'graphql';
 import { gql } from '../../__generated__/gql';
 
 const MESSAGES_QUERY = gql(/* GraphQL */ `
-  query messages($chatId: String!, $after: ID) {
-    messages(input: { chatId: $chatId }, limit: 25, after: $after) {
+  query messages($chatId: String!, $limit: Int, $after: ID) {
+    messages(input: { chatId: $chatId }, limit: $limit, after: $after) {
       edges {
         _id
         chatId
@@ -348,8 +348,8 @@ const CHAT_QUERY = gql(/* GraphQL */ `
 `) as DocumentNode;
 
 const CHATS_QUERY = gql(/* GraphQL */ `
-  query chats($userId: String!) {
-    chats(input: { userId: $userId }, limit: 25, skip: 0) {
+  query chats($userId: String!, $limit: Int, $after: ID) {
+    chats(input: { userId: $userId }, limit: $limit, after: $after) {
       _id
       queueId
       type
@@ -651,8 +651,8 @@ const FRIEND_QUERY = gql(/* GraphQL */ `
 `) as DocumentNode;
 
 const FRIENDS_QUERY = gql(/* GraphQL */ `
-  query friends($userId: String!) {
-    friends(input: { userId: $userId }, limit: 25, skip: 0) {
+  query friends($userId: String!, $limit: Int, $after: ID) {
+    friends(input: { userId: $userId }, limit: $limit, after: $after) {
       _id
       members {
         _id
@@ -670,8 +670,8 @@ const FRIENDS_QUERY = gql(/* GraphQL */ `
 `) as DocumentNode;
 
 const OTHER_FRIENDS_QUERY = gql(/* GraphQL */ `
-  query otherFriends($userId: String!) {
-    otherFriends(input: { userId: $userId }, limit: 25, skip: 0) {
+  query otherFriends($userId: String!, $limit: Int, $after: ID) {
+    otherFriends(input: { userId: $userId }, limit: $limit, after: $after) {
       _id
       members {
         _id
@@ -710,8 +710,8 @@ const FRIEND_ADDED_SUBSCRIPTION = gql(/* GraphQL */ `
 `) as DocumentNode;
 
 const PENDING_REQUESTS_QUERY = gql(/* GraphQL */ `
-  query pendingRequests($userId: String!) {
-    pendingRequests(input: { userId: $userId }, limit: 25, skip: 0) {
+  query pendingRequests($userId: String!, $limit: Int, $after: ID) {
+    pendingRequests(input: { userId: $userId }, limit: $limit, after: $after) {
       data {
         _id
         members {
@@ -731,8 +731,8 @@ const PENDING_REQUESTS_QUERY = gql(/* GraphQL */ `
 `) as DocumentNode;
 
 const SENT_REQUESTS_QUERY = gql(/* GraphQL */ `
-  query sentRequests($userId: String!) {
-    sentRequests(input: { userId: $userId }, limit: 25, skip: 0) {
+  query sentRequests($userId: String!, $limit: Int, $after: ID) {
+    sentRequests(input: { userId: $userId }, limit: $limit, after: $after) {
       data {
         _id
         members {
