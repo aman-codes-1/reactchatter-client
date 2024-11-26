@@ -31,6 +31,7 @@ export class MessageQueueService {
               keyPath: 'queueId',
             });
             objectStore.createIndex('chatId', 'chatId', { unique: false });
+            objectStore.createIndex('friendId', 'friendId', { unique: false });
             objectStore.createIndex('timestamp', 'timestamp', {
               unique: false,
             });
@@ -112,7 +113,7 @@ export class MessageQueueService {
                 if (messageData) {
                   let messageDataCopy = { ...messageData };
                   messageDataCopy = keysToDelete
-                    ? deleteKeyValuePairs(keysToDelete, messageDataCopy)
+                    ? deleteKeyValuePairs(messageDataCopy, keysToDelete)
                     : messageDataCopy;
 
                   Object.keys(obj || {}).forEach((key) => {
@@ -228,8 +229,8 @@ export class MessageQueueService {
             const index = objectStore?.index?.(`${key}_timestamp`);
 
             if (index) {
-              const lowerBound = [id, -Infinity]; //
-              const upperBound = [id, Infinity]; //
+              const lowerBound = [id, -Infinity];
+              const upperBound = [id, Infinity];
               const range = IDBKeyRange.bound(lowerBound, upperBound);
 
               const request = index?.openCursor?.(range, 'next');
@@ -263,6 +264,66 @@ export class MessageQueueService {
                   reject('Error fetching paginated messages');
                 };
               }
+            }
+          }
+        }
+      });
+    }
+  }
+
+  async getLastQueuedMessagesByIds(data: any[], key: string) {
+    const db: any = await this.openDatabase();
+
+    if (db) {
+      return new Promise<any>((resolve, reject) => {
+        const transaction = db?.transaction?.('messageQueueStore', 'readonly');
+
+        if (transaction) {
+          const objectStore = transaction?.objectStore?.('messageQueueStore');
+
+          if (objectStore) {
+            const index = objectStore?.index?.(`${key}_timestamp`);
+            const resultMap = new Map();
+            let isUpdated = false;
+
+            if (index) {
+              const promises = data?.map((item) => {
+                return new Promise<void>((resolveItem, rejectItem) => {
+                  const lowerBound = [item?._id, -Infinity];
+                  const upperBound = [item?._id, Infinity];
+                  const range = IDBKeyRange.bound(lowerBound, upperBound);
+
+                  const request = index?.openCursor?.(range, 'prev');
+
+                  if (request) {
+                    request.onsuccess = (event: any) => {
+                      const cursor = event?.target?.result;
+                      if (cursor) {
+                        resultMap?.set(item?._id, cursor?.value);
+                        isUpdated = true;
+                      }
+                      resolveItem();
+                    };
+
+                    request.onerror = (event: any) => {
+                      rejectItem(event?.target?.error);
+                    };
+                  }
+                });
+              });
+
+              Promise.all(promises)
+                .then(() => {
+                  resolve({
+                    isUpdated,
+                    data: data?.map((item) => ({
+                      ...item,
+                      lastMessage:
+                        resultMap?.get(item?._id) || item?.lastMessage,
+                    })),
+                  });
+                })
+                .catch((error) => reject(error));
             }
           }
         }

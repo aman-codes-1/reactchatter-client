@@ -1,16 +1,29 @@
 import { createContext, useLayoutEffect, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { useMutation, useQuery, useSubscription } from '@apollo/client';
+import {
+  useApolloClient,
+  useMutation,
+  useQuery,
+  useSubscription,
+} from '@apollo/client';
 import { useAuth } from '../../hooks';
 import {
+  addArray,
+  addObject,
+  addRequest,
   checkIsMemberExists,
+  deleteFriend,
+  deleteRequest,
+  findAndUpdate,
   getDateLabel,
+  getLastMessage,
   groupMessage,
   groupMessages,
   mergeAllByDateLabel,
   renderMember,
+  sortByTimestamp,
   unGroupMessages,
-  uniqueArrayElements,
+  uniqueQueuedMessages,
   updateGroupedQueuedMessage,
 } from '../../helpers';
 import { MessageQueueService } from '../../services';
@@ -41,6 +54,7 @@ import {
 export const ChatsAndFriendsContext = createContext<any>({});
 
 export const ChatsAndFriendsProvider = ({ children }: any) => {
+  const client = useApolloClient();
   const MessageQueue = new MessageQueueService();
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -55,10 +69,14 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   const [loadingCreateMessage, setLoadingCreateMessage] = useState(false);
   // const [loadingProcessNextMessage, setLoadingProcessNextMessage] = useState(false);
   const [loadingQueued, setLoadingQueued] = useState(true);
-  const [queuedMessages, setQueuedMessages] = useState<any[]>([]);
   const [scrollToBottom, setScrollToBottom] = useState(false);
   const [scrollToPosition, setScrollToPosition] = useState(false);
-  const [isRefetching, setIsRefetching] = useState(false);
+  const [isRefetchingMessages, setIsRefetchingMessages] = useState(false);
+  const [isFetchingChats, setIsFetchingChats] = useState(true);
+  const [isFetchingOtherFriends, setIsFetchingOtherFriends] = useState(true);
+  const [isFetchingChats2, setIsFetchingChats2] = useState(true);
+  const [isFetchingOtherFriends2, setIsFetchingOtherFriends2] = useState(true);
+  const [isHomeButtonClicked, setIsHomeButtonClicked] = useState(false);
   const { auth: { _id = '' } = {} } = useAuth();
 
   const {
@@ -68,6 +86,12 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     client: chatClient,
     called: chatCalled,
   } = useQuery(CHAT_QUERY, {
+    fetchPolicy: 'no-cache',
+    variables: {
+      chatId,
+    },
+    skip: !chatId || !!friendId || !!selectedItem || !!selectedDetails,
+    notifyOnNetworkStatusChange: true,
     onCompleted: (data) => {
       const item = data?.chat;
       const isPrivateChat = item?.type === 'private';
@@ -85,12 +109,6 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     onError: () => {
       navigate('/');
     },
-    fetchPolicy: 'no-cache',
-    variables: {
-      chatId,
-    },
-    skip: !chatId || !!friendId || !!selectedItem || !!selectedDetails,
-    notifyOnNetworkStatusChange: true,
   });
 
   const {
@@ -100,6 +118,13 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     client: friendClient,
     called: friendCalled,
   } = useQuery(FRIEND_QUERY, {
+    fetchPolicy: 'no-cache',
+    variables: {
+      friendId,
+      userId: _id,
+    },
+    skip: !friendId || !!chatId || !!selectedItem || !!selectedDetails,
+    notifyOnNetworkStatusChange: true,
     onCompleted: (data) => {
       const item = data?.friend;
       const itemHasChats = item?.hasChats === true;
@@ -114,13 +139,6 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     onError: () => {
       navigate('/');
     },
-    fetchPolicy: 'no-cache',
-    variables: {
-      friendId,
-      userId: _id,
-    },
-    skip: !friendId || !!chatId || !!selectedItem || !!selectedDetails,
-    notifyOnNetworkStatusChange: true,
   });
 
   const {
@@ -155,18 +173,19 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     subscribeToMore: subscribeMessagesToMore,
     fetchMore: fetchMoreMessages,
     refetch: refetchMessages,
-    networkStatus: messagesNetworkStatus,
   } = useQuery(MESSAGES_QUERY, {
+    fetchPolicy: 'no-cache',
+    variables: { chatId },
+    skip: !chatId || !!friendId || !!selectedItem || !!selectedDetails,
     onCompleted: async (data) => {
       const messages = data?.messages;
       let edges = messages?.edges;
       const pageInfo = messages?.pageInfo;
       const queuedPageInfo = messages?.pageInfo;
       const scrollPosition = -1;
-
-      if (chatId && !isRefetching) {
+      if (chatId && !isRefetchingMessages) {
         const fetchedQueuedMessages =
-          (await getQueuedMessages(chatId, 'chatId', true)) || [];
+          (await getQueuedMessages(chatId, 'chatId')) || [];
         edges = groupAllMessages(edges, fetchedQueuedMessages);
         messageGroupsClient.writeQuery({
           query: MESSAGE_GROUPS_QUERY,
@@ -180,21 +199,17 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
           },
           variables: { chatId },
         });
-
         setScrollToBottom((prev: boolean) => !prev);
       }
-
-      setIsRefetching(false);
+      setIsRefetchingMessages(false);
     },
     onError: (error) => {
+      setIsRefetchingMessages(false);
       const err = error?.message;
       if (err?.includes('Chat not found')) {
         navigate('/');
       }
     },
-    fetchPolicy: 'no-cache',
-    variables: { chatId },
-    skip: !chatId || !!friendId || !!selectedItem || !!selectedDetails,
   });
 
   const {
@@ -210,6 +225,34 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       userId: _id,
     },
     notifyOnNetworkStatusChange: true,
+    onCompleted: async (data) => {
+      const chatsData = data?.chats;
+      if (chatsData?.length) {
+        const res = await MessageQueue.getLastQueuedMessagesByIds(
+          chatsData,
+          'chatId',
+        );
+        if (res?.isUpdated) {
+          const updatedChats = res?.data;
+          if (updatedChats?.length) {
+            const sortedData = sortByTimestamp(updatedChats);
+            chatsClient.writeQuery({
+              query: CHATS_QUERY,
+              data: {
+                chats: sortedData,
+              },
+              variables: { userId: _id },
+            });
+          }
+        }
+      }
+      setIsFetchingChats(false);
+      setIsFetchingChats2(false);
+    },
+    onError: () => {
+      setIsFetchingChats(false);
+      setIsFetchingChats2(false);
+    },
   });
 
   const {
@@ -225,6 +268,57 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       userId: _id,
     },
     notifyOnNetworkStatusChange: true,
+    onCompleted: async (data) => {
+      const otherFriendsData = data?.otherFriends;
+      if (otherFriendsData?.length) {
+        const res = await MessageQueue.getLastQueuedMessagesByIds(
+          otherFriendsData,
+          'friendId',
+        );
+        if (res?.isUpdated) {
+          const updatedOtherFriends = res?.data;
+          if (updatedOtherFriends?.length) {
+            const dataWithLastMessage = updatedOtherFriends?.filter(
+              (friend: any) => friend?.lastMessage,
+            );
+            if (dataWithLastMessage?.length) {
+              chatsClient.cache.modify({
+                fields: {
+                  [`chats({"input":{"userId":"${_id}"}})`](existingData: any) {
+                    const updatedData = addArray(
+                      dataWithLastMessage,
+                      existingData,
+                    );
+                    if (updatedData?.length) {
+                      const sortedData = sortByTimestamp(updatedData);
+                      return sortedData;
+                    }
+                    return existingData;
+                  },
+                },
+              });
+              const dataWithoutLastMessage = updatedOtherFriends?.filter(
+                (friend: any) => !friend?.lastMessage,
+              );
+              const sortedData = sortByTimestamp(dataWithoutLastMessage);
+              otherFriendsClient.writeQuery({
+                query: OTHER_FRIENDS_QUERY,
+                data: {
+                  otherFriends: sortedData,
+                },
+                variables: { userId: _id },
+              });
+            }
+          }
+        }
+      }
+      setIsFetchingOtherFriends(false);
+      setIsFetchingOtherFriends2(false);
+    },
+    onError: () => {
+      setIsFetchingOtherFriends(false);
+      setIsFetchingOtherFriends2(false);
+    },
   });
 
   const {
@@ -324,7 +418,6 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
             },
             variables: { chatId: OnMessageAddedChatId },
           });
-
           setScrollToBottom((prev) => !prev);
         }
       }
@@ -356,7 +449,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
 
       const { isCurrentMember, isOtherMember } = checkIsMemberExists(
         OnChatAddedMembers,
-        'hasCreated',
+        'hasAdded',
         _id,
       );
 
@@ -365,18 +458,14 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       if (isCurrentMember || isOtherMember) {
         if (isChatAddedPrivate && OnChatAddedFriendIds?.length) {
           OnChatAddedFriendIds?.forEach((OnChatAddedFriendId: string) => {
-            otherFriendsClient.writeQuery({
-              query: OTHER_FRIENDS_QUERY,
-              data: {
-                otherFriends: otherFriends?.length
-                  ? otherFriends?.filter(
-                      (otherFriend: any) =>
-                        otherFriend?._id !== OnChatAddedFriendId,
-                    )
-                  : otherFriends,
-              },
-              variables: {
-                userId: _id,
+            otherFriendsClient.cache.modify({
+              fields: {
+                [`otherFriends({"input":{"userId":"${_id}"}})`](
+                  existingData: any,
+                ) {
+                  const data = deleteFriend(OnChatAddedFriendId, existingData);
+                  return data;
+                },
               },
             });
 
@@ -399,13 +488,15 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
             : [OnChatAddedChat],
         };
 
-        chatsClient.writeQuery({
-          query: CHATS_QUERY,
-          data,
-          variables: {
-            userId: _id,
-          },
-        });
+        // to do:
+        // update the chat
+        // chatsClient.writeQuery({
+        //   query: CHATS_QUERY,
+        //   data,
+        //   variables: {
+        //     userId: _id,
+        //   },
+        // });
       }
     },
   });
@@ -433,20 +524,17 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
 
       const { isCurrentMember, isOtherMember } = checkIsMemberExists(
         OnFriendAddedMembers,
-        'hasConfirmed',
+        'hasAdded',
         _id,
       );
 
       if (isCurrentMember || isOtherMember) {
-        otherFriendsClient.writeQuery({
-          query: OTHER_FRIENDS_QUERY,
-          data: {
-            otherFriends: Object.keys(OnFriendAddedFriend || {})?.length
-              ? [OnFriendAddedFriend, ...otherFriends]
-              : otherFriends,
-          },
-          variables: {
-            userId: _id,
+        otherFriendsClient.cache.modify({
+          fields: {
+            [`otherFriends({"input":{"userId":"${_id}"}})`](existingData: any) {
+              const data = addObject(OnFriendAddedFriend, existingData);
+              return data;
+            },
           },
         });
       }
@@ -470,35 +558,25 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       );
 
       if (isCurrentMember) {
-        sentRequestsClient.writeQuery({
-          query: SENT_REQUESTS_QUERY,
-          data: {
-            sentRequests: {
-              data: Object.keys(OnRequestAddedRequest || {})?.length
-                ? [OnRequestAddedRequest, ...sentRequests]
-                : sentRequests,
-              totalCount: sentRequestsCount + 1,
+        sentRequestsClient.cache.modify({
+          fields: {
+            [`sentRequests({"input":{"userId":"${_id}"}})`](existingData: any) {
+              const data = addRequest(OnRequestAddedRequest, existingData);
+              return data;
             },
-          },
-          variables: {
-            userId: _id,
           },
         });
       }
 
       if (isOtherMember) {
-        pendingRequestsClient.writeQuery({
-          query: PENDING_REQUESTS_QUERY,
-          data: {
-            pendingRequests: {
-              data: Object.keys(OnRequestAddedRequest || {})?.length
-                ? [OnRequestAddedRequest, ...pendingRequests]
-                : pendingRequests,
-              totalCount: pendingRequestsCount + 1,
+        pendingRequestsClient.cache.modify({
+          fields: {
+            [`pendingRequests({"input":{"userId":"${_id}"}})`](
+              existingData: any,
+            ) {
+              const data = addRequest(OnRequestAddedRequest, existingData);
+              return data;
             },
-          },
-          variables: {
-            userId: _id,
           },
         });
       }
@@ -522,41 +600,25 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       );
 
       if (isCurrentMember) {
-        sentRequestsClient.writeQuery({
-          query: SENT_REQUESTS_QUERY,
-          data: {
-            sentRequests: {
-              data: sentRequests?.length
-                ? sentRequests?.filter(
-                    (sentRequest: any) =>
-                      sentRequest?._id !== OnRequestUpdatedRequest?._id,
-                  )
-                : sentRequests,
-              totalCount: sentRequestsCount - 1,
+        sentRequestsClient.cache.modify({
+          fields: {
+            [`sentRequests({"input":{"userId":"${_id}"}})`](existingData: any) {
+              const data = deleteRequest(OnRequestUpdatedRequest, existingData);
+              return data;
             },
-          },
-          variables: {
-            userId: _id,
           },
         });
       }
 
       if (isOtherMember) {
-        pendingRequestsClient.writeQuery({
-          query: PENDING_REQUESTS_QUERY,
-          data: {
-            pendingRequests: {
-              data: pendingRequests?.length
-                ? pendingRequests?.filter(
-                    (request: any) =>
-                      request?._id !== OnRequestUpdatedRequest?._id,
-                  )
-                : pendingRequests,
-              totalCount: pendingRequestsCount - 1,
+        pendingRequestsClient.cache.modify({
+          fields: {
+            [`pendingRequests({"input":{"userId":"${_id}"}})`](
+              existingData: any,
+            ) {
+              const data = deleteRequest(OnRequestUpdatedRequest, existingData);
+              return data;
             },
-          },
-          variables: {
-            userId: _id,
           },
         });
       }
@@ -701,41 +763,8 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     }
   };
 
-  const getQueuedMessages = async (
-    id: string,
-    key: string,
-    isChat?: boolean,
-  ) => {
+  const getQueuedMessages = async (id: string, key: string) => {
     const res = await MessageQueue.getQueuedMessagesById(id, key, 25, 0);
-    if (res?.length) {
-      if (!isChat) {
-        const groupedMessages = groupMessages(res, _id);
-
-        setQueuedMessages((prev) => {
-          const prevCopy = [...prev];
-          const friendIndex = prev?.findIndex((el) => el?.friendId === id);
-
-          if (friendIndex < 0) {
-            const newMessageGroup = {
-              friendId: id,
-              messageGroups: groupedMessages,
-            };
-
-            prevCopy?.push(newMessageGroup);
-          } else {
-            prevCopy[friendIndex] = {
-              ...prevCopy[friendIndex],
-              messageGroups: groupedMessages,
-            };
-          }
-
-          return prevCopy;
-        });
-      }
-
-      setScrollToBottom((prev: boolean) => !prev);
-    }
-
     setLoadingQueued(false);
     return res;
   };
@@ -748,10 +777,10 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
             query: MESSAGE_GROUPS_QUERY,
             variables: { chatId: id },
           }),
-          getQueuedMessages(id, key, true),
+          getQueuedMessages(id, key),
         ]);
 
-      let edges = [];
+      let edges: any[] = [];
       let pageInfo = {
         endCursor: '',
         hasNextPage: false,
@@ -790,33 +819,61 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
           }
 
           if (fetchedQueuedMessages?.length) {
-            const uniqueQueuedMessages = uniqueArrayElements(
+            const uniqueMessages = uniqueQueuedMessages(
               edges,
               fetchedQueuedMessages,
             );
 
-            if (uniqueQueuedMessages?.length) {
-              const groupedMessages = groupMessages(uniqueQueuedMessages, _id);
-              edges = mergeAllByDateLabel(edges, groupedMessages);
+            if (uniqueMessages?.length) {
+              const groupedUniqueMessages = groupMessages(uniqueMessages, _id);
+              edges = mergeAllByDateLabel(edges, groupedUniqueMessages);
               scrollPosition = -1;
               isWrite = true;
             }
           }
         }
       } else {
-        setIsRefetching(true);
-        const fetchedData = await fetchMessages(id);
-        const fetchedMessages = fetchedData?.data?.messages;
-        const fetchedMessagesEdges = fetchedMessages?.edges;
-        const fetchedMessagesPageInfo = fetchedMessages?.pageInfo;
-        edges = groupAllMessages(fetchedMessagesEdges, fetchedQueuedMessages);
-        pageInfo = fetchedMessagesPageInfo;
-        queuedPageInfo = fetchedMessagesPageInfo;
-        scrollPosition = -1;
-        isWrite = true;
+        if (key === 'chatId') {
+          setIsRefetchingMessages(true);
+          const fetchedData = await fetchMessages(id);
+          const fetchedMessages = fetchedData?.data?.messages;
+          const fetchedMessagesEdges = fetchedMessages?.edges;
+          const fetchedMessagesPageInfo = fetchedMessages?.pageInfo;
+          edges = groupAllMessages(fetchedMessagesEdges, fetchedQueuedMessages);
+          pageInfo = fetchedMessagesPageInfo;
+          queuedPageInfo = fetchedMessagesPageInfo;
+          scrollPosition = -1;
+          isWrite = true;
+        }
+
+        if (key === 'friendId') {
+          edges = groupMessages(fetchedQueuedMessages, _id);
+          scrollPosition = -1;
+          isWrite = true;
+        }
       }
 
       if (isWrite) {
+        chatsClient.cache.modify({
+          fields: {
+            [`chats({"input":{"userId":"${_id}"}})`](existingData: any) {
+              const lastMessage = getLastMessage(edges);
+              const { isFoundAndUpdated, data } = findAndUpdate(
+                id,
+                '_id',
+                existingData,
+                lastMessage,
+                'lastMessage',
+              );
+              if (isFoundAndUpdated && data?.length) {
+                const sortedData = sortByTimestamp(data);
+                return sortedData;
+              }
+              return existingData;
+            },
+          },
+        });
+
         messageGroupsClient.writeQuery({
           query: MESSAGE_GROUPS_QUERY,
           data: {
@@ -841,6 +898,16 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     } catch (error: any) {
       throw new Error(error);
     }
+  };
+
+  const fetchAll = async () => {
+    if (isFetchingChats2 || isFetchingOtherFriends2) return;
+    setIsFetchingChats2(true);
+    setIsFetchingOtherFriends2(true);
+    await client.clearStore();
+    await refetchChats();
+    await refetchOtherFriends();
+    await Promise.allSettled([refetchPendingRequests(), refetchSentRequests()]);
   };
 
   return (
@@ -869,7 +936,6 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         subscribeMessagesToMore,
         fetchMoreMessages,
         refetchMessages,
-        messagesNetworkStatus,
         // messageGroups
         messageGroups,
         messageGroupsPageInfo,
@@ -994,24 +1060,37 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         // loadingQueued
         loadingQueued,
         setLoadingQueued,
-        // queuedMessages
-        queuedMessages,
-        setQueuedMessages,
         // scrollToBottom
         scrollToBottom,
         setScrollToBottom,
         // scrollToPosition
         scrollToPosition,
         setScrollToPosition,
-        // isRefetching
-        isRefetching,
-        setIsRefetching,
+        // isRefetchingMessages
+        isRefetchingMessages,
+        setIsRefetchingMessages,
+        // isFetchingChats
+        isFetchingChats,
+        setIsFetchingChats,
+        // isFetchingOtherFriends
+        isFetchingOtherFriends,
+        setIsFetchingOtherFriends,
+        // isFetchingChats2
+        isFetchingChats2,
+        setIsFetchingChats2,
+        // isFetchingOtherFriends2
+        isFetchingOtherFriends2,
+        setIsFetchingOtherFriends2,
+        // isHomeButtonClicked
+        isHomeButtonClicked,
+        setIsHomeButtonClicked,
 
         // function
         groupAllMessages,
         fetchMessages,
         getQueuedMessages,
         getChatMessagesWithQueue,
+        fetchAll,
       }}
     >
       {children}

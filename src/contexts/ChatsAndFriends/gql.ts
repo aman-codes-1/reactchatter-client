@@ -305,7 +305,7 @@ const CHAT_QUERY = gql(/* GraphQL */ `
       type
       members {
         _id
-        hasCreated
+        hasAdded
         name
         picture
         email
@@ -343,6 +343,7 @@ const CHAT_QUERY = gql(/* GraphQL */ `
         }
         timestamp
       }
+      createdAt
     }
   }
 `) as DocumentNode;
@@ -355,7 +356,7 @@ const CHATS_QUERY = gql(/* GraphQL */ `
       type
       members {
         _id
-        hasCreated
+        hasAdded
         name
         picture
         email
@@ -393,6 +394,7 @@ const CHATS_QUERY = gql(/* GraphQL */ `
         }
         timestamp
       }
+      createdAt
     }
   }
 `) as DocumentNode;
@@ -416,47 +418,6 @@ const CREATE_CHAT_MUTATION = gql(/* GraphQL */ `
     ) {
       _id
       queueId
-      type
-      members {
-        _id
-        hasCreated
-        name
-        picture
-        email
-        email_verified
-        given_name
-        family_name
-      }
-      lastMessage {
-        message
-        sender {
-          _id
-          retryStatus {
-            isRetry
-            timestamp
-          }
-          queuedStatus {
-            isQueued
-            timestamp
-          }
-          sentStatus {
-            isSent
-            timestamp
-          }
-        }
-        otherMembers {
-          _id
-          deliveredStatus {
-            isDelivered
-            timestamp
-          }
-          readStatus {
-            isRead
-            timestamp
-          }
-        }
-        timestamp
-      }
     }
   }
 `) as DocumentNode;
@@ -480,10 +441,127 @@ const UPDATE_CHAT_MUTATION = gql(/* GraphQL */ `
     ) {
       _id
       queueId
+    }
+  }
+`) as DocumentNode;
+
+const CHAT_ADDED_SUBSCRIPTION = gql(/* GraphQL */ `
+  subscription OnChatAdded {
+    OnChatAdded {
+      friendIds
+      chat {
+        _id
+        queueId
+        type
+        members {
+          _id
+          hasAdded
+          name
+          picture
+          email
+          email_verified
+          given_name
+          family_name
+        }
+        lastMessage {
+          message
+          sender {
+            _id
+            retryStatus {
+              isRetry
+              timestamp
+            }
+            queuedStatus {
+              isQueued
+              timestamp
+            }
+            sentStatus {
+              isSent
+              timestamp
+            }
+          }
+          otherMembers {
+            _id
+            deliveredStatus {
+              isDelivered
+              timestamp
+            }
+            readStatus {
+              isRead
+              timestamp
+            }
+          }
+          timestamp
+        }
+        createdAt
+      }
+    }
+  }
+`) as DocumentNode;
+
+const CHAT_UPDATED_SUBSCRIPTION = gql(/* GraphQL */ `
+  subscription OnChatUpdated {
+    OnChatUpdated {
+      friendIds
+      chat {
+        _id
+        queueId
+        type
+        members {
+          _id
+          hasAdded
+          name
+          picture
+          email
+          email_verified
+          given_name
+          family_name
+        }
+        lastMessage {
+          message
+          sender {
+            _id
+            retryStatus {
+              isRetry
+              timestamp
+            }
+            queuedStatus {
+              isQueued
+              timestamp
+            }
+            sentStatus {
+              isSent
+              timestamp
+            }
+          }
+          otherMembers {
+            _id
+            deliveredStatus {
+              isDelivered
+              timestamp
+            }
+            readStatus {
+              isRead
+              timestamp
+            }
+          }
+          timestamp
+        }
+        createdAt
+      }
+    }
+  }
+`) as DocumentNode;
+
+const FRIEND_QUERY = gql(/* GraphQL */ `
+  query friend($friendId: String!, $userId: String!) {
+    friend(input: { friendId: $friendId, userId: $userId }) {
+      _id
+      queueId
       type
       members {
         _id
-        hasCreated
+        hasAdded
         name
         picture
         email
@@ -521,131 +599,8 @@ const UPDATE_CHAT_MUTATION = gql(/* GraphQL */ `
         }
         timestamp
       }
-    }
-  }
-`) as DocumentNode;
-
-const CHAT_ADDED_SUBSCRIPTION = gql(/* GraphQL */ `
-  subscription OnChatAdded {
-    OnChatAdded {
-      friendIds
-      chat {
-        _id
-        queueId
-        type
-        members {
-          _id
-          hasCreated
-          name
-          picture
-          email
-          email_verified
-          given_name
-          family_name
-        }
-        lastMessage {
-          message
-          sender {
-            _id
-            retryStatus {
-              isRetry
-              timestamp
-            }
-            queuedStatus {
-              isQueued
-              timestamp
-            }
-            sentStatus {
-              isSent
-              timestamp
-            }
-          }
-          otherMembers {
-            _id
-            deliveredStatus {
-              isDelivered
-              timestamp
-            }
-            readStatus {
-              isRead
-              timestamp
-            }
-          }
-          timestamp
-        }
-      }
-    }
-  }
-`) as DocumentNode;
-
-const CHAT_UPDATED_SUBSCRIPTION = gql(/* GraphQL */ `
-  subscription OnChatUpdated {
-    OnChatUpdated {
-      friendIds
-      chat {
-        _id
-        queueId
-        type
-        members {
-          _id
-          hasCreated
-          name
-          picture
-          email
-          email_verified
-          given_name
-          family_name
-        }
-        lastMessage {
-          message
-          sender {
-            _id
-            retryStatus {
-              isRetry
-              timestamp
-            }
-            queuedStatus {
-              isQueued
-              timestamp
-            }
-            sentStatus {
-              isSent
-              timestamp
-            }
-          }
-          otherMembers {
-            _id
-            deliveredStatus {
-              isDelivered
-              timestamp
-            }
-            readStatus {
-              isRead
-              timestamp
-            }
-          }
-          timestamp
-        }
-      }
-    }
-  }
-`) as DocumentNode;
-
-const FRIEND_QUERY = gql(/* GraphQL */ `
-  query friend($friendId: String!, $userId: String!) {
-    friend(input: { friendId: $friendId, userId: $userId }) {
-      _id
-      members {
-        _id
-        hasConfirmed
-        name
-        picture
-        email
-        email_verified
-        given_name
-        family_name
-      }
       hasChats
+      createdAt
     }
   }
 `) as DocumentNode;
@@ -654,9 +609,11 @@ const FRIENDS_QUERY = gql(/* GraphQL */ `
   query friends($userId: String!, $limit: Int, $after: ID) {
     friends(input: { userId: $userId }, limit: $limit, after: $after) {
       _id
+      queueId
+      type
       members {
         _id
-        hasConfirmed
+        hasAdded
         name
         picture
         email
@@ -664,7 +621,38 @@ const FRIENDS_QUERY = gql(/* GraphQL */ `
         given_name
         family_name
       }
+      lastMessage {
+        message
+        sender {
+          _id
+          retryStatus {
+            isRetry
+            timestamp
+          }
+          queuedStatus {
+            isQueued
+            timestamp
+          }
+          sentStatus {
+            isSent
+            timestamp
+          }
+        }
+        otherMembers {
+          _id
+          deliveredStatus {
+            isDelivered
+            timestamp
+          }
+          readStatus {
+            isRead
+            timestamp
+          }
+        }
+        timestamp
+      }
       hasChats
+      createdAt
     }
   }
 `) as DocumentNode;
@@ -673,9 +661,11 @@ const OTHER_FRIENDS_QUERY = gql(/* GraphQL */ `
   query otherFriends($userId: String!, $limit: Int, $after: ID) {
     otherFriends(input: { userId: $userId }, limit: $limit, after: $after) {
       _id
+      queueId
+      type
       members {
         _id
-        hasConfirmed
+        hasAdded
         name
         picture
         email
@@ -683,7 +673,38 @@ const OTHER_FRIENDS_QUERY = gql(/* GraphQL */ `
         given_name
         family_name
       }
+      lastMessage {
+        message
+        sender {
+          _id
+          retryStatus {
+            isRetry
+            timestamp
+          }
+          queuedStatus {
+            isQueued
+            timestamp
+          }
+          sentStatus {
+            isSent
+            timestamp
+          }
+        }
+        otherMembers {
+          _id
+          deliveredStatus {
+            isDelivered
+            timestamp
+          }
+          readStatus {
+            isRead
+            timestamp
+          }
+        }
+        timestamp
+      }
       hasChats
+      createdAt
     }
   }
 `) as DocumentNode;
@@ -693,9 +714,11 @@ const FRIEND_ADDED_SUBSCRIPTION = gql(/* GraphQL */ `
     OnFriendAdded {
       friend {
         _id
+        queueId
+        type
         members {
           _id
-          hasConfirmed
+          hasAdded
           name
           picture
           email
@@ -703,7 +726,38 @@ const FRIEND_ADDED_SUBSCRIPTION = gql(/* GraphQL */ `
           given_name
           family_name
         }
+        lastMessage {
+          message
+          sender {
+            _id
+            retryStatus {
+              isRetry
+              timestamp
+            }
+            queuedStatus {
+              isQueued
+              timestamp
+            }
+            sentStatus {
+              isSent
+              timestamp
+            }
+          }
+          otherMembers {
+            _id
+            deliveredStatus {
+              isDelivered
+              timestamp
+            }
+            readStatus {
+              isRead
+              timestamp
+            }
+          }
+          timestamp
+        }
         hasChats
+        createdAt
       }
     }
   }

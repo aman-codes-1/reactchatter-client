@@ -114,6 +114,119 @@ export const scrollToSelected = (
   }
 };
 
+export const filterDataById = (data: any[], targetId: string) => {
+  return data?.filter((el: any) => el?._id !== targetId);
+};
+
+export const addRequest = (OnRequestAddedRequest: any, existingData: any) => {
+  let data = existingData?.data;
+  let totalCount = existingData?.totalCount;
+  if (OnRequestAddedRequest && data?.length && totalCount) {
+    data = [OnRequestAddedRequest, ...data];
+    totalCount = totalCount + 1;
+  } else if (OnRequestAddedRequest) {
+    data = [OnRequestAddedRequest];
+    totalCount = 1;
+  }
+  return {
+    data,
+    totalCount,
+  };
+};
+
+export const deleteRequest = (
+  OnRequestUpdatedRequest: any,
+  existingData: any,
+) => {
+  let data = existingData?.data;
+  let totalCount = existingData?.totalCount;
+  if (OnRequestUpdatedRequest && data?.length && totalCount) {
+    data = filterDataById(data, OnRequestUpdatedRequest?._id);
+    totalCount = totalCount - 1;
+  }
+  return {
+    data,
+    totalCount,
+  };
+};
+
+export const addObject = (dataToAdd: any, existingData: any) => {
+  let data = existingData;
+  if (dataToAdd && data?.length) {
+    data = [dataToAdd, ...data];
+  } else if (dataToAdd) {
+    data = [dataToAdd];
+  }
+  return data;
+};
+
+export const addArray = (arrToAdd: any, existingData: any) => {
+  let data = existingData;
+  if (arrToAdd?.length && data?.length) {
+    data = [...data, ...arrToAdd];
+  } else if (arrToAdd?.length) {
+    data = [...arrToAdd];
+  }
+  return data;
+};
+
+export const deleteFriend = (
+  OnChatAddedFriendId: string,
+  existingData: any,
+) => {
+  let data = existingData;
+  if (OnChatAddedFriendId && data?.length) {
+    data = filterDataById(data, OnChatAddedFriendId);
+  }
+  return data;
+};
+
+export const findAndUpdate = (
+  id: string,
+  key: string,
+  existingData: any,
+  dataToUpdate: any,
+  updateKey: string,
+) => {
+  let isFoundAndUpdated = false;
+  let data = existingData;
+  let index = -1;
+  if (data?.length) {
+    const dataCopy = [...data];
+    index = dataCopy?.findIndex((el: any) => el?.[key] === id);
+    if (index >= 0) {
+      const updatedElement = {
+        ...dataCopy[index],
+        [updateKey]: dataToUpdate,
+      };
+      dataCopy[index] = updatedElement;
+      data = dataCopy;
+      isFoundAndUpdated = true;
+    }
+  }
+  return {
+    isFoundAndUpdated,
+    data,
+    index,
+  };
+};
+
+export const findAndMoveToTop = (
+  id: string,
+  key: string,
+  existingData: any,
+) => {
+  if (existingData?.length) {
+    const existingDataCopy = [...existingData];
+    const index = existingDataCopy?.findIndex((el: any) => el?.[key] === id);
+    if (index >= 0) {
+      const [foundElement] = existingDataCopy.splice(index, 1);
+      existingDataCopy.unshift(foundElement);
+    }
+    return existingDataCopy;
+  }
+};
+
 export const getDateLabel = (timestamp: number) => {
   const messageDate = moment(timestamp);
   let dateLabel: string;
@@ -137,7 +250,7 @@ export const groupMessages = (messages: any[] = [], _id: string) => {
   if (!messages?.length) return messages;
 
   const groupedByDay = messages.reduce((acc: any, message: any) => {
-    const timestamp = message?.sender?.queuedStatus?.timestamp;
+    const timestamp = message?.timestamp;
 
     if (timestamp) {
       const dateLabel = getDateLabel(timestamp);
@@ -194,13 +307,12 @@ export const groupMessage = (
 ) => {
   // to do
   // fix wrong grouping of messages
-  const timestamp = message?.sender?.queuedStatus?.timestamp;
+  const timestamp = message?.timestamp;
   const dateLabel = getDateLabel(timestamp);
   const side = message.sender?._id === _id ? 'right' : 'left';
   const newGroup = {
     side,
     data: [message],
-    // to do: include group details
     groupDetails: message?.sender,
   };
 
@@ -345,6 +457,14 @@ export const mergeLastByDateLabel = (prevArray: any[], newArray: any[]) => {
   return [...newArray, ...prevArray];
 };
 
+export const getLastMessage = (edges: any[]) => {
+  const lastEdgeIndex = edges?.length - 1;
+  const lastEdge = edges[lastEdgeIndex];
+  const lastGroup = lastEdge?.groups?.[lastEdge?.groups?.length - 1];
+  const lastMessage = lastGroup?.data?.[lastGroup?.data?.length - 1] || null;
+  return lastMessage;
+};
+
 export const renderMember = (members: any[], _id: string) => {
   let currentMember;
   let otherMember;
@@ -358,6 +478,93 @@ export const renderMember = (members: any[], _id: string) => {
   }
 
   return { currentMember, otherMember };
+};
+
+export const getOtherMembers = (members: any[], _id: string) => {
+  if (members?.length) {
+    const filteredMembers = filterDataById(members, _id);
+    if (filteredMembers?.length) {
+      const otherMembers = filteredMembers?.map((member: any) => {
+        const { hasAdded, ...rest } = member || {};
+        return {
+          ...rest,
+          deliveredStatus: null,
+          readStatus: null,
+        };
+      });
+      return otherMembers;
+    }
+    return [];
+  }
+  return [];
+};
+
+export const getSender = (members: any[], timestamp: number, _id: string) => {
+  if (members?.length) {
+    const sender = members?.find((member: any) => member?._id === _id);
+    if (sender) {
+      const { hasAdded, ...rest } = sender || {};
+      return {
+        ...rest,
+        retryStatus: null,
+        queuedStatus: {
+          isQueued: true,
+          timestamp,
+        },
+        sentStatus: null,
+      };
+    }
+    return {};
+  }
+  return {};
+};
+
+export const sortByTimestamp = (data: any[]) => {
+  const sortedData = [...data].sort((a, b) => {
+    const timestampA = a?.lastMessage?.timestamp || a?.createdAt || 0;
+    const timestampB = b?.lastMessage?.timestamp || b?.createdAt || 0;
+    return timestampB - timestampA;
+  });
+  return sortedData;
+};
+
+export const clickChat = async (
+  item: any,
+  details: any,
+  getChatMessagesWithQueue: any,
+  getQueuedMessages: any,
+  setIsListItemClicked: any,
+  setSelectedItem: any,
+  setSelectedDetails: any,
+  navigate: any,
+  fetchAll: any,
+  toggleDrawer?: any,
+) => {
+  setIsListItemClicked((prev: boolean) => !prev);
+  try {
+    const id = item?._id;
+    const type =
+      item?.type === 'private' || item?.type === 'group' ? 'chat' : item?.type;
+    if (id && type) {
+      if (type === 'chat') {
+        await getChatMessagesWithQueue(id, 'chatId');
+      }
+      if (type === 'friend') {
+        if (item?.hasChats === true) {
+          navigate('/');
+          await fetchAll();
+          return;
+        }
+        await getChatMessagesWithQueue(id, 'friendId');
+      }
+      setSelectedItem(item);
+      setSelectedDetails(details);
+      toggleDrawer?.();
+      navigate(`/chat?id=${id}&type=${type}`);
+    }
+  } catch (error: any) {
+    console.error('Error fetching messages:', error);
+  }
 };
 
 export const checkIsMemberExists = (
@@ -399,7 +606,7 @@ export const checkMessageStatus = (msg: MessageData, selectedItem: any) => {
     const deliveredStatus = receiver?.deliveredStatus;
     isDelivered = deliveredStatus?.isDelivered;
     const readStatus = receiver?.readStatus;
-    isRead = true;
+    isRead = readStatus?.isRead;
   }
 
   if (selectedItem?.type === 'group') {
@@ -423,8 +630,8 @@ export const checkMessageStatus = (msg: MessageData, selectedItem: any) => {
   };
 };
 
-export const uniqueArrayElements = (arr: any[], arrayToFilter: any[]) => {
-  const uniqueQueuedMessages = arrayToFilter?.filter((queuedMessage: any) => {
+export const uniqueQueuedMessages = (arr: any[], arrayToFilter: any[]) => {
+  const uniqueMessages = arrayToFilter?.filter((queuedMessage: any) => {
     const isUnique = !arr?.some((cachedMessageGroup: any) =>
       cachedMessageGroup?.groups?.some((group: any) =>
         group?.data?.some(
@@ -437,10 +644,10 @@ export const uniqueArrayElements = (arr: any[], arrayToFilter: any[]) => {
     );
     return isUnique;
   });
-  return uniqueQueuedMessages;
+  return uniqueMessages;
 };
 
-export const deleteKeyValuePairs = (keysToDelete: any[], obj: any) => {
+export const deleteKeyValuePairs = (obj: any, keysToDelete: any[]) => {
   const newObj = { ...obj };
   if (keysToDelete?.length) {
     keysToDelete?.forEach((key) => {

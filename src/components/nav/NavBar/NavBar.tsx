@@ -11,18 +11,14 @@ const NavBar = forwardRef(
     const {
       chats = [],
       otherFriends = [],
-      refetchChats,
-      refetchOtherFriends,
-      refetchPendingRequests,
-      refetchSentRequests,
+      setIsHomeButtonClicked,
+      fetchAll,
     } = useContext(ChatsAndFriendsContext);
 
-    const handleClickLogo = () => {
+    const handleClickLogo = async () => {
+      setIsHomeButtonClicked((prev: boolean) => !prev);
       toggleDrawer?.();
-      refetchChats();
-      refetchOtherFriends();
-      refetchPendingRequests();
-      refetchSentRequests();
+      await fetchAll();
     };
 
     return (

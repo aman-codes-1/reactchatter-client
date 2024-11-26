@@ -1,4 +1,4 @@
-import { useContext, useLayoutEffect, useRef, useState } from 'react';
+import { useContext, useLayoutEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Badge, List } from '@mui/material';
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
@@ -10,6 +10,7 @@ import { ChatsAndFriendsContext } from '../../../../contexts';
 import { ListItem } from '../../../../components';
 import { DataList } from '..';
 import { SideBarListStyled } from './SideBarList.styled';
+import { clickChat } from '../../../../helpers';
 
 const SideBarList = ({ toggleDrawer, className }: any) => {
   const navigate = useNavigate();
@@ -17,22 +18,25 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
   const selectedOverviewLink = pathname?.split?.('/')?.[1];
   const {
     chats = [],
-    chatsLoading,
-    refetchChats,
     otherFriends = [],
-    otherFriendsLoading,
-    refetchOtherFriends,
     pendingRequestsCount = 0,
     sentRequestsCount = 0,
     setIsListItemClicked,
     selectedItem,
     setSelectedItem,
     setSelectedDetails,
+    isFetchingChats,
+    isFetchingOtherFriends,
+    isFetchingChats2,
+    isFetchingOtherFriends2,
     getQueuedMessages,
     getChatMessagesWithQueue,
+    fetchAll,
   } = useContext(ChatsAndFriendsContext);
   const [toggleChats, setToggleChats] = useState(!!chats?.length);
   const [toggleFriends, setToggleFriends] = useState(!!otherFriends?.length);
+  const [currentChats, setCurrentChats] = useState(chats);
+  const [currentOtherFriends, setCurrentOtherFriends] = useState(otherFriends);
 
   const navLinks = [
     {
@@ -55,20 +59,16 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
   ];
 
   useLayoutEffect(() => {
-    if (chats?.length) {
-      setToggleChats(true);
-    } else {
-      setToggleChats(false);
-    }
-  }, [chats]);
+    setToggleChats(!!chats?.length);
+    if (isFetchingChats2 || isFetchingOtherFriends2) return;
+    setCurrentChats(chats);
+  }, [chats, isFetchingChats2, isFetchingOtherFriends2]);
 
   useLayoutEffect(() => {
-    if (otherFriends?.length) {
-      setToggleFriends(true);
-    } else {
-      setToggleFriends(false);
-    }
-  }, [otherFriends]);
+    setToggleFriends(!!otherFriends?.length);
+    if (isFetchingChats2 || isFetchingOtherFriends2) return;
+    setCurrentOtherFriends(otherFriends);
+  }, [otherFriends, isFetchingChats2, isFetchingOtherFriends2]);
 
   const handleToggle = (
     _: React.MouseEvent<HTMLDivElement, MouseEvent>,
@@ -79,48 +79,21 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
 
   const handleClickChat = async (
     _: React.MouseEvent<HTMLDivElement, MouseEvent>,
-    chat: any,
+    item: any,
     details: any,
   ) => {
-    setIsListItemClicked((prev: boolean) => !prev);
-
-    if (chat?._id) {
-      try {
-        await getChatMessagesWithQueue(chat?._id, 'chatId');
-        setSelectedItem(chat);
-        setSelectedDetails(details);
-        navigate(`/chat?id=${chat?._id}&type=chat`);
-        toggleDrawer?.();
-      } catch (error: any) {
-        console.error('Error fetching messages:', error);
-      }
-    }
-  };
-
-  const handleClickFriend = async (
-    _: React.MouseEvent<HTMLDivElement, MouseEvent>,
-    friend: any,
-    details: any,
-  ) => {
-    setIsListItemClicked((prev: boolean) => !prev);
-
-    if (friend?._id) {
-      try {
-        if (friend?.hasChats === true) {
-          navigate('/');
-          refetchChats();
-          refetchOtherFriends();
-          return;
-        }
-        await getQueuedMessages(friend?._id, 'friendId');
-        setSelectedItem(friend);
-        setSelectedDetails(details);
-        navigate(`/chat?id=${friend?._id}&type=friend`);
-        toggleDrawer?.();
-      } catch (error) {
-        console.error('Error fetching messages:', error);
-      }
-    }
+    await clickChat(
+      item,
+      details,
+      getChatMessagesWithQueue,
+      getQueuedMessages,
+      setIsListItemClicked,
+      setSelectedItem,
+      setSelectedDetails,
+      navigate,
+      fetchAll,
+      toggleDrawer,
+    );
   };
 
   const handleClickOverviewItem = (
@@ -132,9 +105,14 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
     navigate(link);
   };
 
+  const isLoaded = !isFetchingChats && !isFetchingOtherFriends;
+  const showChats = isLoaded && !!currentChats?.length;
+  const showOtherFriends = isLoaded && !!currentOtherFriends?.length;
+  const bothNotVisible = !showChats && !showOtherFriends;
+
   return (
     <SideBarListStyled className={className}>
-      {chats?.length ? (
+      {showChats ? (
         <>
           <ListItem
             dense
@@ -160,9 +138,7 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
           {toggleChats ? (
             <DataList
               dense
-              data={chats}
-              type="chats"
-              loading={chatsLoading}
+              data={currentChats}
               selectedItem={selectedItem}
               handleClickListItem={handleClickChat}
               className="flex-list-item margin-bottom"
@@ -171,14 +147,14 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
           ) : null}
         </>
       ) : null}
-      {otherFriends?.length ? (
+      {showOtherFriends ? (
         <>
           <ListItem
             dense
-            sx={!chats?.length ? { pt: 0 } : {}}
+            sx={!showChats ? { pt: 0 } : {}}
             btnProps={{
               textProps: {
-                primary: chats?.length ? 'New Chat' : 'Your Friends',
+                primary: currentChats?.length ? 'New Chat' : 'Your Friends',
                 primaryTypographyProps: {
                   className: 'default-heading',
                   style: {
@@ -198,11 +174,9 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
             <>
               <DataList
                 dense
-                data={otherFriends}
-                type="otherFriends"
-                loading={otherFriendsLoading}
+                data={currentOtherFriends}
                 selectedItem={selectedItem}
-                handleClickListItem={handleClickFriend}
+                handleClickListItem={handleClickChat}
                 className="flex-list-item margin-bottom"
                 scrollDependencies={[toggleChats, toggleFriends]}
               />
@@ -214,7 +188,7 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
         <>
           <ListItem
             dense
-            sx={!chats?.length && !otherFriends?.length ? { pt: 0 } : {}}
+            sx={bothNotVisible ? { pt: 0 } : {}}
             disableHover
             btnProps={{
               textProps: {

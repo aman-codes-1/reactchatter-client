@@ -1,7 +1,8 @@
-import { useLayoutEffect, useRef } from 'react';
-import { Divider, List } from '@mui/material';
+import { useContext, useLayoutEffect, useRef } from 'react';
+import { Divider, List, useTheme } from '@mui/material';
 import { ListItem } from '../../../../components';
 import { useAuth } from '../../../../hooks';
+import { ChatsAndFriendsContext } from '../../../../contexts';
 import { renderMember, scrollToSelected } from '../../../../helpers';
 import { MessageStatus } from '..';
 
@@ -10,20 +11,22 @@ const DataList = ({
   disableGutters = false,
   dividerVariant,
   data,
-  type,
   selectedItem,
   handleClickListItem,
   className,
   scrollDependencies = [],
-  loading,
 }: any) => {
+  const theme = useTheme();
   const { auth: { _id = '' } = {} } = useAuth();
   const listRef = useRef<any>(null);
   const listItemsRef = useRef<any>([]);
+  const { isHomeButtonClicked } = useContext(ChatsAndFriendsContext);
 
-  const isChats = type === 'chats';
-  const isFriends = type === 'friends';
-  const isOtherFriends = type === 'otherFriends';
+  useLayoutEffect(() => {
+    if (listRef?.current) {
+      listRef.current.scrollTop = 0;
+    }
+  }, [isHomeButtonClicked]);
 
   useLayoutEffect(() => {
     const scrollSelected = () => {
@@ -46,17 +49,14 @@ const DataList = ({
     };
   }, [data, selectedItem, ...scrollDependencies]);
 
-  useLayoutEffect(() => {
-    if (listRef?.current) {
-      listRef.current.scrollTop = 0;
-    }
-  }, [loading]);
-
   const renderSecondary = (item: any, details: any) => {
     const msg = item?.lastMessage;
+    let isComponent = false;
+    let component = null;
 
     if (msg) {
-      return (
+      isComponent = true;
+      component = (
         <div
           style={{
             display: 'flex',
@@ -80,9 +80,14 @@ const DataList = ({
           </span>
         </div>
       );
+    } else {
+      component = details?.email;
     }
 
-    return details?.email;
+    return {
+      isComponent,
+      component,
+    };
   };
 
   const renderList = (
@@ -93,10 +98,11 @@ const DataList = ({
     itemsRef: any,
   ) => {
     let details: any;
-    const isPrivateChat = isChats && item?.type === 'private';
-    const isGroupChat = isChats && item?.type === 'group';
+    const isPrivateChat = item?.type === 'private';
+    const isGroupChat = item?.type === 'group';
+    const isFriend = item?.type === 'friend';
 
-    if (isPrivateChat || isFriends || isOtherFriends) {
+    if (isPrivateChat || isFriend) {
       const { otherMember } = renderMember(item?.members, _id);
       details = otherMember;
     }
@@ -105,7 +111,7 @@ const DataList = ({
       details = item?.groupDetails;
     }
 
-    const secondary = renderSecondary(item, details);
+    const { isComponent, component } = renderSecondary(item, details);
 
     if (details) {
       return (
@@ -116,31 +122,30 @@ const DataList = ({
             btnProps={{
               textProps: {
                 primary: details?.name,
-                secondary,
+                secondary: component,
                 primaryTypographyProps: {
                   style: {
                     WebkitLineClamp: 1,
                   },
-                  ...(isChats
+                  ...(details?.unreadMessageCount // to do
                     ? {
-                        // fontWeight: 600, // only when unread messages
+                        fontWeight: 600,
                       }
                     : {}),
                 },
                 secondaryTypographyProps: {
-                  ...(isChats
+                  style: {
+                    WebkitLineClamp: 1,
+                  },
+                  ...(isComponent ? { component: 'div' as any } : {}),
+                  ...(details?.unreadMessageCount // to do
                     ? {
-                        // fontWeight: 600, // only when unread messages
-                        component: 'div' as any,
-                        // style: {
-                        //   color: '#000000',
-                        // }, // only when unread messages
-                      }
-                    : {
+                        fontWeight: 700,
                         style: {
-                          WebkitLineClamp: 1,
+                          color: theme.palette.grey[900],
                         },
-                      }),
+                      }
+                    : {}),
                 },
               },
               avatarProps: {

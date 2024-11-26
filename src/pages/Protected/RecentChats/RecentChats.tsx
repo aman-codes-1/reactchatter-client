@@ -1,51 +1,66 @@
-import { useContext } from 'react';
+import { useContext, useLayoutEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChatsAndFriendsContext } from '../../../contexts';
 import { DataList, MainLayout } from '../components';
+import { clickChat } from '../../../helpers';
 
 const RecentChats = () => {
   const navigate = useNavigate();
   const {
     chats = [],
-    chatsLoading,
     setIsListItemClicked,
     selectedItem,
     setSelectedItem,
     setSelectedDetails,
+    isFetchingChats,
+    isFetchingOtherFriends,
+    isFetchingChats2,
+    isFetchingOtherFriends2,
+    getQueuedMessages,
     getChatMessagesWithQueue,
+    fetchAll,
   } = useContext(ChatsAndFriendsContext);
+  const [currentChats, setCurrentChats] = useState(chats);
+
+  useLayoutEffect(() => {
+    if (isFetchingChats2 || isFetchingOtherFriends2) return;
+    if (chats?.length) {
+      setCurrentChats(chats);
+    } else {
+      setCurrentChats([]);
+    }
+  }, [chats, isFetchingChats2, isFetchingOtherFriends2]);
 
   const handleClickChat = async (
     _: React.MouseEvent<HTMLDivElement, MouseEvent>,
-    chat: any,
+    item: any,
     details: any,
   ) => {
-    setIsListItemClicked((prev: boolean) => !prev);
-
-    if (chat?._id) {
-      try {
-        await getChatMessagesWithQueue(chat?._id, 'chatId');
-        setSelectedItem(chat);
-        setSelectedDetails(details);
-        navigate(`/chat?id=${chat?._id}&type=chat`);
-      } catch (error: any) {
-        console.error('Error fetching messages:', error);
-      }
-    }
+    await clickChat(
+      item,
+      details,
+      getChatMessagesWithQueue,
+      getQueuedMessages,
+      setIsListItemClicked,
+      setSelectedItem,
+      setSelectedDetails,
+      navigate,
+      fetchAll,
+    );
   };
+
+  const loadingChats = isFetchingChats || isFetchingOtherFriends;
 
   return (
     <MainLayout
       heading="Recent Chats"
       defaultText="Nothing to show here..."
-      loading={chatsLoading}
-      data={chats}
+      loading={loadingChats}
+      data={currentChats}
     >
       <DataList
         disableGutters
-        data={chats}
-        loading={chatsLoading}
-        type="chats"
+        data={currentChats}
         selectedItem={selectedItem}
         handleClickListItem={handleClickChat}
       />

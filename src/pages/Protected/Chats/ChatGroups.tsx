@@ -37,11 +37,10 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
     messageGroupsScrollPosition,
     messageGroupsClient,
     loadingQueued,
-    queuedMessages = [],
     scrollToBottom,
     scrollToPosition,
-    isRefetching,
-    getQueuedMessages,
+    isRefetchingMessages,
+    getChatMessagesWithQueue,
   } = useContext(ChatsAndFriendsContext);
   const scrollRef = useRef<any>(null);
   const scrollBottomRef = useRef<any>(null);
@@ -81,16 +80,17 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
   useEffect(() => {
     const fetchQueuedMessages = async () => {
       if (friendId) {
-        await getQueuedMessages(friendId, 'friendId');
+        await getChatMessagesWithQueue(friendId, 'friendId');
       }
     };
 
     fetchQueuedMessages();
   }, []);
 
-  if ((messagesLoading && !isRefetching) || loadingQueued) return null;
+  if ((messagesLoading && !isRefetchingMessages) || loadingQueued) return null;
 
   const handleScroll = async (e: any) => {
+    // to do: implement cursor pagination for queued messages
     if (scrollRef?.current) {
       const scrollHeightBefore = scrollRef?.current?.scrollHeight;
       const scrollTopBefore = scrollRef?.current?.scrollTop;
@@ -175,11 +175,6 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
     }
   };
 
-  const queuedMessageGroups = queuedMessages?.length
-    ? queuedMessages?.find((el: any) => el?.friendId === friendId)
-        ?.messageGroups
-    : [];
-
   return (
     <ChatGroupsStyled
       navbarHeight={navbarHeight}
@@ -187,16 +182,13 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
       textFieldHeight={textFieldHeight}
     >
       <div className="chat-container" ref={scrollRef} onScroll={handleScroll}>
-        {!messageGroups?.length && !queuedMessageGroups?.length ? (
+        {!messageGroups?.length ? (
           <div className="no-messages-wrapper">No Messages</div>
         ) : null}
-        {messageGroups?.length || queuedMessageGroups?.length ? (
+        {messageGroups?.length ? (
           <div className="chat-wrapper">
             <div className="chat-grid">
-              {(messageGroups?.length
-                ? messageGroups
-                : queuedMessageGroups
-              )?.map((messageGroup: any, index: number) => (
+              {messageGroups?.map((messageGroup: any, index: number) => (
                 <div
                   className="chat-group"
                   key={`${messageGroup?.dateLabel}-${index}`}
@@ -204,7 +196,6 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
                   {messageGroup?.dateLabel ? (
                     <div className="date-label-wrapper">
                       <Chip
-                        // size="small"
                         variant="outlined"
                         label={messageGroup?.dateLabel}
                         className="date-label-chip"

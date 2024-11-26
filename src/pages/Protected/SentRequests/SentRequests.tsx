@@ -40,7 +40,7 @@ const SentRequests = () => {
     <FriendRequest
       mainLayoutProps={{
         heading: 'Sent Requests',
-        defaultText: 'You have not sent any friend requests.',
+        defaultText: "You haven't sent any friend requests.",
         loading: sentRequestsLoading,
         error: sentRequestsError?.graphQLErrors?.[0]?.message,
       }}
