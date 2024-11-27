@@ -20,8 +20,8 @@ import {
 } from '../../../contexts';
 import {
   addObject,
-  deleteFriend,
   deleteKeyValuePairs,
+  deleteObject,
   findAndMoveToTop,
   findAndUpdate,
   getOtherMembers,
@@ -131,38 +131,48 @@ const Chats = () => {
   };
 
   const addUpdateChat = (
-    id: string,
-    key: string,
-    lastMessage: any,
+    dataToUpdate: any,
+    updateKey: string,
     selectedEl?: any,
+    id?: string,
+    key?: string,
   ) => {
     let idx = -1;
+    let isChatAdded = false;
+    let isChatUpdated = false;
 
     chatsClient.cache.modify({
       fields: {
         [`chats({"input":{"userId":"${_id}"}})`](existingData: any) {
-          const { isFoundAndUpdated, data, index } = findAndUpdate(
-            id,
-            key,
-            existingData,
-            lastMessage,
-            'lastMessage',
-          );
-          idx = index;
-          if (isFoundAndUpdated && data?.length) {
-            return data;
+          if (selectedEl) {
+            const chat = {
+              ...selectedEl,
+              [updateKey]: dataToUpdate,
+            };
+            const newData = addObject(chat, existingData);
+            isChatAdded = true;
+            return newData;
           }
-          const chat = {
-            ...selectedEl,
-            lastMessage,
-          };
-          const newData = addObject(chat, existingData);
-          return newData;
+          if (id && key) {
+            const { isFoundAndUpdated, data, index } = findAndUpdate(
+              id,
+              key,
+              existingData,
+              dataToUpdate,
+              updateKey,
+            );
+            idx = index;
+            if (isFoundAndUpdated && data?.length) {
+              isChatUpdated = true;
+              return data;
+            }
+          }
+          return existingData;
         },
       },
     });
 
-    if (idx > 0) {
+    if (idx > 0 && id && key) {
       setTimeout(() => {
         chatsClient.cache.modify({
           fields: {
@@ -174,22 +184,49 @@ const Chats = () => {
         });
       }, 200);
     }
+
+    return {
+      isChatAdded,
+      isChatUpdated,
+    };
   };
 
-  const deleteFriendAndAddUpdateChat = (
-    id: string,
-    lastMessage: any,
-    selectedEl: any,
-  ) => {
+  const deleteFriend = (id: string) => {
     otherFriendsClient.cache.modify({
       fields: {
         [`otherFriends({"input":{"userId":"${_id}"}})`](existingData: any) {
-          const data = deleteFriend(id, existingData);
+          const data = deleteObject(id, existingData);
           return data;
         },
       },
     });
-    addUpdateChat(id, '_id', lastMessage, selectedEl);
+  };
+
+  const renderMessage = (queuedMessage: any, id: string) => {
+    const edges = groupMessage(messageGroups, queuedMessage, _id);
+    const pageInfo = {
+      endCursor: '',
+      hasNextPage: false,
+    };
+
+    messageGroupsClient.writeQuery({
+      query: MESSAGE_GROUPS_QUERY,
+      data: {
+        messageGroups: {
+          edges,
+          pageInfo: messageGroupsPageInfo?.endCursor
+            ? messageGroupsPageInfo
+            : pageInfo,
+          queuedPageInfo: messageGroupsQueuedPageInfo?.endCursor
+            ? messageGroupsQueuedPageInfo
+            : pageInfo,
+          scrollPosition: -1,
+        },
+      },
+      variables: { chatId: id },
+    });
+
+    setScrollToBottom((prev: boolean) => !prev);
   };
 
   const handleSendMessage = async () => {
@@ -199,14 +236,16 @@ const Chats = () => {
     setLoadingCreateMessage(true);
 
     try {
-      const chatIdToUse = chatId || '';
+      const queueId = crypto.randomUUID();
+      let chatIdToUse = chatId || '';
       let queuedMessage: any;
       let isAdded = false;
-      // let isUpdated = false;
+      let isUpdated = false;
+      let isChatDone = false;
 
       const queuedMessageData = {
         _id: '',
-        queueId: crypto.randomUUID(),
+        queueId,
         message,
         timestamp,
         otherMembers: getOtherMembers(selectedItem?.members, _id),
@@ -221,32 +260,23 @@ const Chats = () => {
           friendUserId: selectedDetails?._id,
         };
 
-        const edges = groupMessage(messageGroups, queuedMessage, _id);
-        const pageInfo = {
-          endCursor: '',
-          hasNextPage: false,
+        renderMessage(queuedMessage, friendId);
+
+        deleteFriend(friendId);
+
+        const chat = {
+          ...selectedItem,
+          hasChats: true,
+          queueId,
         };
 
-        messageGroupsClient.writeQuery({
-          query: MESSAGE_GROUPS_QUERY,
-          data: {
-            messageGroups: {
-              edges,
-              pageInfo: messageGroupsPageInfo?.endCursor
-                ? messageGroupsPageInfo
-                : pageInfo,
-              queuedPageInfo: messageGroupsQueuedPageInfo?.endCursor
-                ? messageGroupsQueuedPageInfo
-                : pageInfo,
-              scrollPosition: -1,
-            },
-          },
-          variables: { chatId: friendId },
-        });
+        const { isChatAdded } = addUpdateChat(
+          queuedMessage,
+          'lastMessage',
+          chat,
+        );
 
-        setScrollToBottom((prev: boolean) => !prev);
-
-        deleteFriendAndAddUpdateChat(friendId, queuedMessage, selectedItem);
+        isChatDone = isChatAdded;
 
         const addedQueuedMessage = await MessageQueue.addMessageToQueue(
           queuedMessage,
@@ -260,59 +290,52 @@ const Chats = () => {
           isAdded = true;
         }
 
-        const queueId =
-          queuedMessage?.queueId || queuedMessageData?.queueId || '';
+        const createdChat = await createChat({
+          variables: {
+            userId: _id,
+            queueId,
+            type: 'private',
+            friendIds: [queuedMessage?.friendId],
+            friendUserIds: [queuedMessage?.friendUserId],
+          },
+        });
 
-        // const createdChat = await createChat({
-        //   variables: {
-        //     userId: _id,
-        //     queueId,
-        //     type: 'private',
-        //     friendIds: [queuedMessage?.friendId],
-        //     friendUserIds: [queuedMessage?.friendUserId],
-        //   },
-        // });
+        const createdChatData = createdChat?.data?.createChat;
+        const createdChatId = createdChatData?._id;
+        if (!createdChatId) throw new Error('Failed to create chat');
+        chatIdToUse = createdChatId;
 
-        // const createdChatData = createdChat?.data?.createChat;
-        // const createdChatId = createdChatData?._id;
-        // if (!createdChatId) throw new Error('Failed to create chat');
-        // chatIdToUse = createdChatId;
+        addUpdateChat(chatIdToUse, '_id', undefined, friendId, '_id');
 
-        // setSearchParams((params) => {
-        //   params.set('id', chatIdToUse);
-        //   params.set('type', 'chat');
-        //   return params;
-        // });
+        const newData = {
+          chatId: chatIdToUse,
+        };
 
-        // const newData = {
-        //   chatId: chatIdToUse,
-        // };
+        const updatedQueuedMessage = await MessageQueue.updateMessageToQueue(
+          queueId,
+          newData,
+          ['chatId', 'friendId', 'friendUserId'],
+        ).catch((err) => {
+          console.error('Error updating to queue:', err);
+          return null;
+        });
 
-        // const updatedQueuedMessage = await MessageQueue.updateMessageToQueue(
-        //   queueId,
-        //   newData,
-        //   ['chatId', 'friendId', 'friendUserId'],
-        // ).catch((err) => {
-        //   console.error('Error updating to queue:', err);
-        //   return null;
-        // });
+        if (updatedQueuedMessage) {
+          queuedMessage = updatedQueuedMessage;
+          isUpdated = true;
+        }
 
-        // if (updatedQueuedMessage) {
-        //   queuedMessage = updatedQueuedMessage;
-        //   isUpdated = true;
-        // }
-
-        // if (!isUpdated) {
-        //   queuedMessage = deleteKeyValuePairs(queuedMessage, [
-        //     'chatId',
-        //     'friendId',
-        //     'friendUserId',
-        //   ]);
-        //   queuedMessage = {
-        //     ...queuedMessage,
-        //     ...newData,
-        //   };
-        // }
+        if (!isUpdated) {
+          queuedMessage = deleteKeyValuePairs(queuedMessage, [
+            'chatId',
+            'friendId',
+            'friendUserId',
+          ]);
+          queuedMessage = {
+            ...queuedMessage,
+            ...newData,
+          };
+        }
       }
 
       if (chatIdToUse) {
@@ -321,32 +344,23 @@ const Chats = () => {
           chatId: chatIdToUse,
         };
 
-        const edges = groupMessage(messageGroups, queuedMessage, _id);
-        const pageInfo = {
-          endCursor: '',
-          hasNextPage: false,
-        };
+        renderMessage(queuedMessage, chatIdToUse);
 
-        messageGroupsClient.writeQuery({
-          query: MESSAGE_GROUPS_QUERY,
-          data: {
-            messageGroups: {
-              edges,
-              pageInfo: messageGroupsPageInfo?.endCursor
-                ? messageGroupsPageInfo
-                : pageInfo,
-              queuedPageInfo: messageGroupsQueuedPageInfo?.endCursor
-                ? messageGroupsQueuedPageInfo
-                : pageInfo,
-              scrollPosition: -1,
-            },
-          },
-          variables: { chatId },
+        setSearchParams((params) => {
+          params.set('id', chatIdToUse);
+          params.set('type', 'chat');
+          return params;
         });
 
-        setScrollToBottom((prev: boolean) => !prev);
-
-        addUpdateChat(chatIdToUse, '_id', queuedMessage);
+        if (!isChatDone) {
+          addUpdateChat(
+            queuedMessage,
+            'lastMessage',
+            undefined,
+            chatIdToUse,
+            '_id',
+          );
+        }
 
         if (!isAdded) {
           const addedQueuedMessage = await MessageQueue.addMessageToQueue(
@@ -361,8 +375,6 @@ const Chats = () => {
           }
         }
 
-        const queueId =
-          queuedMessage?.queueId || queuedMessageData?.queueId || '';
         const queuedMessageSender = queuedMessage?.sender;
         const queuedMessageQueuedStatus = queuedMessageSender?.queuedStatus;
         const queuedMessageQueuedStatusIsQueued =
@@ -389,7 +401,7 @@ const Chats = () => {
 
         const createdMessageQueueId = createdMessageData?.queueId;
         if (createdMessageQueueId) {
-          // await MessageQueue.deleteMessageFromQueue(createdMessageQueueId);
+          await MessageQueue.deleteMessageFromQueue(createdMessageQueueId);
         }
       }
     } catch (error) {

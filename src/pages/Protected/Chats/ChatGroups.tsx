@@ -91,7 +91,7 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
 
   const handleScroll = async (e: any) => {
     // to do: implement cursor pagination for queued messages
-    if (scrollRef?.current) {
+    if (scrollRef?.current && chatId) {
       const scrollHeightBefore = scrollRef?.current?.scrollHeight;
       const scrollTopBefore = scrollRef?.current?.scrollTop;
       const isScrollingUp = scrollTopBefore < prevScrollTop;
@@ -161,7 +161,7 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
       messageGroupsClient.cache.modify({
         fields: {
           [`messageGroups({"input":{"chatId":"${chatId}"}})`](
-            existingData = {},
+            existingData: any,
           ) {
             return {
               ...existingData,

@@ -194,7 +194,6 @@ const UPDATE_MESSAGE_MUTATION = gql(/* GraphQL */ `
 const MESSAGE_ADDED_SUBSCRIPTION = gql(/* GraphQL */ `
   subscription OnMessageAdded {
     OnMessageAdded {
-      chatId
       message {
         _id
         chatId
@@ -247,7 +246,6 @@ const MESSAGE_ADDED_SUBSCRIPTION = gql(/* GraphQL */ `
 const MESSAGE_UPDATED_SUBSCRIPTION = gql(/* GraphQL */ `
   subscription OnMessageUpdated {
     OnMessageUpdated {
-      chatId
       message {
         _id
         chatId
@@ -502,7 +500,6 @@ const CHAT_ADDED_SUBSCRIPTION = gql(/* GraphQL */ `
 const CHAT_UPDATED_SUBSCRIPTION = gql(/* GraphQL */ `
   subscription OnChatUpdated {
     OnChatUpdated {
-      friendIds
       chat {
         _id
         queueId

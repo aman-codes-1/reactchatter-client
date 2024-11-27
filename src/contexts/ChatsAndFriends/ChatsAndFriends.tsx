@@ -12,7 +12,7 @@ import {
   addObject,
   addRequest,
   checkIsMemberExists,
-  deleteFriend,
+  deleteObject,
   deleteRequest,
   findAndUpdate,
   getDateLabel,
@@ -157,8 +157,8 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     subscribeToMore: subscribeMessageGroupsToMore,
   } = useQuery(MESSAGE_GROUPS_QUERY, {
     fetchPolicy: 'cache-only',
-    variables: { chatId },
-    skip: !chatId || !!friendId,
+    variables: { chatId: chatId || friendId },
+    skip: !chatId && !friendId,
     notifyOnNetworkStatusChange: true,
   });
 
@@ -367,28 +367,33 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     onData: async (res) => {
       // to do: fix caching of messages not working properly when new message received
       const OnMessageAdded = res?.data?.data?.OnMessageAdded;
-      const OnMessageAddedChatId = OnMessageAdded?.chatId;
       const OnMessageAddedMessage = OnMessageAdded?.message;
+      const OnMessageAddedMessageChatId = OnMessageAddedMessage?.chatId;
       const OnMessageAddedQueueId = OnMessageAddedMessage?.queueId;
       const OnMessageAddedSender = OnMessageAddedMessage?.sender;
       const OnMessageAddedOtherMembers = OnMessageAddedMessage?.otherMembers;
 
-      const isChatExists = OnMessageAddedChatId?._id === chatId;
       const isMemberExists = OnMessageAddedSender?._id === _id;
       const isOtherMemberExists = OnMessageAddedOtherMembers?.length
         ? OnMessageAddedOtherMembers.some((member: any) => member?._id === _id)
         : false;
 
-      if (isChatExists || isMemberExists || isOtherMemberExists) {
+      if (isMemberExists || isOtherMemberExists) {
         let edges = [];
-        const pageInfo = {
+        let pageInfo = {
           endCursor: OnMessageAddedMessage?._id,
           hasNextPage: false,
         };
-        const queuedPageInfo = {
-          endCursor: '',
+        let queuedPageInfo = {
+          endCursor: OnMessageAddedMessage?._id,
           hasNextPage: false,
         };
+        pageInfo = messageGroupsPageInfo?.endCursor
+          ? messageGroupsPageInfo
+          : pageInfo;
+        queuedPageInfo = messageGroupsQueuedPageInfo?.endCursor
+          ? messageGroupsQueuedPageInfo
+          : queuedPageInfo;
 
         if (OnMessageAddedQueueId) {
           edges = updateGroupedQueuedMessage(
@@ -401,25 +406,20 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
           edges = groupMessage(messageGroups, OnMessageAddedMessage, _id);
         }
 
-        if (edges?.length) {
-          messageGroupsClient.writeQuery({
-            query: MESSAGE_GROUPS_QUERY,
-            data: {
-              messageGroups: {
-                edges,
-                pageInfo: messageGroupsPageInfo?.endCursor
-                  ? messageGroupsPageInfo
-                  : pageInfo,
-                queuedPageInfo: messageGroupsQueuedPageInfo?.endCursor
-                  ? messageGroupsQueuedPageInfo
-                  : queuedPageInfo,
-                scrollPosition: -1,
-              },
+        messageGroupsClient.writeQuery({
+          query: MESSAGE_GROUPS_QUERY,
+          data: {
+            messageGroups: {
+              edges,
+              pageInfo,
+              queuedPageInfo,
+              scrollPosition: -1,
             },
-            variables: { chatId: OnMessageAddedChatId },
-          });
-          setScrollToBottom((prev) => !prev);
-        }
+          },
+          variables: { chatId: OnMessageAddedMessageChatId },
+        });
+
+        setScrollToBottom((prev) => !prev);
       }
     },
   });
@@ -453,50 +453,54 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         _id,
       );
 
-      const { otherMember } = renderMember(OnChatAddedMembers, _id);
-
       if (isCurrentMember || isOtherMember) {
-        if (isChatAddedPrivate && OnChatAddedFriendIds?.length) {
+        if (OnChatAddedFriendIds?.length) {
           OnChatAddedFriendIds?.forEach((OnChatAddedFriendId: string) => {
-            otherFriendsClient.cache.modify({
-              fields: {
-                [`otherFriends({"input":{"userId":"${_id}"}})`](
-                  existingData: any,
-                ) {
-                  const data = deleteFriend(OnChatAddedFriendId, existingData);
-                  return data;
-                },
-              },
-            });
+            if (isChatAddedPrivate) {
+              if (isOtherMember) {
+                otherFriendsClient.cache.modify({
+                  fields: {
+                    [`otherFriends({"input":{"userId":"${_id}"}})`](
+                      existingData: any,
+                    ) {
+                      const data = deleteObject(
+                        OnChatAddedFriendId,
+                        existingData,
+                      );
+                      return data;
+                    },
+                  },
+                });
+                const data = {
+                  ...chats,
+                  chats: chats?.length
+                    ? [OnChatAddedChat, ...chats]
+                    : [OnChatAddedChat],
+                };
+                chatsClient.writeQuery({
+                  query: CHATS_QUERY,
+                  data,
+                  variables: {
+                    userId: _id,
+                  },
+                });
+              }
 
-            if (OnChatAddedFriendId === friendId) {
-              setSearchParams((params) => {
-                params.set('id', OnChatAddedChat?._id);
-                params.set('type', 'chat');
-                return params;
-              });
-              setSelectedItem(OnChatAddedChat);
-              setSelectedDetails(otherMember);
+              if (OnChatAddedFriendId === friendId) {
+                const { otherMember } = renderMember(OnChatAddedMembers, _id);
+                if (isOtherMember) {
+                  setSearchParams((params) => {
+                    params.set('id', OnChatAddedChat?._id);
+                    params.set('type', 'chat');
+                    return params;
+                  });
+                }
+                setSelectedItem(OnChatAddedChat);
+                setSelectedDetails(otherMember);
+              }
             }
           });
         }
-
-        const data = {
-          ...chats,
-          chats: chats?.length
-            ? [OnChatAddedChat, ...chats]
-            : [OnChatAddedChat],
-        };
-
-        // to do:
-        // update the chat
-        // chatsClient.writeQuery({
-        //   query: CHATS_QUERY,
-        //   data,
-        //   variables: {
-        //     userId: _id,
-        //   },
-        // });
       }
     },
   });
@@ -507,8 +511,35 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     error: OnChatUpdatedError,
   } = useSubscription(CHAT_UPDATED_SUBSCRIPTION, {
     onData: (res) => {
-      // to do
-      // get chat with updated last message
+      const OnChatUpdated = res?.data?.data?.OnChatUpdated;
+      const OnChatUpdatedChat = OnChatUpdated?.chat;
+      const OnChatUpdatedChatId = OnChatUpdatedChat?._id;
+      const OnChatUpdatedMembers = OnChatUpdatedChat?.members;
+
+      const { isCurrentMember, isOtherMember } = checkIsMemberExists(
+        OnChatUpdatedMembers,
+        'hasAdded',
+        _id,
+      );
+
+      if (isCurrentMember || isOtherMember) {
+        chatsClient.cache.modify({
+          fields: {
+            [`chats({"input":{"userId":"${_id}"}})`](existingData: any) {
+              const { isFoundAndUpdated, data } = findAndUpdate(
+                OnChatUpdatedChatId,
+                '_id',
+                existingData,
+                OnChatUpdatedChat,
+              );
+              if (isFoundAndUpdated && data?.length) {
+                return data;
+              }
+              return existingData;
+            },
+          },
+        });
+      }
     },
   });
 

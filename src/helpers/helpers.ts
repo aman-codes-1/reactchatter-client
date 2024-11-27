@@ -170,13 +170,10 @@ export const addArray = (arrToAdd: any, existingData: any) => {
   return data;
 };
 
-export const deleteFriend = (
-  OnChatAddedFriendId: string,
-  existingData: any,
-) => {
+export const deleteObject = (id: string, existingData: any) => {
   let data = existingData;
-  if (OnChatAddedFriendId && data?.length) {
-    data = filterDataById(data, OnChatAddedFriendId);
+  if (id && data?.length) {
+    data = filterDataById(data, id);
   }
   return data;
 };
@@ -186,7 +183,7 @@ export const findAndUpdate = (
   key: string,
   existingData: any,
   dataToUpdate: any,
-  updateKey: string,
+  updateKey?: string,
 ) => {
   let isFoundAndUpdated = false;
   let data = existingData;
@@ -195,11 +192,15 @@ export const findAndUpdate = (
     const dataCopy = [...data];
     index = dataCopy?.findIndex((el: any) => el?.[key] === id);
     if (index >= 0) {
-      const updatedElement = {
-        ...dataCopy[index],
-        [updateKey]: dataToUpdate,
-      };
-      dataCopy[index] = updatedElement;
+      if (updateKey) {
+        const updatedElement = {
+          ...dataCopy[index],
+          [updateKey]: dataToUpdate,
+        };
+        dataCopy[index] = updatedElement;
+      } else {
+        dataCopy[index] = dataToUpdate;
+      }
       data = dataCopy;
       isFoundAndUpdated = true;
     }
