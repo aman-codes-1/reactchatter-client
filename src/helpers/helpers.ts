@@ -306,8 +306,6 @@ export const groupMessage = (
   message: any,
   _id: string,
 ) => {
-  // to do
-  // fix wrong grouping of messages
   const timestamp = message?.timestamp;
   const dateLabel = getDateLabel(timestamp);
   const side = message.sender?._id === _id ? 'right' : 'left';
@@ -333,18 +331,16 @@ export const groupMessage = (
     const messageGroup = messageGroupsCopy[messageGroupIndex];
     const groupsCopy = [...messageGroup.groups];
 
-    const senderGroupIndex = groupsCopy?.findIndex(
-      (group: any) => group?.side === side,
-    );
+    const lastGroupIndex = groupsCopy.length - 1;
+    const lastGroup = groupsCopy[lastGroupIndex];
 
-    if (senderGroupIndex < 0) {
-      groupsCopy?.push(newGroup);
-    } else {
-      const senderGroup = groupsCopy[senderGroupIndex];
-      groupsCopy[senderGroupIndex] = {
-        ...senderGroup,
-        data: [...senderGroup.data, message],
+    if (lastGroup && lastGroup?.side === side) {
+      groupsCopy[lastGroupIndex] = {
+        ...lastGroup,
+        data: [...lastGroup.data, message],
       };
+    } else {
+      groupsCopy.push(newGroup);
     }
 
     const updatedGroup = { ...messageGroup, groups: groupsCopy };
