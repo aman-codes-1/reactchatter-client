@@ -29,7 +29,6 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
     isFetchingOtherFriends,
     isFetchingChats2,
     isFetchingOtherFriends2,
-    getQueuedMessages,
     getChatMessagesWithQueue,
     fetchAll,
   } = useContext(ChatsAndFriendsContext);
@@ -86,7 +85,6 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
       item,
       details,
       getChatMessagesWithQueue,
-      getQueuedMessages,
       setIsListItemClicked,
       setSelectedItem,
       setSelectedDetails,

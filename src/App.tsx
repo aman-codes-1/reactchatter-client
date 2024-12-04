@@ -2,11 +2,7 @@ import { Suspense, lazy } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
-import {
-  AuthProvider,
-  // ConnectionProvider,
-  SnackbarProvider,
-} from './contexts';
+import { AuthProvider, ConnectionProvider, SnackbarProvider } from './contexts';
 import { theme } from './style';
 
 const AppRoutes = lazy(() =>
@@ -19,11 +15,11 @@ const App = () => (
       <CssBaseline />
       <BrowserRouter>
         <SnackbarProvider>
-          {/* <ConnectionProvider> */}
-          <AuthProvider>
-            <AppRoutes />
-          </AuthProvider>
-          {/* </ConnectionProvider> */}
+          <ConnectionProvider>
+            <AuthProvider>
+              <AppRoutes />
+            </AuthProvider>
+          </ConnectionProvider>
         </SnackbarProvider>
       </BrowserRouter>
     </ThemeProvider>

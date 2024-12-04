@@ -531,7 +531,6 @@ export const clickChat = async (
   item: any,
   details: any,
   getChatMessagesWithQueue: any,
-  getQueuedMessages: any,
   setIsListItemClicked: any,
   setSelectedItem: any,
   setSelectedDetails: any,
@@ -540,9 +539,11 @@ export const clickChat = async (
   toggleDrawer?: any,
 ) => {
   setIsListItemClicked((prev: boolean) => !prev);
+  let id;
+  let type;
   try {
-    const id = item?._id;
-    const type =
+    id = item?._id;
+    type =
       item?.type === 'private' || item?.type === 'group' ? 'chat' : item?.type;
     if (id && type) {
       if (type === 'chat') {
@@ -556,14 +557,15 @@ export const clickChat = async (
         }
         await getChatMessagesWithQueue(id, 'friendId');
       }
-      setSelectedItem(item);
-      setSelectedDetails(details);
-      toggleDrawer?.();
-      navigate(`/chat?id=${id}&type=${type}`);
     }
   } catch (error: any) {
     console.error('Error fetching messages:', error);
   }
+
+  setSelectedItem(item);
+  setSelectedDetails(details);
+  toggleDrawer?.();
+  navigate(`/chat?id=${id}&type=${type}`);
 };
 
 export const checkIsMemberExists = (

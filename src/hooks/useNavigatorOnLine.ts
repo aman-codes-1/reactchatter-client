@@ -53,7 +53,7 @@ export const useNavigatorOnLine = () => {
   }, [isOffline, url, urlPoll, urlTimeout]);
 
   return {
-    isLoading: !!isLoading,
-    isOffline: !!isOffline,
+    isLoading,
+    isOffline,
   };
 };
