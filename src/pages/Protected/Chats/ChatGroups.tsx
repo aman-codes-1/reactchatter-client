@@ -229,7 +229,7 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
                             ) : null}
                             {group?.data?.length ? (
                               <Grid
-                                size={8.15}
+                                size={9}
                                 gap={0.6}
                                 display="flex"
                                 flexDirection="column"

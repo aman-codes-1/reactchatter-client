@@ -1,6 +1,7 @@
 import { styled } from '@mui/system';
 
 export const NavBarStyled = styled('div')(({ theme }) => ({
+  width: '100%',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',

@@ -24,14 +24,17 @@ const fadeOut = keyframes`
 
 export const ChatsStyled = styled('div')<{
   navbarHeight: number;
-  message: string;
   sideBarWidth: number;
+  message: string;
 }>(({ theme, navbarHeight, sideBarWidth, message }) => ({
   '.app-bar-wrapper': {
     position: 'fixed',
     width: `calc(100% - ${sideBarWidth || 0}px)`,
     top: 0,
     zIndex: 1,
+    [theme.breakpoints.down('sm')]: {
+      width: '100%',
+    },
   },
   '.app-bar': {
     backgroundColor: theme.palette.primary.light,
@@ -43,6 +46,7 @@ export const ChatsStyled = styled('div')<{
     bottom: 0,
     zIndex: 1,
     [theme.breakpoints.down('sm')]: {
+      width: '100%',
       bottom: navbarHeight,
     },
   },
