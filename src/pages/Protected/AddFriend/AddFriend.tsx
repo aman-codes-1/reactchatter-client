@@ -99,7 +99,7 @@ const AddFriend = () => {
     resetStates();
 
     const validationCheck = handleCheckEmail();
-    if (Object.values(validationCheck).some((x) => x === true)) {
+    if (Object.values(validationCheck).some((x) => x)) {
       return;
     }
 

@@ -99,7 +99,7 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
 
       if (
         messageGroups?.length &&
-        messageGroupsPageInfo?.hasNextPage === true &&
+        messageGroupsPageInfo?.hasNextPage &&
         scrollTopBefore < minScrollTop &&
         isScrollingUp
       ) {

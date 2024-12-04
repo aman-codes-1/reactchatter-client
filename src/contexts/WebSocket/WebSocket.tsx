@@ -1,130 +1,109 @@
-import {
-  createContext,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from 'react';
-import { ApolloProvider } from '@apollo/client';
-import { io } from 'socket.io-client';
-import { useApi, useAuth } from '../../hooks';
-import { createApolloClient } from './createApolloClient';
+import { createContext, useEffect, useLayoutEffect, useState } from 'react';
+import { io, Socket } from 'socket.io-client';
+import { getOnlineStatus } from '../../helpers';
+import { useAuth } from '../../hooks';
 
 export const WebSocketContext = createContext<any>({});
 
 export const WebSocketProvider = ({ children }: any) => {
-  const [user, setUser] = useState();
-  const [socket, setSocket] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const { auth } = useAuth();
-  const { callLogout } = useApi();
-
-  const client: any = useMemo(() => {
-    if (auth?.isLoggedIn) {
-      return createApolloClient(auth, callLogout);
-    }
-    return false;
-  }, [auth?.isLoggedIn]);
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const { auth, setAuth } = useAuth();
 
   useLayoutEffect(() => {
-    if (client) {
-      const userOnlineStatus = (status: boolean) => ({
-        ...client?.auth,
-        isOnline: status,
-      });
+    const updateOnlineStatus = (isOnline: boolean) => {
+      setAuth((prev: any) => ({
+        ...prev,
+        onlineStatus: getOnlineStatus(isOnline),
+      }));
+    };
 
-      setUser(userOnlineStatus(true));
+    const handleVisibilityChange = () => {
+      const isTabVisible = document.visibilityState === 'visible';
+      updateOnlineStatus(isTabVisible);
+    };
 
-      const onOffline = () => {
-        setUser(userOnlineStatus(false));
-      };
+    const handleOnline = () => updateOnlineStatus(true);
+    const handleOffline = () => updateOnlineStatus(false);
 
-      const onOnline = () => {
-        setUser(userOnlineStatus(true));
-      };
+    const eventListeners: {
+      target: Window | Document;
+      event: string;
+      handler: () => void;
+    }[] = [
+      { target: window, event: 'online', handler: handleOnline },
+      { target: window, event: 'blur', handler: handleOffline },
+      { target: window, event: 'focus', handler: handleOnline },
+      {
+        target: document,
+        event: 'visibilitychange',
+        handler: handleVisibilityChange,
+      },
+    ];
 
-      const onVisibilityChange = () => {
-        const isTabVisible = document.visibilityState === 'visible';
-        setUser(userOnlineStatus(isTabVisible));
-      };
+    eventListeners.forEach(({ target, event, handler }) =>
+      target.addEventListener(event, handler),
+    );
 
-      const events = [
-        { name: 'online', handler: onOnline },
-        { name: 'visibilitychange', handler: onVisibilityChange },
-        { name: 'blur', handler: onOffline },
-        { name: 'focus', handler: onOnline },
-        { name: 'click', handler: onOnline },
-        { name: 'scroll', handler: onOnline },
-      ];
+    handleOnline();
 
-      events.forEach(({ name, handler }) => {
-        if (name === 'visibilitychange') {
-          document.addEventListener(name, handler);
-        } else {
-          window.addEventListener(name, handler);
-        }
-      });
-
-      return () => {
-        events.forEach(({ name, handler }) => {
-          if (name === 'visibilitychange') {
-            document.removeEventListener(name, handler);
-          } else {
-            window.removeEventListener(name, handler);
-          }
-        });
-      };
-    }
-    return () => {};
-  }, [client]);
+    return () => {
+      eventListeners.forEach(({ target, event, handler }) =>
+        target.removeEventListener(event, handler),
+      );
+      handleOffline();
+    };
+  }, []);
 
   useEffect(() => {
-    let socketInstance: any = null;
+    let socketInstance: Socket | null = null;
+    let isMounted = true;
 
     const initializeSocket = async () => {
       const serverUri = `${process.env.REACT_APP_PROXY_URI}`;
+      if (!serverUri) {
+        console.error('Missing REACT_APP_PROXY_URI environment variable');
+        return;
+      }
+
       socketInstance = io(serverUri, {
-        auth: user,
+        auth,
         transports: ['websocket'],
       });
-      const socketPromise = new Promise((resolve, reject) => {
-        socketInstance.once('connect', () => {
-          resolve(socketInstance);
-        });
-        socketInstance.once('connect_error', (error: any) => {
-          reject(error);
-        });
+
+      socketInstance.on('connect', () => {
+        if (isMounted) {
+          setSocket(socketInstance);
+          socketInstance?.emit('updateUserOnlineStatus', auth);
+        }
       });
-      try {
-        await socketPromise;
-        setSocket(socketInstance);
-      } catch (err) {
-        setSocket(null);
-      } finally {
-        setIsLoading(false);
-      }
+
+      socketInstance.on('connect_error', (error) => {
+        console.error('WebSocket connection error:', error);
+        if (isMounted) {
+          setSocket(null);
+        }
+      });
+
+      socketInstance.on('disconnect', () => {
+        if (isMounted) {
+          setSocket(null);
+        }
+      });
     };
 
-    if (user) {
-      initializeSocket();
-    }
+    initializeSocket();
 
     return () => {
+      isMounted = false;
       if (socketInstance) {
         socketInstance.disconnect();
       }
     };
-  }, [user]);
+  }, [auth?.onlineStatus?.isOnline]);
 
   return (
-    <WebSocketContext.Provider
-      value={{ socket, setUser, isLoading, setIsLoading }}
-    >
-      {client ? (
-        <ApolloProvider client={client?.client}>{children}</ApolloProvider>
-      ) : (
-        children
-      )}
+    <WebSocketContext.Provider value={{ socket }}>
+      {children}
     </WebSocketContext.Provider>
   );
 };

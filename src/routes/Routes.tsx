@@ -1,15 +1,16 @@
-import { ReactNode, Suspense, useLayoutEffect, useState } from 'react';
+import { ReactNode, Suspense, useLayoutEffect, useMemo, useState } from 'react';
 import { Outlet, Route, Routes } from 'react-router-dom';
 import { useAuth } from '../hooks';
 import { routesConfig } from './config';
 import { IRouteConfig } from './IRoutes';
 import { BaseProtected } from '../pages';
+import { ApolloClientProvider, WebSocketProvider } from '../contexts';
 
 const AppRoutes = () => {
-  const { auth } = useAuth();
   const [defaultRoutes, setDefaultRoutes] = useState<ReactNode[]>([]);
   const [privateRoutes, setPrivateRoutes] = useState<ReactNode[]>([]);
   const [publicRoutes, setPublicRoutes] = useState<ReactNode[]>([]);
+  const { auth } = useAuth();
 
   useLayoutEffect(() => {
     routesConfig().forEach((route: IRouteConfig, index: number) => {
@@ -38,7 +39,11 @@ const AppRoutes = () => {
         path="/"
         element={
           auth?.isLoggedIn ? (
-            <BaseProtected />
+            <ApolloClientProvider>
+              <WebSocketProvider>
+                <BaseProtected />
+              </WebSocketProvider>
+            </ApolloClientProvider>
           ) : (
             <Suspense fallback={null}>
               <Outlet />

@@ -189,9 +189,9 @@ export const findAndUpdate = (
   let data = existingData;
   let index = -1;
   if (data?.length) {
-    const dataCopy = [...data];
-    index = dataCopy?.findIndex((el: any) => el?.[key] === id);
+    index = data?.findIndex((el: any) => el?.[key] === id);
     if (index >= 0) {
+      const dataCopy = [...data];
       if (updateKey) {
         const updatedElement = {
           ...dataCopy[index],
@@ -217,14 +217,16 @@ export const findAndMoveToTop = (
   key: string,
   existingData: any,
 ) => {
-  if (existingData?.length) {
-    const existingDataCopy = [...existingData];
-    const index = existingDataCopy?.findIndex((el: any) => el?.[key] === id);
+  let data = existingData;
+  if (data?.length) {
+    const index = data?.findIndex((el: any) => el?.[key] === id);
     if (index >= 0) {
-      const [foundElement] = existingDataCopy.splice(index, 1);
-      existingDataCopy.unshift(foundElement);
+      const dataCopy = [...data];
+      const [foundElement] = dataCopy.splice(index, 1);
+      dataCopy.unshift(foundElement);
+      data = dataCopy;
     }
-    return existingDataCopy;
+    return data;
   }
 };
 
@@ -547,7 +549,7 @@ export const clickChat = async (
         await getChatMessagesWithQueue(id, 'chatId');
       }
       if (type === 'friend') {
-        if (item?.hasChats === true) {
+        if (item?.hasChats) {
           navigate('/');
           await fetchAll();
           return;
@@ -574,7 +576,7 @@ export const checkIsMemberExists = (
 
   for (const member of members) {
     if (member?._id === _id) {
-      if (member[key] === true) {
+      if (member[key]) {
         isCurrentMember = true;
       } else if (member[key] === false) {
         isOtherMember = true;
@@ -627,6 +629,37 @@ export const checkMessageStatus = (msg: MessageData, selectedItem: any) => {
   };
 };
 
+export const updateMemberOnlineStatus = (
+  existingData: any[],
+  memberId: string,
+  newOnlineStatus: any,
+) => {
+  return existingData?.map((item) => {
+    let members = item?.members;
+    if (!members?.length) return item;
+    members = members?.map((member: any) => {
+      if (member?._id === memberId) {
+        return {
+          ...member,
+          onlineStatus: newOnlineStatus,
+        };
+      }
+      return member;
+    });
+    return {
+      ...item,
+      members,
+    };
+  });
+};
+
+export const getOnlineStatus = (isOnline: boolean) => {
+  return {
+    isOnline,
+    timestamp: Date.now(),
+  };
+};
+
 export const uniqueQueuedMessages = (arr: any[], arrayToFilter: any[]) => {
   const uniqueMessages = arrayToFilter?.filter((queuedMessage: any) => {
     const isUnique = !arr?.some((cachedMessageGroup: any) =>
@@ -634,7 +667,7 @@ export const uniqueQueuedMessages = (arr: any[], arrayToFilter: any[]) => {
         group?.data?.some(
           (msg: any) =>
             msg?.queueId === queuedMessage?.queueId &&
-            msg?.sender?.queuedStatus?.isQueued === true &&
+            msg?.sender?.queuedStatus?.isQueued &&
             !msg?.sender?.sentStatus,
         ),
       ),

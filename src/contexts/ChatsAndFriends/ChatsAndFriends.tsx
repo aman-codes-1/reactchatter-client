@@ -25,6 +25,7 @@ import {
   unGroupMessages,
   uniqueQueuedMessages,
   updateGroupedQueuedMessage,
+  updateMemberOnlineStatus,
 } from '../../helpers';
 import { MessageQueueService } from '../../services';
 import {
@@ -49,6 +50,7 @@ import {
   UPDATE_MESSAGE_MUTATION,
   SENT_REQUESTS_QUERY,
   UPDATE_REQUEST_MUTATION,
+  USER_UPDATED_SUBSCRIPTION,
 } from '.';
 
 export const ChatsAndFriendsContext = createContext<any>({});
@@ -64,8 +66,8 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   const friendId =
     searchParams.get('type') === 'friend' ? searchParams.get('id') : null;
   const [isListItemClicked, setIsListItemClicked] = useState(false);
-  const [selectedItem, setSelectedItem] = useState();
-  const [selectedDetails, setSelectedDetails] = useState();
+  const [selectedItem, setSelectedItem] = useState<any>();
+  const [selectedDetails, setSelectedDetails] = useState<any>();
   const [loadingCreateMessage, setLoadingCreateMessage] = useState(false);
   // const [loadingProcessNextMessage, setLoadingProcessNextMessage] = useState(false);
   const [loadingQueued, setLoadingQueued] = useState(true);
@@ -127,7 +129,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     notifyOnNetworkStatusChange: true,
     onCompleted: (data) => {
       const item = data?.friend;
-      const itemHasChats = item?.hasChats === true;
+      const itemHasChats = item?.hasChats;
       if (itemHasChats) {
         navigate('/');
       } else {
@@ -656,6 +658,79 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     },
   });
 
+  const {
+    data: OnUserUpdatedData,
+    loading: OnUserUpdatedLoading,
+    error: OnUserUpdatedError,
+  } = useSubscription(USER_UPDATED_SUBSCRIPTION, {
+    variables: {
+      userId: selectedDetails?._id,
+    },
+    skip: !selectedItem || !selectedDetails,
+    onData: (res) => {
+      const OnUserUpdated = res?.data?.data?.OnUserUpdated;
+      const OnUserUpdatedUser = OnUserUpdated?.auth;
+      const OnUserUpdatedUserId = OnUserUpdatedUser?._id;
+      if (OnUserUpdatedUserId === selectedDetails?._id) {
+        const OnUserUpdatedUserOnlineStatus = OnUserUpdatedUser?.onlineStatus;
+        const isFriend = selectedItem?.type === 'friend';
+        if (isFriend) {
+          otherFriends.cache.modify({
+            fields: {
+              [`otherFriends({"input":{"userId":"${_id}"}})`](
+                existingData: any,
+              ) {
+                const updatedData = updateMemberOnlineStatus(
+                  existingData,
+                  OnUserUpdatedUserId,
+                  OnUserUpdatedUserOnlineStatus,
+                );
+                return updatedData;
+              },
+            },
+          });
+        } else {
+          chatsClient.cache.modify({
+            fields: {
+              [`chats({"input":{"userId":"${_id}"}})`](existingData: any) {
+                const updatedData = updateMemberOnlineStatus(
+                  existingData,
+                  OnUserUpdatedUserId,
+                  OnUserUpdatedUserOnlineStatus,
+                );
+                return updatedData;
+              },
+            },
+          });
+        }
+        setSelectedItem((prev: any) => {
+          const { isFoundAndUpdated, data } = findAndUpdate(
+            OnUserUpdatedUserId,
+            '_id',
+            prev?.members,
+            OnUserUpdatedUserOnlineStatus,
+            'onlineStatus',
+          );
+          if (isFoundAndUpdated && data?.length) {
+            return {
+              ...prev,
+              members: data,
+            };
+          }
+        });
+        setSelectedDetails((prev: any) => {
+          if (prev?._id === OnUserUpdatedUserId) {
+            return {
+              ...prev,
+              onlineStatus: OnUserUpdatedUserOnlineStatus,
+            };
+          }
+          return prev;
+        });
+      }
+    },
+  });
+
   const [
     createMessage,
     {
@@ -717,7 +792,8 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     }
   }, [pathname]);
 
-  // useEffect(() => { // to do
+  // useEffect(() => {
+  //   // to do
   //   const messageQueueService = new MessageQueueService(
   //     createChat,
   //     createMessage,
@@ -725,7 +801,12 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   //   );
 
   //   const startQueueProcessing = async () => {
-  //     if (loadingCreateMessage || loadingProcessNextMessage || OnMessageAddedLoading) return;
+  //     if (
+  //       loadingCreateMessage ||
+  //       loadingProcessNextMessage ||
+  //       OnMessageAddedLoading
+  //     )
+  //       return;
   //     await messageQueueService.processQueue();
   //   };
 
@@ -747,20 +828,14 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   //   ];
 
   //   events.forEach(({ name, handler }) => {
-  //     if (name === 'visibilitychange') {
-  //       document.addEventListener(name, handler);
-  //     } else {
-  //       window.addEventListener(name, handler);
-  //     }
+  //     const target = name === 'visibilitychange' ? document : window;
+  //     target.addEventListener(name, handler);
   //   });
 
   //   return () => {
   //     events.forEach(({ name, handler }) => {
-  //       if (name === 'visibilitychange') {
-  //         document.removeEventListener(name, handler);
-  //       } else {
-  //         window.removeEventListener(name, handler);
-  //       }
+  //       const target = name === 'visibilitychange' ? document : window;
+  //       target.removeEventListener(name, handler);
   //     });
   //   };
   // }, [loadingCreateMessage, loadingProcessNextMessage, OnMessageAddedLoading]);
@@ -1039,6 +1114,10 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         OnRequestUpdatedData,
         OnRequestUpdatedLoading,
         OnRequestUpdatedError,
+        // OnUserUpdated
+        OnUserUpdatedData,
+        OnUserUpdatedLoading,
+        OnUserUpdatedError,
 
         // mutation
         // createMessage

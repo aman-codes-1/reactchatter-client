@@ -6,7 +6,6 @@ import {
   AuthProvider,
   // ConnectionProvider,
   SnackbarProvider,
-  WebSocketProvider,
 } from './contexts';
 import { theme } from './style';
 
@@ -22,9 +21,7 @@ const App = () => (
         <SnackbarProvider>
           {/* <ConnectionProvider> */}
           <AuthProvider>
-            <WebSocketProvider>
-              <AppRoutes />
-            </WebSocketProvider>
+            <AppRoutes />
           </AuthProvider>
           {/* </ConnectionProvider> */}
         </SnackbarProvider>

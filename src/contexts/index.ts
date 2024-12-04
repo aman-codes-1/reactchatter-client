@@ -1,3 +1,4 @@
+export { ApolloClientProvider } from './ApolloClient';
 export { AuthContext, AuthProvider } from './Auth';
 export {
   ChatsAndFriendsContext,
@@ -26,6 +27,7 @@ export {
   UPDATE_MESSAGE_MUTATION,
   SENT_REQUESTS_QUERY,
   UPDATE_REQUEST_MUTATION,
+  USER_UPDATED_SUBSCRIPTION,
 } from './ChatsAndFriends';
 export { ConnectionContext, ConnectionProvider } from './Connection';
 export { SnackbarContext, SnackbarProvider } from './Snackbar';

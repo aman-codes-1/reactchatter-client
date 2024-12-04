@@ -12,7 +12,7 @@ import { ErrorResponse, onError } from '@apollo/client/link/error';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { RetryLink } from '@apollo/client/link/retry';
 
-export const createApolloClient = (auth: any, callLogout: any) => {
+export const createApolloClient = (callLogout: () => Promise<void>) => {
   const uri = `${process.env.REACT_APP_PROXY_URI}/graphql`;
 
   const subscriptionUri = `${uri?.replace?.('http', 'ws')}`;
@@ -23,6 +23,7 @@ export const createApolloClient = (auth: any, callLogout: any) => {
       connectionParams: {
         withCredentials: true,
       },
+      shouldRetry: () => true,
     }),
   );
 
@@ -81,5 +82,5 @@ export const createApolloClient = (auth: any, callLogout: any) => {
     }),
   });
 
-  return { client, auth };
+  return client;
 };

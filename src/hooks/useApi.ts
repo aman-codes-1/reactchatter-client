@@ -2,21 +2,23 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import axios, { AxiosRequestConfig } from 'axios';
 import { googleLogout } from '@react-oauth/google';
 import { useAuth, useSocket } from '.';
-import { apiRoutes } from '../helpers';
+import { apiRoutes, getOnlineStatus } from '../helpers';
 
 export const useApi = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { socket, setUser } = useSocket();
+  const { socket } = useSocket();
   const { auth, setAuth } = useAuth();
 
   const serverUri = `${process.env.REACT_APP_PROXY_URI}`;
 
   const logout = () => {
     if (socket) {
-      socket.disconnect();
+      socket?.emit('updateUserOnlineStatus', {
+        ...auth,
+        onlineStatus: getOnlineStatus(false),
+      });
     }
-    setUser?.();
     localStorage.removeItem('token');
     setAuth(undefined);
     navigate(pathname, { replace: true });

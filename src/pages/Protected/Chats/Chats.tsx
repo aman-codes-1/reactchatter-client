@@ -232,11 +232,11 @@ const Chats = () => {
   const handleSendMessage = async () => {
     if (!message) return;
     setMessage('');
-    const timestamp = Date.now();
     setLoadingCreateMessage(true);
 
     try {
       const queueId = crypto.randomUUID();
+      const timestamp = Date.now();
       let chatIdToUse = chatId || '';
       let queuedMessage: any;
       let isAdded = false;
@@ -413,6 +413,22 @@ const Chats = () => {
 
   const loading = chatLoading || chatCalled || friendLoading || friendCalled;
 
+  const renderSecondary = () => {
+    const onlineStatus = selectedDetails?.onlineStatus;
+    if (onlineStatus) {
+      const isOnline = onlineStatus?.isOnline;
+      const timestamp = onlineStatus?.timestamp;
+      if (isOnline) {
+        return 'online';
+      }
+      if (!isOnline && timestamp) {
+        return timestamp;
+      }
+      return selectedDetails?.email;
+    }
+    return selectedDetails?.email;
+  };
+
   return (
     <ChatsStyled
       navbarHeight={navbarHeight}
@@ -434,7 +450,7 @@ const Chats = () => {
                     disableGutters: true,
                     textProps: {
                       primary: selectedDetails?.name,
-                      secondary: selectedDetails?.email,
+                      secondary: renderSecondary(),
                       primaryTypographyProps: {
                         style: {
                           WebkitLineClamp: 1,
