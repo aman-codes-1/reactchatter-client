@@ -539,8 +539,11 @@ export const clickChat = async (
   toggleDrawer?: any,
 ) => {
   setIsListItemClicked((prev: boolean) => !prev);
+
   let id;
   let type;
+  let skipFinally = false;
+
   try {
     id = item?._id;
     type =
@@ -551,21 +554,27 @@ export const clickChat = async (
       }
       if (type === 'friend') {
         if (item?.hasChats) {
+          toggleDrawer?.();
           navigate('/');
           await fetchAll();
+          skipFinally = true;
           return;
         }
         await getChatMessagesWithQueue(id, 'friendId');
       }
+    } else {
+      skipFinally = true;
     }
   } catch (error: any) {
     console.error('Error fetching messages:', error);
+  } finally {
+    if (!skipFinally) {
+      setSelectedItem(item);
+      setSelectedDetails(details);
+      toggleDrawer?.();
+      navigate(`/chat?id=${id}&type=${type}`);
+    }
   }
-
-  setSelectedItem(item);
-  setSelectedDetails(details);
-  toggleDrawer?.();
-  navigate(`/chat?id=${id}&type=${type}`);
 };
 
 export const checkIsMemberExists = (
