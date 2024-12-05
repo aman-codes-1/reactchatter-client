@@ -82,6 +82,7 @@ export const ChatGroupsStyled = styled('div')<{
     width: '100%',
     marginTop: `${appBarHeight}px`,
     overflow: 'auto',
+    '--webkit-overflow-scrolling': 'touch',
     padding: '0rem 4rem',
     height: `calc(100svh - ${appBarHeight || 0}px - ${textFieldHeight || 0}px)`,
     [theme.breakpoints.down('md')]: {

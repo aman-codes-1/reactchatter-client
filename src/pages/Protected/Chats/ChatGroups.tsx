@@ -141,18 +141,11 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
             variables: { chatId },
           });
 
-          const observer = new MutationObserver(() => {
+          setTimeout(() => {
             const scrollHeightAfter = scrollRef?.current?.scrollHeight;
             scrollRef.current.scrollTop =
               scrollTopBefore + (scrollHeightAfter - scrollHeightBefore);
-
-            observer.disconnect();
-          });
-
-          observer.observe(scrollRef?.current, {
-            childList: true,
-            subtree: true,
-          });
+          }, 0);
         } catch (error) {
           console.error('Error fetching more messages', error);
         }
