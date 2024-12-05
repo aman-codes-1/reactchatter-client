@@ -13,7 +13,7 @@ export const HomeStyled = styled('div')(({ theme }) => ({
   zIndex: '-1',
   userSelect: 'none',
   '.home-header': {
-    marginTop: '10.5rem',
+    marginTop: '11rem',
     padding: '0px 30px',
     display: 'flex',
     flexDirection: 'column',
