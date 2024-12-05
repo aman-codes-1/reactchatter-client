@@ -5,29 +5,21 @@ import {
   Chats,
   FriendRequests,
   Home,
-  Login,
   RecentChats,
   SentRequests,
 } from '../pages';
 
-export const routesConfig = () => [
+export const routesConfig = (location: any) => [
   {
     type: 'default',
     path: '*',
-    Element: () => <Navigate replace to="/" />,
+    Element: () => <Navigate to="/" replace state={{ from: location }} />,
   },
   {
     type: 'public',
     path: '/',
     Element: () => (
       <SuspenseWrapper path="pages" compName="Home" fallback={<Home />} />
-    ),
-  },
-  {
-    type: 'public',
-    path: '/login',
-    Element: () => (
-      <SuspenseWrapper path="pages" compName="Login" fallback={<Login />} />
     ),
   },
   {

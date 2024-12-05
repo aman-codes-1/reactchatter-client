@@ -16,40 +16,44 @@ export const HomeStyled = styled('div')(({ theme }) => ({
   '.home-header': {
     marginTop: 162,
     textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
     '.home-heading': {
       fontSize: '3.625rem',
       color: theme.palette.common.white,
       textShadow: `0 1px 0 ${theme.palette.grey[50]}`,
-      marginBottom: 8,
       [theme.breakpoints.down('sm')]: {
         fontSize: '2.75rem',
       },
     },
     '.home-sub-heading': {
-      margin: '8px 0px',
+      marginBottom: 10,
       lineHeight: '32px',
       fontSize: '1.25rem',
       [theme.breakpoints.down('sm')]: {
         fontSize: '1.125rem',
       },
     },
-    '.home-login-btn': {
-      marginTop: '10px',
-      textTransform: 'none',
-      fontWeight: 600,
-      backgroundColor: `${theme.palette.action.active} !important`,
-      minWidth: '120px',
-      minHeight: '3.1rem',
-      fontSize: '1rem',
-      borderRadius: 7,
-      [theme.breakpoints.down('sm')]: {
-        width: 'auto',
-        minWidth: '100%',
-      },
-    },
-    '.home-login-btn:hover': {
-      backgroundColor: `${theme.palette.action.hover} !important`,
-    },
+    // '.home-login-btn': {
+    //   marginTop: '10px',
+    //   textTransform: 'none',
+    //   fontWeight: 600,
+    //   backgroundColor: `${theme.palette.action.active} !important`,
+    //   minWidth: '120px',
+    //   minHeight: '3.1rem',
+    //   fontSize: '1rem',
+    //   borderRadius: 7,
+    //   [theme.breakpoints.down('sm')]: {
+    //     width: 'auto',
+    //     minWidth: '100%',
+    //   },
+    // },
+    // '.home-login-btn:hover': {
+    //   backgroundColor: `${theme.palette.action.hover} !important`,
+    // },
   },
   '.home-footer': {
     margin: 'auto 0px 8px 0px',

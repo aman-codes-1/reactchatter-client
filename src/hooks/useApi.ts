@@ -6,13 +6,13 @@ import { apiRoutes, getOnlineStatus } from '../helpers';
 
 export const useApi = () => {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const location = useLocation();
   const { socket } = useSocket();
   const { auth, setAuth } = useAuth();
 
   const serverUri = `${process.env.REACT_APP_PROXY_URI}`;
 
-  const logout = () => {
+  const logout = (includeFromState?: boolean) => {
     if (socket) {
       socket?.emit('updateUserOnlineStatus', {
         ...auth,
@@ -21,7 +21,10 @@ export const useApi = () => {
     }
     localStorage.removeItem('token');
     setAuth(undefined);
-    navigate(pathname, { replace: true });
+    navigate('/', {
+      replace: true,
+      ...(includeFromState ? { state: { from: location } } : {}),
+    });
   };
 
   const callApi = async ({
@@ -53,7 +56,7 @@ export const useApi = () => {
         })
         .catch((err: any) => {
           if (err?.response?.status === 401) {
-            logout();
+            logout(true);
           }
           reject(err);
         });
@@ -63,7 +66,7 @@ export const useApi = () => {
     }) as any;
   };
 
-  const callLogout = async () => {
+  const callLogout = async (includeFromState?: boolean) => {
     try {
       if (auth?.provider === 'google') {
         googleLogout();
@@ -75,7 +78,7 @@ export const useApi = () => {
     } catch (err: any) {
       //
     } finally {
-      logout();
+      logout(includeFromState);
     }
   };
 

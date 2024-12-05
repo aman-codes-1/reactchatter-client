@@ -6,4 +6,4 @@ export {
   RecentChats,
   SentRequests,
 } from './Protected';
-export { Home, Login } from './Public';
+export { Home } from './Public';

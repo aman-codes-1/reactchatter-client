@@ -12,7 +12,9 @@ import { ErrorResponse, onError } from '@apollo/client/link/error';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { RetryLink } from '@apollo/client/link/retry';
 
-export const createApolloClient = (callLogout: () => Promise<void>) => {
+export const createApolloClient = (
+  callLogout: (includeFromState?: boolean) => Promise<void>,
+) => {
   const uri = `${process.env.REACT_APP_PROXY_URI}/graphql`;
 
   const subscriptionUri = `${uri?.replace?.('http', 'ws')}`;
@@ -37,9 +39,8 @@ export const createApolloClient = (callLogout: () => Promise<void>) => {
       if (graphQLErrors) {
         graphQLErrors.map(async ({ extensions }) => {
           if (extensions?.code === 'UNAUTHENTICATED') {
-            await callLogout();
+            await callLogout(true);
           }
-          return true;
         });
       }
 

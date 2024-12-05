@@ -1,5 +1,11 @@
-import { ReactNode, Suspense, useLayoutEffect, useMemo, useState } from 'react';
-import { Outlet, Route, Routes } from 'react-router-dom';
+import { ReactNode, Suspense, useLayoutEffect, useState } from 'react';
+import {
+  Outlet,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 import { useAuth } from '../hooks';
 import { routesConfig } from './config';
 import { IRouteConfig } from './IRoutes';
@@ -7,13 +13,15 @@ import { BaseProtected } from '../pages';
 import { ApolloClientProvider, WebSocketProvider } from '../contexts';
 
 const AppRoutes = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [defaultRoutes, setDefaultRoutes] = useState<ReactNode[]>([]);
   const [privateRoutes, setPrivateRoutes] = useState<ReactNode[]>([]);
   const [publicRoutes, setPublicRoutes] = useState<ReactNode[]>([]);
   const { auth } = useAuth();
 
   useLayoutEffect(() => {
-    routesConfig().forEach((route: IRouteConfig, index: number) => {
+    routesConfig(location).forEach((route: IRouteConfig, index: number) => {
       const { Element, path, type } = route;
       const key = `${index + 1}`;
       const routeElement = (
@@ -27,7 +35,14 @@ const AppRoutes = () => {
         setDefaultRoutes((prev: ReactNode[]) => [...prev, routeElement]);
       }
     });
-  }, []);
+  }, [location?.pathname]);
+
+  useLayoutEffect(() => {
+    const url = window?.location?.href;
+    if (url?.includes('token')) {
+      navigate('/', { replace: true });
+    }
+  }, [window?.location?.href]);
 
   window.addEventListener('storage', () => {
     window.location.reload();
