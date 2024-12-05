@@ -89,7 +89,7 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
 
   if ((messagesLoading && !isRefetchingMessages) || loadingQueued) return null;
 
-  const handleScroll = async (e: any) => {
+  const handleScroll = async () => {
     // to do: implement cursor pagination for queued messages
     if (scrollRef?.current && chatId) {
       const scrollHeightBefore = scrollRef?.current?.scrollHeight;
@@ -141,11 +141,18 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
             variables: { chatId },
           });
 
-          setTimeout(() => {
+          const observer = new MutationObserver(() => {
             const scrollHeightAfter = scrollRef?.current?.scrollHeight;
             scrollRef.current.scrollTop =
               scrollTopBefore + (scrollHeightAfter - scrollHeightBefore);
-          }, 0);
+
+            observer.disconnect();
+          });
+
+          observer.observe(scrollRef?.current, {
+            childList: true,
+            subtree: true,
+          });
         } catch (error) {
           console.error('Error fetching more messages', error);
         }

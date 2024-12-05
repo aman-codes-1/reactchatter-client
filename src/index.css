@@ -2,7 +2,6 @@ html,
 body {
   height: 100svh;
   overflow: auto;
-  --webkit-overflow-scrolling: touch;
 }
 
 body {
