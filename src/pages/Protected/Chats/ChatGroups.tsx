@@ -141,18 +141,28 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
             variables: { chatId },
           });
 
-          const observer = new MutationObserver(() => {
-            const scrollHeightAfter = scrollRef?.current?.scrollHeight;
-            scrollRef.current.scrollTop =
-              scrollTopBefore + (scrollHeightAfter - scrollHeightBefore);
+          // const observer = new MutationObserver(() => {
+          //   const scrollHeightAfter = scrollRef?.current?.scrollHeight;
+          //   const newScrollTop =
+          //     scrollTopBefore + (scrollHeightAfter - scrollHeightBefore);
+          //   scrollRef.current.scrollTop = newScrollTop;
 
-            observer.disconnect();
-          });
+          //   observer.disconnect();
+          // });
 
-          observer.observe(scrollRef?.current, {
-            childList: true,
-            subtree: true,
-          });
+          // observer.observe(scrollRef?.current, {
+          //   childList: true,
+          //   subtree: true,
+          // });
+
+          setTimeout(() => {
+            const scrollHeightAfter = scrollRef.current?.scrollHeight;
+            if (scrollHeightAfter !== undefined) {
+              const newScrollTop =
+                scrollTopBefore + (scrollHeightAfter - scrollHeightBefore);
+              scrollRef.current.scrollTop = newScrollTop;
+            }
+          }, 0);
         } catch (error) {
           console.error('Error fetching more messages', error);
         }
