@@ -39,7 +39,7 @@ const AppRoutes = () => {
 
   useLayoutEffect(() => {
     const url = window?.location?.href;
-    if (url?.includes('token')) {
+    if (url?.includes('code')) {
       navigate('/', { replace: true });
     }
   }, [window?.location?.href]);

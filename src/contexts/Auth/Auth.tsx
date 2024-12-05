@@ -1,5 +1,5 @@
 import { createContext, useLayoutEffect, useState } from 'react';
-import { jwtDecode } from 'jwt-decode';
+import { login } from '../../helpers';
 import { AuthProviderProps, Context } from './IAuth';
 
 export const AuthContext = createContext<Context>({
@@ -13,11 +13,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useLayoutEffect(() => {
     if (!auth && token) {
-      const decoded = jwtDecode(token || '');
-      setAuth({
-        isLoggedIn: true,
-        ...decoded,
-      });
+      login(token, setAuth);
     }
   }, [auth, token]);
 

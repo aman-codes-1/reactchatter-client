@@ -1,9 +1,8 @@
-import { useLayoutEffect } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
-import { jwtDecode } from 'jwt-decode';
 import { Link as MuiLink, Typography } from '@mui/material';
-import { getCurrentYear } from '../../../helpers';
+import { decrypt, getCurrentYear, login } from '../../../helpers';
 import { HomeStyled } from './Home.styled';
 import { useAuth, useSnackbar } from '../../../hooks';
 
@@ -14,32 +13,41 @@ const Home = () => {
     `${location?.state?.from?.pathname || ''}${location?.state?.from?.search || ''}` ||
     '/';
   const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
+  const code = searchParams.get('code');
   const from = searchParams.get('from');
+  const [loading, setLoading] = useState(false);
   const { setAuth } = useAuth();
   const { openSnackbar } = useSnackbar();
 
   useLayoutEffect(() => {
-    const googleLogin = async () => {
-      const decoded = jwtDecode(token || '');
-      localStorage.setItem('token', token || '');
-      setAuth({
-        isLoggedIn: true,
-        ...decoded,
-      });
-      navigate(from || '/');
+    const googleLogin = async (Code: string) => {
+      try {
+        const secretKey = `${process.env.REACT_APP_ENCRYPTION_SECRET}`;
+        const token = await decrypt(Code, secretKey);
+        if (token) {
+          localStorage.setItem('token', token);
+          login(token, setAuth);
+        }
+        navigate(from || '/');
+      } catch (err) {
+        console.error('Failed to login', err);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    if (token) {
-      googleLogin();
+    if (code) {
+      setLoading(true);
+      googleLogin(code);
+    } else {
+      setLoading(false);
     }
-  }, [token, from, navigate]);
+  }, [code, from]);
 
   const handleLogin = async () => {
     try {
       const serverUri = `${process.env.REACT_APP_PROXY_URI}`;
       const url = `${serverUri}/api/auth/google/login/${encodeURIComponent(fromPath)}`;
-      localStorage.setItem('url', url);
       window.open(url, '_self');
     } catch (err) {
       openSnackbar({
@@ -52,7 +60,7 @@ const Home = () => {
   // const handleLoginOneTap = async (response: any) => {
   //   const serverUri = `${process.env.REACT_APP_PROXY_URI}`;
   //   try {
-  //     window.open(`?token=${response?.credential}`, '_self');
+  //     window.open(`?code=${response?.credential}`, '_self');
   //   } catch (err) {
   //     openSnackbar({
   //       message: JSON.stringify(err || ''),
@@ -60,6 +68,10 @@ const Home = () => {
   //     });
   //   }
   // };
+
+  if (loading) {
+    return null;
+  }
 
   return (
     <HomeStyled>
@@ -82,14 +94,16 @@ const Home = () => {
         >
           Login
         </Button> */}
-        <GoogleLogin
-          ux_mode="redirect"
-          shape="pill"
-          // useOneTap
-          click_listener={handleLogin}
-          onSuccess={handleLogin}
-          // onSuccess={handleLoginOneTap}
-        />
+        <div className="home-login-btn-wrapper">
+          <GoogleLogin
+            ux_mode="redirect"
+            shape="pill"
+            // useOneTap
+            click_listener={handleLogin}
+            onSuccess={handleLogin}
+            // onSuccess={handleLoginOneTap}
+          />
+        </div>
       </div>
       <div className="home-footer">
         <Typography className="home-footer-sub-heading" fontWeight={400}>

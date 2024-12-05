@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { jwtDecode } from 'jwt-decode';
 import { MessageData, OtherMember } from '../contexts';
 
 export const formatDate = (dateValue: string | number | Date) => {
@@ -743,6 +744,78 @@ export const debounce = (func: any, delay: number) => {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => func(...args), delay);
   };
+};
+
+const getTextEncoding = (text: string) => {
+  const enc = new TextEncoder();
+  return enc.encode(text);
+};
+
+const getCryptoKey = async (key: string) => {
+  const encodedKey = new TextEncoder().encode(key);
+  const res = await crypto.subtle.importKey(
+    'raw',
+    encodedKey,
+    { name: 'AES-GCM' },
+    false,
+    ['encrypt', 'decrypt'],
+  );
+  return res;
+};
+
+const decodeBase64ToUint8Array = (data: string) => {
+  try {
+    if (!data || typeof data !== 'string') {
+      throw new Error('Invalid Base64 input');
+    }
+    const binaryString = atob(data);
+    return new Uint8Array(
+      Array.from(binaryString).map((char) => char.charCodeAt(0)),
+    );
+  } catch (error) {
+    console.error('Failed to decode Base64 string:', error);
+    throw error;
+  }
+};
+
+export const encrypt = async (data: string, secretKey: string) => {
+  const encoded = getTextEncoding(data);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await getCryptoKey(secretKey);
+  const encryptedData = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    encoded,
+  );
+  const combined = new Uint8Array(iv.length + encryptedData.byteLength);
+  combined.set(iv, 0);
+  combined.set(new Uint8Array(encryptedData), iv.length);
+  const res = btoa(String.fromCharCode(...combined));
+  return res;
+};
+
+export const decrypt = async (data: string, secretKey: string) => {
+  const combined = decodeBase64ToUint8Array(data);
+  const iv = combined.slice(0, 12);
+  const encryptedData = combined.slice(12);
+  const key = await getCryptoKey(secretKey);
+  const decryptedData = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    encryptedData,
+  );
+  const res = new TextDecoder().decode(decryptedData);
+  return res;
+};
+
+export const login = async (token: string, setAuth: any) => {
+  const decoded = jwtDecode(token);
+  if (Object.keys(decoded || {})?.length) {
+    setAuth({
+      isLoggedIn: true,
+      ...decoded,
+    });
+  }
 };
 
 export const regex = {

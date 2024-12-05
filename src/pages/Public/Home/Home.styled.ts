@@ -12,15 +12,18 @@ export const HomeStyled = styled('div')(({ theme }) => ({
   height: '100svh',
   zIndex: '-1',
   userSelect: 'none',
-  padding: '0px 30px',
   '.home-header': {
-    marginTop: 162,
-    textAlign: 'center',
+    marginTop: '10.5rem',
+    padding: '0px 30px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '0.5rem',
+    gap: '0.625rem',
+    textAlign: 'center',
+    [theme.breakpoints.down('sm')]: {
+      gap: '0.5rem',
+    },
     '.home-heading': {
       fontSize: '3.625rem',
       color: theme.palette.common.white,
@@ -30,11 +33,16 @@ export const HomeStyled = styled('div')(({ theme }) => ({
       },
     },
     '.home-sub-heading': {
-      marginBottom: 10,
       lineHeight: '32px',
       fontSize: '1.25rem',
       [theme.breakpoints.down('sm')]: {
         fontSize: '1.125rem',
+      },
+    },
+    '.home-login-btn-wrapper': {
+      margin: '1rem 0rem',
+      [theme.breakpoints.down('sm')]: {
+        margin: '0.875rem 0rem',
       },
     },
     // '.home-login-btn': {
@@ -56,7 +64,10 @@ export const HomeStyled = styled('div')(({ theme }) => ({
     // },
   },
   '.home-footer': {
-    margin: 'auto 0px 8px 0px',
+    padding: '0px 30px',
+    position: 'fixed',
+    bottom: 0,
+    marginBottom: '0.5rem',
     textAlign: 'center',
     '.home-footer-sub-heading': {
       fontSize: '0.9125rem',
