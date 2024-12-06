@@ -36,7 +36,7 @@ const documents = {
     "\n  mutation updateRequest(\n    $userId: String!\n    $requestId: String!\n    $status: String!\n  ) {\n    updateRequest(\n      input: { userId: $userId, requestId: $requestId, status: $status }\n    ) {\n      _id\n    }\n  }\n": types.UpdateRequestDocument,
     "\n  subscription OnRequestAdded {\n    OnRequestAdded {\n      request {\n        _id\n        members {\n          _id\n          hasSent\n          name\n          picture\n          email\n          email_verified\n          given_name\n          family_name\n        }\n      }\n    }\n  }\n": types.OnRequestAddedDocument,
     "\n  subscription OnRequestUpdated {\n    OnRequestUpdated {\n      request {\n        _id\n        members {\n          _id\n          hasSent\n          name\n          picture\n          email\n          email_verified\n          given_name\n          family_name\n        }\n      }\n    }\n  }\n": types.OnRequestUpdatedDocument,
-    "\n  subscription OnUserUpdated($userId: String!) {\n    OnUserUpdated(input: { userId: $userId }) {\n      auth {\n        _id\n        onlineStatus {\n          isOnline\n          timestamp\n        }\n      }\n    }\n  }\n": types.OnUserUpdatedDocument,
+    "\n  subscription OnUserUpdated($userId: String!) {\n    OnUserUpdated(input: { userId: $userId }) {\n      user {\n        _id\n        onlineStatus {\n          isOnline\n          timestamp\n        }\n      }\n    }\n  }\n": types.OnUserUpdatedDocument,
 };
 
 /**
@@ -144,7 +144,7 @@ export function gql(source: "\n  subscription OnRequestUpdated {\n    OnRequestU
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  subscription OnUserUpdated($userId: String!) {\n    OnUserUpdated(input: { userId: $userId }) {\n      auth {\n        _id\n        onlineStatus {\n          isOnline\n          timestamp\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  subscription OnUserUpdated($userId: String!) {\n    OnUserUpdated(input: { userId: $userId }) {\n      auth {\n        _id\n        onlineStatus {\n          isOnline\n          timestamp\n        }\n      }\n    }\n  }\n"];
+export function gql(source: "\n  subscription OnUserUpdated($userId: String!) {\n    OnUserUpdated(input: { userId: $userId }) {\n      user {\n        _id\n        onlineStatus {\n          isOnline\n          timestamp\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  subscription OnUserUpdated($userId: String!) {\n    OnUserUpdated(input: { userId: $userId }) {\n      user {\n        _id\n        onlineStatus {\n          isOnline\n          timestamp\n        }\n      }\n    }\n  }\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};

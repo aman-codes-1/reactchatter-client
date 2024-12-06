@@ -899,7 +899,7 @@ const REQUEST_UPDATED_SUBSCRIPTION = gql(/* GraphQL */ `
 const USER_UPDATED_SUBSCRIPTION = gql(/* GraphQL */ `
   subscription OnUserUpdated($userId: String!) {
     OnUserUpdated(input: { userId: $userId }) {
-      auth {
+      user {
         _id
         onlineStatus {
           isOnline

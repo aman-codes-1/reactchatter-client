@@ -669,7 +669,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     skip: !selectedItem || !selectedDetails,
     onData: (res) => {
       const OnUserUpdated = res?.data?.data?.OnUserUpdated;
-      const OnUserUpdatedUser = OnUserUpdated?.auth;
+      const OnUserUpdatedUser = OnUserUpdated?.user;
       const OnUserUpdatedUserId = OnUserUpdatedUser?._id;
       if (OnUserUpdatedUserId === selectedDetails?._id) {
         const OnUserUpdatedUserOnlineStatus = OnUserUpdatedUser?.onlineStatus;
