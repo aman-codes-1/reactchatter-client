@@ -1,11 +1,5 @@
 import { ReactNode, Suspense, useLayoutEffect, useState } from 'react';
-import {
-  Outlet,
-  Route,
-  Routes,
-  useLocation,
-  useNavigate,
-} from 'react-router-dom';
+import { Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks';
 import { routesConfig } from './config';
 import { IRouteConfig } from './IRoutes';
@@ -13,7 +7,6 @@ import { BaseProtected } from '../pages';
 import { ApolloClientProvider, WebSocketProvider } from '../contexts';
 
 const AppRoutes = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const [defaultRoutes, setDefaultRoutes] = useState<ReactNode[]>([]);
   const [privateRoutes, setPrivateRoutes] = useState<ReactNode[]>([]);
@@ -37,16 +30,16 @@ const AppRoutes = () => {
     });
   }, [location?.pathname]);
 
-  useLayoutEffect(() => {
-    const url = window?.location?.href;
-    if (url?.includes('code')) {
-      navigate('/', { replace: true });
-    }
-  }, [window?.location?.href]);
-
   window.addEventListener('storage', () => {
     window.location.reload();
   });
+
+  const renderRoutes = () => {
+    if (auth?.isLoggedIn) {
+      return privateRoutes;
+    }
+    return publicRoutes;
+  };
 
   return (
     <Routes>
@@ -54,11 +47,13 @@ const AppRoutes = () => {
         path="/"
         element={
           auth?.isLoggedIn ? (
-            <ApolloClientProvider>
-              <WebSocketProvider>
-                <BaseProtected />
-              </WebSocketProvider>
-            </ApolloClientProvider>
+            <Suspense fallback={null}>
+              <ApolloClientProvider>
+                <WebSocketProvider>
+                  <BaseProtected />
+                </WebSocketProvider>
+              </ApolloClientProvider>
+            </Suspense>
           ) : (
             <Suspense fallback={null}>
               <Outlet />
@@ -67,7 +62,7 @@ const AppRoutes = () => {
         }
       >
         {defaultRoutes}
-        {auth?.isLoggedIn ? privateRoutes : publicRoutes}
+        {renderRoutes()}
       </Route>
     </Routes>
   );

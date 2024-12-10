@@ -23,7 +23,7 @@ export const useApi = () => {
     setAuth(undefined);
     navigate('/', {
       replace: true,
-      ...(includeFromState ? { state: { from: location } } : {}),
+      ...(includeFromState ? { state: { redirectedFrom: location } } : {}),
     });
   };
 

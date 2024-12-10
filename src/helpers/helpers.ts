@@ -668,7 +668,7 @@ export const updateMemberOnlineStatus = (
 export const getOnlineStatus = (isOnline: boolean) => {
   return {
     isOnline,
-    timestamp: Date.now(),
+    lastSeen: Date.now(),
   };
 };
 

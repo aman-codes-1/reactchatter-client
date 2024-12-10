@@ -310,10 +310,6 @@ const CHAT_QUERY = gql(/* GraphQL */ `
         email_verified
         given_name
         family_name
-        onlineStatus {
-          isOnline
-          timestamp
-        }
       }
       lastMessage {
         message
@@ -365,10 +361,6 @@ const CHATS_QUERY = gql(/* GraphQL */ `
         email_verified
         given_name
         family_name
-        onlineStatus {
-          isOnline
-          timestamp
-        }
       }
       lastMessage {
         message
@@ -468,10 +460,6 @@ const CHAT_ADDED_SUBSCRIPTION = gql(/* GraphQL */ `
           email_verified
           given_name
           family_name
-          onlineStatus {
-            isOnline
-            timestamp
-          }
         }
         lastMessage {
           message
@@ -525,10 +513,6 @@ const CHAT_UPDATED_SUBSCRIPTION = gql(/* GraphQL */ `
           email_verified
           given_name
           family_name
-          onlineStatus {
-            isOnline
-            timestamp
-          }
         }
         lastMessage {
           message
@@ -581,10 +565,6 @@ const FRIEND_QUERY = gql(/* GraphQL */ `
         email_verified
         given_name
         family_name
-        onlineStatus {
-          isOnline
-          timestamp
-        }
       }
       lastMessage {
         message
@@ -637,10 +617,6 @@ const FRIENDS_QUERY = gql(/* GraphQL */ `
         email_verified
         given_name
         family_name
-        onlineStatus {
-          isOnline
-          timestamp
-        }
       }
       lastMessage {
         message
@@ -693,10 +669,6 @@ const OTHER_FRIENDS_QUERY = gql(/* GraphQL */ `
         email_verified
         given_name
         family_name
-        onlineStatus {
-          isOnline
-          timestamp
-        }
       }
       lastMessage {
         message
@@ -750,10 +722,6 @@ const FRIEND_ADDED_SUBSCRIPTION = gql(/* GraphQL */ `
           email_verified
           given_name
           family_name
-          onlineStatus {
-            isOnline
-            timestamp
-          }
         }
         lastMessage {
           message
@@ -903,7 +871,7 @@ const USER_UPDATED_SUBSCRIPTION = gql(/* GraphQL */ `
         _id
         onlineStatus {
           isOnline
-          timestamp
+          lastSeen
         }
       }
     }

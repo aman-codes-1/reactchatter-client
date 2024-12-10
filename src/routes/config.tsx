@@ -13,7 +13,9 @@ export const routesConfig = (location: any) => [
   {
     type: 'default',
     path: '*',
-    Element: () => <Navigate to="/" replace state={{ from: location }} />,
+    Element: () => (
+      <Navigate to="/" replace state={{ redirectedFrom: location }} />
+    ),
   },
   {
     type: 'public',

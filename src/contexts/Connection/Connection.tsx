@@ -32,16 +32,13 @@ export const ConnectionProvider = ({
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
-      if (!isInitialLoad?.current && navigator?.onLine) {
+      if (!isInitialLoad?.current && navigator?.onLine && document.hasFocus()) {
         window.location.reload();
       }
     };
 
     const handleOffline = () => {
       setIsOnline(false);
-      if (!isInitialLoad?.current && !navigator?.onLine) {
-        //
-      }
     };
 
     window.addEventListener('online', handleOnline);

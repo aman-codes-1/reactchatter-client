@@ -417,12 +417,13 @@ const Chats = () => {
     const onlineStatus = selectedDetails?.onlineStatus;
     if (onlineStatus) {
       const isOnline = onlineStatus?.isOnline;
-      const timestamp = onlineStatus?.timestamp;
+      const lastSeen = onlineStatus?.lastSeen;
       if (isOnline) {
         return 'online';
       }
-      if (!isOnline && timestamp) {
-        return timestamp;
+      if (!isOnline && lastSeen) {
+        // to do: show time label
+        return lastSeen;
       }
       return selectedDetails?.email;
     }

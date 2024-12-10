@@ -1,4 +1,4 @@
-import { createContext, useEffect, useLayoutEffect, useState } from 'react';
+import { createContext, useLayoutEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { getOnlineStatus } from '../../helpers';
 import { useAuth } from '../../hooks';
@@ -6,103 +6,116 @@ import { useAuth } from '../../hooks';
 export const WebSocketContext = createContext<any>({});
 
 export const WebSocketProvider = ({ children }: any) => {
-  const [socket, setSocket] = useState<Socket | null>(null);
   const { auth, setAuth } = useAuth();
+  const socket = useRef<Socket | null>(null);
+  const isHiddenOrBlurredRef = useRef(false);
+  const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  useLayoutEffect(() => {
-    const updateOnlineStatus = (isOnline: boolean) => {
-      setAuth((prev: any) => ({
+  const updateOnlineStatus = (isOnline: boolean) => {
+    setAuth((prev: any) => {
+      if (!prev) return prev;
+      return {
         ...prev,
         onlineStatus: getOnlineStatus(isOnline),
-      }));
+      };
+    });
+  };
+
+  const startInactivityTimer = () => {
+    if (inactivityTimerRef.current) {
+      clearTimeout(inactivityTimerRef.current);
+    }
+    inactivityTimerRef.current = setTimeout(() => {
+      if (isHiddenOrBlurredRef.current) {
+        updateOnlineStatus(false);
+      }
+    }, 10000);
+  };
+
+  const resetInactivity = () => {
+    updateOnlineStatus(true);
+    if (inactivityTimerRef.current) {
+      clearTimeout(inactivityTimerRef.current);
+    }
+  };
+
+  useLayoutEffect(() => {
+    const handleOnline = () => updateOnlineStatus(true);
+    const handleOffline = () => updateOnlineStatus(false);
+    const handleInternetOnline = () => updateOnlineStatus(document.hasFocus());
+
+    const handleBlur = () => {
+      isHiddenOrBlurredRef.current = true;
+      startInactivityTimer();
+    };
+
+    const handleFocus = () => {
+      isHiddenOrBlurredRef.current = false;
+      resetInactivity();
     };
 
     const handleVisibilityChange = () => {
-      const isTabVisible = document.visibilityState === 'visible';
-      updateOnlineStatus(isTabVisible);
+      if (document.hidden) {
+        isHiddenOrBlurredRef.current = true;
+        startInactivityTimer();
+      } else {
+        isHiddenOrBlurredRef.current = false;
+        resetInactivity();
+      }
     };
-
-    const handleOnline = () => updateOnlineStatus(true);
-    const handleOffline = () => updateOnlineStatus(false);
 
     const eventListeners: {
       target: Window | Document;
       event: string;
-      handler: () => void;
+      handler: (e?: Event) => void;
     }[] = [
-      { target: window, event: 'online', handler: handleOnline },
-      { target: window, event: 'blur', handler: handleOffline },
-      { target: window, event: 'focus', handler: handleOnline },
+      { target: window, event: 'mousemove', handler: handleOnline },
+      { target: window, event: 'keydown', handler: handleOnline },
+      { target: window, event: 'blur', handler: handleBlur },
+      { target: window, event: 'focus', handler: handleFocus },
+      { target: window, event: 'online', handler: handleInternetOnline },
+      { target: window, event: 'offline', handler: handleOffline },
       {
         target: document,
         event: 'visibilitychange',
         handler: handleVisibilityChange,
       },
     ];
-
     eventListeners.forEach(({ target, event, handler }) =>
       target.addEventListener(event, handler),
     );
-
     handleOnline();
-
     return () => {
       eventListeners.forEach(({ target, event, handler }) =>
         target.removeEventListener(event, handler),
       );
       handleOffline();
+      if (inactivityTimerRef.current) {
+        clearTimeout(inactivityTimerRef.current);
+      }
     };
   }, []);
 
-  useEffect(() => {
-    let socketInstance: Socket | null = null;
-    let isMounted = true;
-
-    const initializeSocket = async () => {
-      const serverUri = `${process.env.REACT_APP_PROXY_URI}`;
-      if (!serverUri) {
-        console.error('Missing REACT_APP_PROXY_URI environment variable');
-        return;
-      }
-
-      socketInstance = io(serverUri, {
-        auth,
-        transports: ['websocket'],
-      });
-
-      socketInstance.on('connect', () => {
-        if (isMounted) {
-          setSocket(socketInstance);
-          socketInstance?.emit('updateUserOnlineStatus', auth);
-        }
-      });
-
-      socketInstance.on('connect_error', (error) => {
-        console.error('WebSocket connection error:', error);
-        if (isMounted) {
-          setSocket(null);
-        }
-      });
-
-      socketInstance.on('disconnect', () => {
-        if (isMounted) {
-          setSocket(null);
-        }
-      });
-    };
-
-    initializeSocket();
-
+  useLayoutEffect(() => {
+    const serverUri = `${process.env.REACT_APP_PROXY_URI}`;
+    if (!serverUri) {
+      console.error('Missing REACT_APP_PROXY_URI environment variable');
+      return;
+    }
+    socket.current = io(serverUri, {
+      auth,
+      transports: ['websocket'],
+    });
+    socket?.current?.emit('updateUserOnlineStatus', auth);
     return () => {
-      isMounted = false;
-      if (socketInstance) {
-        socketInstance.disconnect();
+      if (socket?.current) {
+        socket?.current?.disconnect();
       }
     };
   }, [auth?.onlineStatus?.isOnline]);
 
   return (
-    <WebSocketContext.Provider value={{ socket }}>
+    <WebSocketContext.Provider value={{ socket: socket?.current }}>
       {children}
     </WebSocketContext.Provider>
   );

@@ -10,7 +10,7 @@ const Home = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const fromPath =
-    `${location?.state?.from?.pathname || ''}${location?.state?.from?.search || ''}` ||
+    `${location?.state?.redirectedFrom?.pathname || ''}${location?.state?.redirectedFrom?.search || ''}` ||
     '/';
   const [searchParams] = useSearchParams();
   const code = searchParams.get('code');
