@@ -34,21 +34,15 @@ export const createApolloClient = (
     credentials: 'include',
   });
 
-  const errorLink: ApolloLink = onError(
-    ({ graphQLErrors, networkError }: ErrorResponse) => {
-      if (graphQLErrors) {
-        graphQLErrors.map(async ({ extensions }) => {
-          if (extensions?.code === 'UNAUTHENTICATED') {
-            await callLogout(true);
-          }
-        });
-      }
-
-      if (networkError) {
-        //
-      }
-    },
-  );
+  const errorLink: ApolloLink = onError(({ graphQLErrors }: ErrorResponse) => {
+    if (graphQLErrors) {
+      graphQLErrors.map(async ({ extensions }) => {
+        if (extensions?.code === 'UNAUTHENTICATED') {
+          await callLogout(true);
+        }
+      });
+    }
+  });
 
   const retryLink = new RetryLink({
     delay: {
