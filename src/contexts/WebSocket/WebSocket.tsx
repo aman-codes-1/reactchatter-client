@@ -1,4 +1,4 @@
-import { createContext, useLayoutEffect, useRef } from 'react';
+import { createContext, useLayoutEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { getOnlineStatus } from '../../helpers';
 import { useAuth } from '../../hooks';
@@ -21,10 +21,15 @@ export const WebSocketProvider = ({ children }: any) => {
     });
   };
 
-  const startInactivityTimer = () => {
+  const clearInactivityTimer = () => {
     if (inactivityTimerRef.current) {
       clearTimeout(inactivityTimerRef.current);
+      inactivityTimerRef.current = null;
     }
+  };
+
+  const startInactivityTimer = () => {
+    clearInactivityTimer();
     inactivityTimerRef.current = setTimeout(() => {
       if (isHiddenOrBlurredRef.current) {
         updateOnlineStatus(false);
@@ -33,10 +38,8 @@ export const WebSocketProvider = ({ children }: any) => {
   };
 
   const resetInactivity = () => {
+    clearInactivityTimer();
     updateOnlineStatus(true);
-    if (inactivityTimerRef.current) {
-      clearTimeout(inactivityTimerRef.current);
-    }
   };
 
   useLayoutEffect(() => {
@@ -64,6 +67,8 @@ export const WebSocketProvider = ({ children }: any) => {
       }
     };
 
+    handleOnline();
+
     const eventListeners: {
       target: Window | Document;
       event: string;
@@ -81,20 +86,19 @@ export const WebSocketProvider = ({ children }: any) => {
         handler: handleVisibilityChange,
       },
     ];
+
     eventListeners.forEach(({ target, event, handler }) =>
       target.addEventListener(event, handler),
     );
-    handleOnline();
+
     return () => {
       eventListeners.forEach(({ target, event, handler }) =>
         target.removeEventListener(event, handler),
       );
+      clearInactivityTimer();
       handleOffline();
-      if (inactivityTimerRef.current) {
-        clearTimeout(inactivityTimerRef.current);
-      }
     };
-  }, []);
+  }, [auth?.isLoggedIn]);
 
   useLayoutEffect(() => {
     const serverUri = `${process.env.REACT_APP_PROXY_URI}`;
