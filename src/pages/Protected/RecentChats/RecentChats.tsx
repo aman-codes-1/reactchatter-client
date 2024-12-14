@@ -4,7 +4,7 @@ import { ChatsAndFriendsContext } from '../../../contexts';
 import { DataList, MainLayout } from '../components';
 import { clickChat } from '../../../helpers';
 
-const RecentChats = () => {
+const RecentChats = ({ loadingRecentChats }: any) => {
   const navigate = useNavigate();
   const {
     chats = [],
@@ -22,13 +22,14 @@ const RecentChats = () => {
   const [currentChats, setCurrentChats] = useState(chats);
 
   useLayoutEffect(() => {
-    if (isFetchingChats2 || isFetchingOtherFriends2) return;
+    if (isFetchingChats2 || isFetchingOtherFriends2 || loadingRecentChats)
+      return;
     if (chats?.length) {
       setCurrentChats(chats);
     } else {
       setCurrentChats([]);
     }
-  }, [chats, isFetchingChats2, isFetchingOtherFriends2]);
+  }, [chats, isFetchingChats2, isFetchingOtherFriends2, loadingRecentChats]);
 
   const handleClickChat = async (
     _: React.MouseEvent<HTMLDivElement, MouseEvent>,
@@ -47,7 +48,8 @@ const RecentChats = () => {
     );
   };
 
-  const loadingChats = isFetchingChats || isFetchingOtherFriends;
+  const loadingChats =
+    isFetchingChats || isFetchingOtherFriends || loadingRecentChats;
 
   return (
     <MainLayout

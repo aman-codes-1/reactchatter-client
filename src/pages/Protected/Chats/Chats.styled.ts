@@ -192,7 +192,7 @@ export const ChatBubbleStyled = styled('div')(({ theme }) => ({
     fontSize: '0.938rem',
   },
   '.msg-content-left': {
-    color: theme.palette.grey[900],
+    color: theme.palette.text.primary,
   },
   '.msg-content-right': {
     color: theme.palette.common.white,
@@ -217,7 +217,7 @@ export const ChatBubbleStyled = styled('div')(({ theme }) => ({
     fontSize: '0.688rem',
   },
   '.msg-timestamp-text-left': {
-    color: theme.palette.grey[700],
+    color: theme.palette.text.secondary,
   },
   '.msg-timestamp-text-right': {
     color: theme.palette.grey[400],

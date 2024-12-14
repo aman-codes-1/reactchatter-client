@@ -11,7 +11,6 @@ export const SideBarListStyled = styled('div')(({ theme }) => ({
   '.default-heading': {
     fontSize: '0.8125rem',
     fontWeight: 700,
-    color: theme.palette.grey[800],
   },
   '.heading': {
     fontSize: '1.375rem',
@@ -34,8 +33,8 @@ export const SideBarListStyled = styled('div')(({ theme }) => ({
     marginRight: '1rem',
     padding: '0.17rem',
     fontSize: '1.25rem',
-    color: theme.palette.grey[600],
-    outline: `1px solid ${theme.palette.grey[600]}`,
+    color: theme.palette.text.secondary,
+    outline: `1px solid ${theme.palette.text.secondary}`,
     borderRadius: '6px',
   },
 }));

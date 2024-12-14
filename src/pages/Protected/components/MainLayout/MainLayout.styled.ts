@@ -6,6 +6,7 @@ export const MainLayoutStyled = styled('div')<{ navbarHeight: number }>(
     flexDirection: 'column',
     padding: '3.8rem 4.5rem',
     height: '100svh',
+    overflow: 'auto',
     [theme.breakpoints.down('md')]: {
       padding: '2.5rem 3rem',
     },
@@ -31,13 +32,14 @@ export const MainLayoutStyled = styled('div')<{ navbarHeight: number }>(
     '.main-layout-default-text': {
       fontSize: '0.875rem',
       marginTop: '0.5rem',
-      color: theme.palette.grey[800],
+      color: theme.palette.text.secondary,
     },
   }),
 );
 
 export const MainLayoutLoaderStyled = styled('div')(() => ({
   width: '100%',
+  overflow: 'auto',
   '.primary-skeleton': {
     maxWidth: '130px',
   },

@@ -20,7 +20,7 @@ export const ListItemButtonStyled = styled('div')<{
       '.MuiListItemText-root': {
         wordBreak: 'break-word',
         '.MuiListItemText-primary': {
-          color: theme.palette.grey[900],
+          color: theme.palette.text.primary,
           wordBreak: 'break-all',
           ...(primaryEllipsesLineClamp
             ? {
@@ -33,7 +33,7 @@ export const ListItemButtonStyled = styled('div')<{
             : {}),
         },
         '.MuiListItemText-secondary': {
-          color: theme.palette.grey[700],
+          color: theme.palette.text.secondary,
           wordBreak: 'break-all',
           ...(secondaryEllipsesLineClamp
             ? {

@@ -13,15 +13,17 @@ export const routesConfig = (location: any) => [
   {
     type: 'default',
     path: '*',
-    Element: () => (
-      <Navigate to="/" replace state={{ redirectedFrom: location }} />
-    ),
+    Element: () => <Navigate to="/" state={{ from: location }} replace />,
   },
   {
     type: 'public',
     path: '/',
     Element: () => (
-      <SuspenseWrapper path="pages" compName="Home" fallback={<Home />} />
+      <SuspenseWrapper
+        path="pages"
+        compName="Home"
+        fallback={<Home loadingHome />}
+      />
     ),
   },
   {
@@ -31,7 +33,7 @@ export const routesConfig = (location: any) => [
       <SuspenseWrapper
         path="pages"
         compName="RecentChats"
-        fallback={<RecentChats />}
+        fallback={<RecentChats loadingRecentChats />}
       />
     ),
   },

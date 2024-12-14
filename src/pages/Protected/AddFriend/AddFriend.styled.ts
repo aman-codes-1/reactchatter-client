@@ -35,6 +35,7 @@ export const AddFriendStyled = styled('div')(({ theme }) => ({
     '.add-friend-email-btn-wrapper': {
       width: '100%',
       '.add-friend-email-btn': {
+        height: '2.5rem',
         textTransform: 'none',
         fontSize: '0.875rem',
         fontWeight: 700,

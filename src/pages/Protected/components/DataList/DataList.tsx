@@ -142,7 +142,7 @@ const DataList = ({
                     ? {
                         fontWeight: 700,
                         style: {
-                          color: theme.palette.grey[900],
+                          color: theme.palette.text.primary,
                         },
                       }
                     : {}),
@@ -174,7 +174,7 @@ const DataList = ({
 
   return (
     <List
-      dense={dense || data?.length > 4}
+      dense={dense}
       disablePadding
       className={className}
       ref={listRef}

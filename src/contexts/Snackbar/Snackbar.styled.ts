@@ -45,7 +45,7 @@ export const SnackbarStyled = styled('div')(({ theme }) => ({
       '.message': {
         marginTop: '2.5px',
         fontSize: '1rem',
-        color: theme.palette.grey[800],
+        color: theme.palette.text.primary,
       },
       '.submit-btn': {
         marginTop: '22px',

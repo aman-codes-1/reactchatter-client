@@ -6,11 +6,11 @@ import { decrypt, getCurrentYear, login } from '../../../helpers';
 import { HomeStyled } from './Home.styled';
 import { useAuth, useSnackbar } from '../../../hooks';
 
-const Home = () => {
+const Home = ({ loadingHome }: any) => {
   const navigate = useNavigate();
   const location = useLocation();
   const fromPath =
-    `${location?.state?.redirectedFrom?.pathname || ''}${location?.state?.redirectedFrom?.search || ''}` ||
+    `${location?.state?.from?.pathname || ''}${location?.state?.from?.search || ''}` ||
     '/';
   const [searchParams] = useSearchParams();
   const code = searchParams.get('code');
@@ -38,11 +38,12 @@ const Home = () => {
 
     if (code) {
       setLoading(true);
+      if (loadingHome) return;
       googleLogin(code);
     } else {
       setLoading(false);
     }
-  }, [code, from]);
+  }, [code, from, loadingHome]);
 
   const handleLogin = async () => {
     try {
@@ -57,21 +58,7 @@ const Home = () => {
     }
   };
 
-  // const handleLoginOneTap = async (response: any) => {
-  //   const serverUri = `${process.env.REACT_APP_PROXY_URI}`;
-  //   try {
-  //     window.open(`?code=${response?.credential}`, '_self');
-  //   } catch (err) {
-  //     openSnackbar({
-  //       message: JSON.stringify(err || ''),
-  //       type: 'error',
-  //     });
-  //   }
-  // };
-
-  if (loading) {
-    return null;
-  }
+  if (loading) return null;
 
   return (
     <HomeStyled>

@@ -26,7 +26,7 @@ const MainLayout = ({
           {heading}
         </Typography>
       ) : null}
-      {isLoading ? <MainLayoutLoader {...loaderProps} /> : null}
+      {isLoading ? <MainLayoutLoader {...loaderProps} dataCount={5} /> : null}
       {!isLoading && !error && !data?.length && defaultText?.length ? (
         <Typography className="main-layout-default-text" fontWeight={500}>
           {defaultText}

@@ -22,7 +22,7 @@ const MessageStatus = ({
         <AccessTimeIcon
           fontSize="inherit"
           sx={{
-            color: color || theme.palette.grey[700],
+            color: color || theme.palette.text.secondary,
           }}
         />
       ) : null}
@@ -30,7 +30,7 @@ const MessageStatus = ({
         <DoneRoundedIcon
           fontSize="inherit"
           sx={{
-            color: color || theme.palette.grey[700],
+            color: color || theme.palette.text.secondary,
           }}
         />
       ) : null}
@@ -38,7 +38,7 @@ const MessageStatus = ({
         <DoneAllRoundedIcon
           fontSize="inherit"
           sx={{
-            color: color || theme.palette.grey[700],
+            color: color || theme.palette.text.secondary,
           }}
         />
       ) : null}

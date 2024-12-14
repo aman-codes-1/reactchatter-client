@@ -23,7 +23,7 @@ export const useApi = () => {
     setAuth(undefined);
     navigate('/', {
       replace: true,
-      ...(includeFromState ? { state: { redirectedFrom: location } } : {}),
+      ...(includeFromState ? { state: { from: location } } : {}),
     });
   };
 
@@ -78,7 +78,7 @@ export const useApi = () => {
     } catch (err: any) {
       //
     } finally {
-      logout(includeFromState);
+      logout(!!includeFromState);
     }
   };
 

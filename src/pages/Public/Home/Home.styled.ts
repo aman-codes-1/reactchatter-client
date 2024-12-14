@@ -45,23 +45,6 @@ export const HomeStyled = styled('div')(({ theme }) => ({
         margin: '0.875rem 0rem',
       },
     },
-    // '.home-login-btn': {
-    //   marginTop: '10px',
-    //   textTransform: 'none',
-    //   fontWeight: 600,
-    //   backgroundColor: `${theme.palette.action.active} !important`,
-    //   minWidth: '120px',
-    //   minHeight: '3.1rem',
-    //   fontSize: '1rem',
-    //   borderRadius: 7,
-    //   [theme.breakpoints.down('sm')]: {
-    //     width: 'auto',
-    //     minWidth: '100%',
-    //   },
-    // },
-    // '.home-login-btn:hover': {
-    //   backgroundColor: `${theme.palette.action.hover} !important`,
-    // },
   },
   '.home-footer': {
     padding: '0px 30px',
