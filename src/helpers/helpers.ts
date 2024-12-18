@@ -1,4 +1,5 @@
 import moment from 'moment';
+import 'moment/min/locales';
 import { jwtDecode } from 'jwt-decode';
 import { MessageData, OtherMember } from '../contexts';
 
@@ -665,7 +666,7 @@ export const getDateLabel2 = (timestamp: number) => {
   } else {
     const date = new Date(timestamp);
     const browserLocale = navigator.language || 'en-US';
-    dateLabel = date.toLocaleString(browserLocale, {
+    dateLabel = date.toLocaleDateString(browserLocale, {
       day: 'numeric',
       month: 'numeric',
       year: '2-digit',
@@ -681,7 +682,7 @@ export const getTime = (timestamp: number) => {
   const date = new Date(timestamp);
   const browserLocale = navigator.language || 'en-US';
   const time = date
-    .toLocaleString(browserLocale, {
+    .toLocaleTimeString(browserLocale, {
       hour: 'numeric',
       minute: 'numeric',
       hour12: true,
