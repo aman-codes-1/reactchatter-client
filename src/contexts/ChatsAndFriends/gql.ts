@@ -864,15 +864,36 @@ const REQUEST_UPDATED_SUBSCRIPTION = gql(/* GraphQL */ `
   }
 `) as DocumentNode;
 
-const USER_UPDATED_SUBSCRIPTION = gql(/* GraphQL */ `
-  subscription OnUserUpdated($userId: String!) {
-    OnUserUpdated(input: { userId: $userId }) {
-      user {
-        _id
-        onlineStatus {
-          isOnline
-          lastSeen
-        }
+const SESSION_ACTIVE_CLIENTS_SUBSCRIPTION = gql(/* GraphQL */ `
+  subscription OnSessionActiveClients($sessionID: String!) {
+    OnSessionActiveClients(input: { sessionID: $sessionID }) {
+      sessionID
+      clients {
+        clientId
+      }
+    }
+  }
+`) as DocumentNode;
+
+const USER_ACTIVE_CLIENTS_QUERY = gql(/* GraphQL */ `
+  query userActiveClients($userId: String!) {
+    userActiveClients(input: { userId: $userId }) {
+      userId
+      onlineStatus {
+        isOnline
+        lastSeen
+      }
+    }
+  }
+`) as DocumentNode;
+
+const USER_ACTIVE_CLIENTS_SUBSCRIPTION = gql(/* GraphQL */ `
+  subscription OnUserActiveClients {
+    OnUserActiveClients {
+      userId
+      onlineStatus {
+        isOnline
+        lastSeen
       }
     }
   }
@@ -901,5 +922,7 @@ export {
   UPDATE_MESSAGE_MUTATION,
   SENT_REQUESTS_QUERY,
   UPDATE_REQUEST_MUTATION,
-  USER_UPDATED_SUBSCRIPTION,
+  SESSION_ACTIVE_CLIENTS_SUBSCRIPTION,
+  USER_ACTIVE_CLIENTS_QUERY,
+  USER_ACTIVE_CLIENTS_SUBSCRIPTION,
 };

@@ -1,4 +1,4 @@
-import { createContext, useLayoutEffect, useRef, useState } from 'react';
+import { createContext, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { getOnlineStatus } from '../../helpers';
 import { useAuth } from '../../hooks';
@@ -42,7 +42,7 @@ export const WebSocketProvider = ({ children }: any) => {
     updateOnlineStatus(true);
   };
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const handleOnline = () => updateOnlineStatus(true);
     const handleOffline = () => updateOnlineStatus(false);
     const handleInternetOnline = () => updateOnlineStatus(document.hasFocus());
@@ -100,7 +100,7 @@ export const WebSocketProvider = ({ children }: any) => {
     };
   }, [auth?.isLoggedIn]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const serverUri = `${process.env.REACT_APP_PROXY_URI}`;
     if (!serverUri) {
       console.error('Missing REACT_APP_PROXY_URI environment variable');

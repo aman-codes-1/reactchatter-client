@@ -25,7 +25,6 @@ import {
   unGroupMessages,
   uniqueQueuedMessages,
   updateGroupedQueuedMessage,
-  updateMemberOnlineStatus,
 } from '../../helpers';
 import { MessageQueueService } from '../../services';
 import {
@@ -37,20 +36,22 @@ import {
   CREATE_MESSAGE_MUTATION,
   CREATE_REQUEST_MUTATION,
   FRIEND_ADDED_SUBSCRIPTION,
+  FRIEND_QUERY,
   MESSAGES_QUERY,
   MESSAGE_ADDED_SUBSCRIPTION,
   MESSAGE_GROUPS_QUERY,
-  FRIEND_QUERY,
   MESSAGE_UPDATED_SUBSCRIPTION,
   OTHER_FRIENDS_QUERY,
   PENDING_REQUESTS_QUERY,
   REQUEST_ADDED_SUBSCRIPTION,
   REQUEST_UPDATED_SUBSCRIPTION,
+  SENT_REQUESTS_QUERY,
+  SESSION_ACTIVE_CLIENTS_SUBSCRIPTION,
   UPDATE_CHAT_MUTATION,
   UPDATE_MESSAGE_MUTATION,
-  SENT_REQUESTS_QUERY,
   UPDATE_REQUEST_MUTATION,
-  USER_UPDATED_SUBSCRIPTION,
+  USER_ACTIVE_CLIENTS_SUBSCRIPTION,
+  USER_ACTIVE_CLIENTS_QUERY,
 } from '.';
 
 export const ChatsAndFriendsContext = createContext<any>({});
@@ -79,7 +80,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   const [isFetchingChats2, setIsFetchingChats2] = useState(true);
   const [isFetchingOtherFriends2, setIsFetchingOtherFriends2] = useState(true);
   const [isHomeButtonClicked, setIsHomeButtonClicked] = useState(false);
-  const { auth: { _id = '' } = {} } = useAuth();
+  const { auth: { _id = '', sessionID = '' } = {}, setAuth } = useAuth();
 
   const {
     data: chat,
@@ -212,6 +213,20 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         navigate('/');
       }
     },
+  });
+
+  const {
+    data: userActiveClients,
+    loading: userActiveClientsLoading,
+    error: userActiveClientsError,
+    client: userActiveClientsClient,
+    called: userActiveClientsCalled,
+  } = useQuery(USER_ACTIVE_CLIENTS_QUERY, {
+    variables: {
+      userId: selectedDetails?._id,
+    },
+    skip: !selectedItem || !selectedDetails,
+    notifyOnNetworkStatusChange: true,
   });
 
   const {
@@ -362,7 +377,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   });
 
   const {
-    data: OnMessageAddedData,
+    data: OnMessageAdded,
     loading: OnMessageAddedLoading,
     error: OnMessageAddedError,
   } = useSubscription(MESSAGE_ADDED_SUBSCRIPTION, {
@@ -427,7 +442,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   });
 
   const {
-    data: OnMessageUpdatedData,
+    data: OnMessageUpdated,
     loading: OnMessageUpdatedLoading,
     error: OnMessageUpdatedError,
   } = useSubscription(MESSAGE_UPDATED_SUBSCRIPTION, {
@@ -438,7 +453,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   });
 
   const {
-    data: OnChatAddedData,
+    data: OnChatAdded,
     loading: OnChatAddedLoading,
     error: OnChatAddedError,
   } = useSubscription(CHAT_ADDED_SUBSCRIPTION, {
@@ -508,7 +523,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   });
 
   const {
-    data: OnChatUpdatedData,
+    data: OnChatUpdated,
     loading: OnChatUpdatedLoading,
     error: OnChatUpdatedError,
   } = useSubscription(CHAT_UPDATED_SUBSCRIPTION, {
@@ -546,7 +561,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   });
 
   const {
-    data: OnFriendAddedData,
+    data: OnFriendAdded,
     loading: OnFriendAddedLoading,
     error: OnFriendAddedError,
   } = useSubscription(FRIEND_ADDED_SUBSCRIPTION, {
@@ -575,7 +590,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   });
 
   const {
-    data: OnRequestAddedData,
+    data: OnRequestAdded,
     loading: OnRequestAddedLoading,
     error: OnRequestAddedError,
   } = useSubscription(REQUEST_ADDED_SUBSCRIPTION, {
@@ -617,7 +632,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   });
 
   const {
-    data: OnRequestUpdatedData,
+    data: OnRequestUpdated,
     loading: OnRequestUpdatedLoading,
     error: OnRequestUpdatedError,
   } = useSubscription(REQUEST_UPDATED_SUBSCRIPTION, {
@@ -659,73 +674,41 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   });
 
   const {
-    data: OnUserUpdatedData,
-    loading: OnUserUpdatedLoading,
-    error: OnUserUpdatedError,
-  } = useSubscription(USER_UPDATED_SUBSCRIPTION, {
+    data: OnSessionActiveClients,
+    loading: OnSessionActiveClientsLoading,
+    error: OnSessionActiveClientsError,
+  } = useSubscription(SESSION_ACTIVE_CLIENTS_SUBSCRIPTION, {
     variables: {
-      userId: selectedDetails?._id,
+      sessionID,
     },
-    skip: !selectedItem || !selectedDetails,
     onData: (res) => {
-      const OnUserUpdated = res?.data?.data?.OnUserUpdated;
-      const OnUserUpdatedUser = OnUserUpdated?.user;
-      const OnUserUpdatedUserId = OnUserUpdatedUser?._id;
-      if (OnUserUpdatedUserId === selectedDetails?._id) {
-        const OnUserUpdatedUserOnlineStatus = OnUserUpdatedUser?.onlineStatus;
-        const isFriend = selectedItem?.type === 'friend';
-        if (isFriend) {
-          otherFriends.cache.modify({
-            fields: {
-              [`otherFriends({"input":{"userId":"${_id}"}})`](
-                existingData: any,
-              ) {
-                const updatedData = updateMemberOnlineStatus(
-                  existingData,
-                  OnUserUpdatedUserId,
-                  OnUserUpdatedUserOnlineStatus,
-                );
-                return updatedData;
-              },
-            },
-          });
-        } else {
-          chatsClient.cache.modify({
-            fields: {
-              [`chats({"input":{"userId":"${_id}"}})`](existingData: any) {
-                const updatedData = updateMemberOnlineStatus(
-                  existingData,
-                  OnUserUpdatedUserId,
-                  OnUserUpdatedUserOnlineStatus,
-                );
-                return updatedData;
-              },
-            },
-          });
-        }
-        setSelectedItem((prev: any) => {
-          const { isFoundAndUpdated, data } = findAndUpdate(
-            OnUserUpdatedUserId,
-            '_id',
-            prev?.members,
-            OnUserUpdatedUserOnlineStatus,
-            'onlineStatus',
-          );
-          if (isFoundAndUpdated && data?.length) {
-            return {
-              ...prev,
-              members: data,
-            };
-          }
-        });
-        setSelectedDetails((prev: any) => {
-          if (prev?._id === OnUserUpdatedUserId) {
-            return {
-              ...prev,
-              onlineStatus: OnUserUpdatedUserOnlineStatus,
-            };
-          }
-          return prev;
+      const OnSessionActiveClients = res?.data?.data?.OnSessionActiveClients;
+      const OnSessionActiveClientsSessionID = OnSessionActiveClients?.sessionID;
+      const OnSessionActiveClientsAllClients = OnSessionActiveClients?.clients;
+      if (OnSessionActiveClientsSessionID === sessionID) {
+        setAuth((prev: any) => ({
+          ...prev,
+          clients: OnSessionActiveClientsAllClients,
+        }));
+      }
+    },
+  });
+
+  const {
+    data: OnUserActiveClients,
+    loading: OnUserActiveClientsLoading,
+    error: OnUserActiveClientsError,
+  } = useSubscription(USER_ACTIVE_CLIENTS_SUBSCRIPTION, {
+    onData: (res) => {
+      const OnUserActiveClients = res?.data?.data?.OnUserActiveClients;
+      const OnUserActiveClientsUserId = OnUserActiveClients?.userId;
+      if (OnUserActiveClientsUserId !== _id) {
+        userActiveClientsClient.writeQuery({
+          query: USER_ACTIVE_CLIENTS_QUERY,
+          data: {
+            userActiveClients: OnUserActiveClients,
+          },
+          variables: { userId: OnUserActiveClientsUserId },
         });
       }
     },
@@ -1052,6 +1035,12 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         messageGroupsClient,
         messageGroupsCalled,
         subscribeMessageGroupsToMore,
+        // userActiveClients
+        userActiveClients,
+        userActiveClientsLoading,
+        userActiveClientsError,
+        userActiveClientsClient,
+        userActiveClientsCalled,
         // chats
         chats,
         chatsLoading,
@@ -1087,37 +1076,41 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
 
         // subscription
         // OnMessageAdded
-        OnMessageAddedData,
+        OnMessageAdded,
         OnMessageAddedLoading,
         OnMessageAddedError,
         // OnMessageUpdated
-        OnMessageUpdatedData,
+        OnMessageUpdated,
         OnMessageUpdatedLoading,
         OnMessageUpdatedError,
         // OnChatAdded
-        OnChatAddedData,
+        OnChatAdded,
         OnChatAddedLoading,
         OnChatAddedError,
         // OnChatUpdated
-        OnChatUpdatedData,
+        OnChatUpdated,
         OnChatUpdatedLoading,
         OnChatUpdatedError,
         // OnFriendAdded
-        OnFriendAddedData,
+        OnFriendAdded,
         OnFriendAddedLoading,
         OnFriendAddedError,
         // OnRequestAdded
-        OnRequestAddedData,
+        OnRequestAdded,
         OnRequestAddedLoading,
         OnRequestAddedError,
         // OnRequestUpdated
-        OnRequestUpdatedData,
+        OnRequestUpdated,
         OnRequestUpdatedLoading,
         OnRequestUpdatedError,
-        // OnUserUpdated
-        OnUserUpdatedData,
-        OnUserUpdatedLoading,
-        OnUserUpdatedError,
+        // OnSessionActiveClients
+        OnSessionActiveClients,
+        OnSessionActiveClientsLoading,
+        OnSessionActiveClientsError,
+        // OnUserActiveClients
+        OnUserActiveClients,
+        OnUserActiveClientsLoading,
+        OnUserActiveClientsError,
 
         // mutation
         // createMessage

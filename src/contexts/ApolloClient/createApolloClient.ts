@@ -25,6 +25,8 @@ export const createApolloClient = (
       connectionParams: {
         withCredentials: true,
       },
+      retryAttempts: 5,
+      lazy: true,
       shouldRetry: () => true,
     }),
   );
@@ -34,10 +36,13 @@ export const createApolloClient = (
     credentials: 'include',
   });
 
+  let hasLoggedOut = false;
+
   const errorLink: ApolloLink = onError(({ graphQLErrors }: ErrorResponse) => {
     if (graphQLErrors) {
       graphQLErrors.map(async ({ extensions }) => {
-        if (extensions?.code === 'UNAUTHENTICATED') {
+        if (extensions?.code === 'UNAUTHENTICATED' && !hasLoggedOut) {
+          hasLoggedOut = true;
           await callLogout(true);
         }
       });

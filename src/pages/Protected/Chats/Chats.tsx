@@ -24,8 +24,10 @@ import {
   deleteObject,
   findAndMoveToTop,
   findAndUpdate,
+  getDateLabel2,
   getOtherMembers,
   getSender,
+  getTime,
   groupMessage,
   handleKeyPress,
   setFocus,
@@ -61,6 +63,8 @@ const Chats = () => {
     messageGroupsPageInfo,
     messageGroupsQueuedPageInfo,
     messageGroupsClient,
+    userActiveClients,
+    userActiveClientsLoading,
     chatsClient,
     otherFriendsClient,
     createMessage,
@@ -414,7 +418,8 @@ const Chats = () => {
   const loading = chatLoading || chatCalled || friendLoading || friendCalled;
 
   const renderSecondary = () => {
-    const onlineStatus = selectedDetails?.onlineStatus;
+    if (userActiveClientsLoading) return '';
+    const onlineStatus = userActiveClients?.userActiveClients?.onlineStatus;
     if (onlineStatus) {
       const isOnline = onlineStatus?.isOnline;
       const lastSeen = onlineStatus?.lastSeen;
@@ -422,10 +427,9 @@ const Chats = () => {
         return 'online';
       }
       if (!isOnline && lastSeen) {
-        // to do: show time label
-        return lastSeen;
+        const lastSeenStr = `last seen ${getDateLabel2(lastSeen)} at ${getTime(lastSeen)}`;
+        return lastSeenStr;
       }
-      return selectedDetails?.email;
     }
     return selectedDetails?.email;
   };

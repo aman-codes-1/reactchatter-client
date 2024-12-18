@@ -2,57 +2,80 @@ import moment from 'moment';
 import { jwtDecode } from 'jwt-decode';
 import { MessageData, OtherMember } from '../contexts';
 
-export const formatDate = (dateValue: string | number | Date) => {
-  const date = new Date(dateValue);
-  return date
-    .toLocaleString([], {
-      dateStyle: 'short',
-      timeStyle: 'short',
-      hour12: true,
-    })
-    .replace(/,/g, '')
-    .trim();
-};
+moment.locale(navigator.language);
 
-export const getCurrentYear = () => new Date().getFullYear();
-
-export const getTime = (timestamp: number) => {
-  const date = new Date(timestamp);
-  const time = date.toLocaleString('en-US', {
-    hour: 'numeric',
-    minute: 'numeric',
-    hour12: true,
-  });
-  return time;
-};
-
-export const checkIfImageExists = (
-  url: string,
-  callback: (exists: boolean) => void,
-) => {
-  const img = new Image();
-  img.src = url || 'undefined';
-
-  if (img.complete) {
-    callback(true);
-  } else {
-    img.onload = () => {
-      callback(true);
-    };
-    img.onerror = () => {
-      callback(false);
-    };
+export const login = async (token: string, setAuth: any) => {
+  const decoded = jwtDecode(token);
+  if (Object.keys(decoded || {})?.length) {
+    setAuth({
+      isLoggedIn: true,
+      ...decoded,
+    });
   }
 };
 
-export const chatHrefConstructor = (id1: string, id2: string) => {
-  const sortedIds = [id1, id2].sort();
-  return `${sortedIds[0]}--${sortedIds[1]}`;
+export const renderMember = (members: any[], _id: string) => {
+  let currentMember;
+  let otherMember;
+
+  for (const member of members) {
+    if (member?._id === _id) {
+      currentMember = member;
+    } else if (member?._id !== _id) {
+      otherMember = member;
+    }
+  }
+
+  return { currentMember, otherMember };
 };
 
-export const handleKeyPress = (event: KeyboardEvent, handler: any) => {
-  if (event.key === 'Enter') {
-    handler();
+export const clickChat = async (
+  item: any,
+  details: any,
+  getChatMessagesWithQueue: any,
+  setIsListItemClicked: any,
+  setSelectedItem: any,
+  setSelectedDetails: any,
+  navigate: any,
+  fetchAll: any,
+  toggleDrawer?: any,
+) => {
+  setIsListItemClicked((prev: boolean) => !prev);
+
+  let id;
+  let type;
+  let skipFinally = false;
+
+  try {
+    id = item?._id;
+    type =
+      item?.type === 'private' || item?.type === 'group' ? 'chat' : item?.type;
+    if (id && type) {
+      if (type === 'chat') {
+        await getChatMessagesWithQueue(id, 'chatId');
+      }
+      if (type === 'friend') {
+        if (item?.hasChats) {
+          toggleDrawer?.();
+          navigate('/');
+          await fetchAll();
+          skipFinally = true;
+          return;
+        }
+        await getChatMessagesWithQueue(id, 'friendId');
+      }
+    } else {
+      skipFinally = true;
+    }
+  } catch (error: any) {
+    console.error('Error fetching messages:', error);
+  } finally {
+    if (!skipFinally) {
+      setSelectedItem(item);
+      setSelectedDetails(details);
+      toggleDrawer?.();
+      navigate(`/chat?id=${id}&type=${type}`);
+    }
   }
 };
 
@@ -229,25 +252,6 @@ export const findAndMoveToTop = (
     }
     return data;
   }
-};
-
-export const getDateLabel = (timestamp: number) => {
-  const messageDate = moment(timestamp);
-  let dateLabel: string;
-
-  if (messageDate.isSame(moment(), 'day')) {
-    dateLabel = 'Today';
-  } else if (messageDate.isSame(moment().subtract(1, 'days'), 'day')) {
-    dateLabel = 'Yesterday';
-  } else if (messageDate.isAfter(moment().subtract(1, 'week'))) {
-    dateLabel = messageDate.format('dddd');
-  } else if (messageDate.isAfter(moment().subtract(6, 'months'))) {
-    dateLabel = messageDate.format('ddd, D MMM');
-  } else {
-    dateLabel = messageDate.format('D MMM, YYYY');
-  }
-
-  return dateLabel;
 };
 
 export const groupMessages = (messages: any[] = [], _id: string) => {
@@ -465,21 +469,6 @@ export const getLastMessage = (edges: any[]) => {
   return lastMessage;
 };
 
-export const renderMember = (members: any[], _id: string) => {
-  let currentMember;
-  let otherMember;
-
-  for (const member of members) {
-    if (member?._id === _id) {
-      currentMember = member;
-    } else if (member?._id !== _id) {
-      otherMember = member;
-    }
-  }
-
-  return { currentMember, otherMember };
-};
-
 export const getOtherMembers = (members: any[], _id: string) => {
   if (members?.length) {
     const filteredMembers = filterDataById(members, _id);
@@ -517,65 +506,6 @@ export const getSender = (members: any[], timestamp: number, _id: string) => {
     return {};
   }
   return {};
-};
-
-export const sortByTimestamp = (data: any[]) => {
-  const sortedData = [...data].sort((a, b) => {
-    const timestampA = a?.lastMessage?.timestamp || a?.createdAt || 0;
-    const timestampB = b?.lastMessage?.timestamp || b?.createdAt || 0;
-    return timestampB - timestampA;
-  });
-  return sortedData;
-};
-
-export const clickChat = async (
-  item: any,
-  details: any,
-  getChatMessagesWithQueue: any,
-  setIsListItemClicked: any,
-  setSelectedItem: any,
-  setSelectedDetails: any,
-  navigate: any,
-  fetchAll: any,
-  toggleDrawer?: any,
-) => {
-  setIsListItemClicked((prev: boolean) => !prev);
-
-  let id;
-  let type;
-  let skipFinally = false;
-
-  try {
-    id = item?._id;
-    type =
-      item?.type === 'private' || item?.type === 'group' ? 'chat' : item?.type;
-    if (id && type) {
-      if (type === 'chat') {
-        await getChatMessagesWithQueue(id, 'chatId');
-      }
-      if (type === 'friend') {
-        if (item?.hasChats) {
-          toggleDrawer?.();
-          navigate('/');
-          await fetchAll();
-          skipFinally = true;
-          return;
-        }
-        await getChatMessagesWithQueue(id, 'friendId');
-      }
-    } else {
-      skipFinally = true;
-    }
-  } catch (error: any) {
-    console.error('Error fetching messages:', error);
-  } finally {
-    if (!skipFinally) {
-      setSelectedItem(item);
-      setSelectedDetails(details);
-      toggleDrawer?.();
-      navigate(`/chat?id=${id}&type=${type}`);
-    }
-  }
 };
 
 export const checkIsMemberExists = (
@@ -641,37 +571,6 @@ export const checkMessageStatus = (msg: MessageData, selectedItem: any) => {
   };
 };
 
-export const updateMemberOnlineStatus = (
-  existingData: any[],
-  memberId: string,
-  newOnlineStatus: any,
-) => {
-  return existingData?.map((item) => {
-    let members = item?.members;
-    if (!members?.length) return item;
-    members = members?.map((member: any) => {
-      if (member?._id === memberId) {
-        return {
-          ...member,
-          onlineStatus: newOnlineStatus,
-        };
-      }
-      return member;
-    });
-    return {
-      ...item,
-      members,
-    };
-  });
-};
-
-export const getOnlineStatus = (isOnline: boolean) => {
-  return {
-    isOnline,
-    lastSeen: Date.now(),
-  };
-};
-
 export const uniqueQueuedMessages = (arr: any[], arrayToFilter: any[]) => {
   const uniqueMessages = arrayToFilter?.filter((queuedMessage: any) => {
     const isUnique = !arr?.some((cachedMessageGroup: any) =>
@@ -687,32 +586,6 @@ export const uniqueQueuedMessages = (arr: any[], arrayToFilter: any[]) => {
     return isUnique;
   });
   return uniqueMessages;
-};
-
-export const deleteKeyValuePairs = (obj: any, keysToDelete: any[]) => {
-  const newObj = { ...obj };
-  if (keysToDelete?.length) {
-    keysToDelete?.forEach((key) => {
-      if (key in newObj) {
-        delete newObj[key];
-      }
-    });
-  }
-  return newObj;
-};
-
-export const compareObjects = (first: any, second: any) => {
-  if (first === second) return true;
-  if (first === null || second === null) return false;
-  if (typeof first !== 'object' || typeof second !== 'object') return false;
-  const first_keys = Object.getOwnPropertyNames(first);
-  const second_keys = Object.getOwnPropertyNames(second);
-  if (first_keys.length !== second_keys.length) return false;
-  for (const key of first_keys) {
-    if (!Object.hasOwn(second, key)) return false;
-    if (compareObjects(first[key], second[key]) === false) return false;
-  }
-  return true;
 };
 
 export const validateSearchParams = (search: string) => {
@@ -736,6 +609,111 @@ export const validateSearchParams = (search: string) => {
     return isValid;
   }
   return false;
+};
+
+export const sortByTimestamp = (data: any[]) => {
+  const sortedData = [...data].sort((a, b) => {
+    const timestampA = a?.lastMessage?.timestamp || a?.createdAt || 0;
+    const timestampB = b?.lastMessage?.timestamp || b?.createdAt || 0;
+    return timestampB - timestampA;
+  });
+  return sortedData;
+};
+
+export const getOnlineStatus = (isOnline: boolean) => {
+  return {
+    isOnline,
+    lastSeen: Date.now(),
+  };
+};
+
+export const handleKeyPress = (event: KeyboardEvent, handler: any) => {
+  if (event.key === 'Enter') {
+    handler();
+  }
+};
+
+export const getDateLabel = (timestamp: number) => {
+  const messageDate = moment(timestamp);
+  let dateLabel: string;
+
+  if (messageDate.isSame(moment(), 'day')) {
+    dateLabel = 'Today';
+  } else if (messageDate.isSame(moment().subtract(1, 'days'), 'day')) {
+    dateLabel = 'Yesterday';
+  } else if (messageDate.isAfter(moment().subtract(1, 'week'))) {
+    dateLabel = messageDate.format('dddd');
+  } else if (messageDate.isAfter(moment().subtract(6, 'months'))) {
+    dateLabel = messageDate.format('ddd, D MMM');
+  } else {
+    dateLabel = messageDate.format('D MMM YYYY');
+  }
+
+  return dateLabel;
+};
+
+export const getDateLabel2 = (timestamp: number) => {
+  const messageDate = moment(timestamp);
+  let dateLabel: string;
+
+  if (messageDate.isSame(moment(), 'day')) {
+    dateLabel = 'today';
+  } else if (messageDate.isSame(moment().subtract(1, 'days'), 'day')) {
+    dateLabel = 'yesterday';
+  } else if (messageDate.isAfter(moment().subtract(1, 'week'))) {
+    dateLabel = messageDate.format('ddd');
+  } else {
+    const date = new Date(timestamp);
+    const browserLocale = navigator.language || 'en-US';
+    dateLabel = date.toLocaleString(browserLocale, {
+      day: 'numeric',
+      month: 'numeric',
+      year: '2-digit',
+    });
+  }
+
+  return dateLabel;
+};
+
+export const getCurrentYear = () => new Date().getFullYear();
+
+export const getTime = (timestamp: number) => {
+  const date = new Date(timestamp);
+  const browserLocale = navigator.language || 'en-US';
+  const time = date
+    .toLocaleString(browserLocale, {
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+    })
+    .toUpperCase();
+  return time;
+};
+
+export const compareObjects = (first: any, second: any) => {
+  if (first === second) return true;
+  if (first === null || second === null) return false;
+  if (typeof first !== 'object' || typeof second !== 'object') return false;
+  const first_keys = Object.getOwnPropertyNames(first);
+  const second_keys = Object.getOwnPropertyNames(second);
+  if (first_keys.length !== second_keys.length) return false;
+  for (const key of first_keys) {
+    if (!Object.hasOwn(second, key)) return false;
+    if (compareObjects(first[key], second[key]) === false) return false;
+  }
+  return true;
+};
+
+export const deleteKeyValuePairs = (obj: any, keysToDelete: any[]) => {
+  const newObj = { ...obj };
+  if (keysToDelete?.length) {
+    keysToDelete?.forEach((key) => {
+      if (key in newObj) {
+        delete newObj[key];
+      }
+    });
+  }
+  return newObj;
 };
 
 export const debounce = (func: any, delay: number) => {
@@ -806,16 +784,6 @@ export const decrypt = async (data: string, secretKey: string) => {
   );
   const res = new TextDecoder().decode(decryptedData);
   return res;
-};
-
-export const login = async (token: string, setAuth: any) => {
-  const decoded = jwtDecode(token);
-  if (Object.keys(decoded || {})?.length) {
-    setAuth({
-      isLoggedIn: true,
-      ...decoded,
-    });
-  }
 };
 
 export const regex = {

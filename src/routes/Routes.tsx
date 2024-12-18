@@ -4,7 +4,11 @@ import { useAuth } from '../hooks';
 import { routesConfig } from './config';
 import { IRouteConfig } from './IRoutes';
 import { BaseProtected } from '../pages';
-import { ApolloClientProvider, WebSocketProvider } from '../contexts';
+import {
+  ApolloClientProvider,
+  ChatsAndFriendsProvider,
+  WebSocketProvider,
+} from '../contexts';
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -50,7 +54,9 @@ const AppRoutes = () => {
             <Suspense fallback={null}>
               <ApolloClientProvider>
                 <WebSocketProvider>
-                  <BaseProtected />
+                  <ChatsAndFriendsProvider>
+                    <BaseProtected />
+                  </ChatsAndFriendsProvider>
                 </WebSocketProvider>
               </ApolloClientProvider>
             </Suspense>
