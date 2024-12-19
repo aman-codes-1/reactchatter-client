@@ -47,8 +47,6 @@ import {
   REQUEST_UPDATED_SUBSCRIPTION,
   SENT_REQUESTS_QUERY,
   SESSION_ACTIVE_CLIENTS_SUBSCRIPTION,
-  UPDATE_CHAT_MUTATION,
-  UPDATE_MESSAGE_MUTATION,
   UPDATE_REQUEST_MUTATION,
   USER_ACTIVE_CLIENTS_SUBSCRIPTION,
   USER_ACTIVE_CLIENTS_QUERY,
@@ -724,15 +722,6 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   ] = useMutation(CREATE_MESSAGE_MUTATION);
 
   const [
-    updateMessage,
-    {
-      data: updateMessageData,
-      loading: updateMessageLoading,
-      error: updateMessageError,
-    },
-  ] = useMutation(UPDATE_MESSAGE_MUTATION);
-
-  const [
     createChat,
     {
       data: createChatData,
@@ -740,15 +729,6 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       error: createChatError,
     },
   ] = useMutation(CREATE_CHAT_MUTATION);
-
-  const [
-    updateChat,
-    {
-      data: updateChatData,
-      loading: updateChatLoading,
-      error: updateChatError,
-    },
-  ] = useMutation(UPDATE_CHAT_MUTATION);
 
   const [
     createRequest,
@@ -1118,21 +1098,11 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         createMessageData,
         createMessageLoading,
         createMessageError,
-        // updateMessage
-        updateMessage,
-        updateMessageData,
-        updateMessageLoading,
-        updateMessageError,
         // createChat
         createChat,
         createChatData,
         createChatLoading,
         createChatError,
-        // updateChat
-        updateChat,
-        updateChatData,
-        updateChatLoading,
-        updateChatError,
         // createRequest
         createRequest,
         createRequestData,

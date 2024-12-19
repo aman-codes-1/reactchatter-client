@@ -162,35 +162,6 @@ const CREATE_MESSAGE_MUTATION = gql(/* GraphQL */ `
   }
 `) as DocumentNode;
 
-const UPDATE_MESSAGE_MUTATION = gql(/* GraphQL */ `
-  mutation updateMessage(
-    $userId: String!
-    $chatId: String!
-    $queueId: String!
-    $isQueued: Boolean!
-    $queuedTimestamp: Float!
-    $isSent: Boolean!
-    $sentTimestamp: Float!
-    $message: String!
-  ) {
-    updateMessage(
-      input: {
-        userId: $userId
-        chatId: $chatId
-        queueId: $queueId
-        isQueued: $isQueued
-        queuedTimestamp: $queuedTimestamp
-        isSent: $isSent
-        sentTimestamp: $sentTimestamp
-        message: $message
-      }
-    ) {
-      _id
-      queueId
-    }
-  }
-`) as DocumentNode;
-
 const MESSAGE_ADDED_SUBSCRIPTION = gql(/* GraphQL */ `
   subscription OnMessageAdded {
     OnMessageAdded {
@@ -406,29 +377,6 @@ const CREATE_CHAT_MUTATION = gql(/* GraphQL */ `
     $friendUserIds: [String!]!
   ) {
     createChat(
-      input: {
-        userId: $userId
-        queueId: $queueId
-        type: $type
-        friendIds: $friendIds
-        friendUserIds: $friendUserIds
-      }
-    ) {
-      _id
-      queueId
-    }
-  }
-`) as DocumentNode;
-
-const UPDATE_CHAT_MUTATION = gql(/* GraphQL */ `
-  mutation updateChat(
-    $userId: String!
-    $queueId: String!
-    $type: String!
-    $friendIds: [String!]!
-    $friendUserIds: [String!]!
-  ) {
-    updateChat(
       input: {
         userId: $userId
         queueId: $queueId
@@ -918,8 +866,6 @@ export {
   PENDING_REQUESTS_QUERY,
   REQUEST_ADDED_SUBSCRIPTION,
   REQUEST_UPDATED_SUBSCRIPTION,
-  UPDATE_CHAT_MUTATION,
-  UPDATE_MESSAGE_MUTATION,
   SENT_REQUESTS_QUERY,
   UPDATE_REQUEST_MUTATION,
   SESSION_ACTIVE_CLIENTS_SUBSCRIPTION,
