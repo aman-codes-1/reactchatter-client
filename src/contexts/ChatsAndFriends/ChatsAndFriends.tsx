@@ -48,8 +48,8 @@ import {
   SENT_REQUESTS_QUERY,
   SESSION_ACTIVE_CLIENTS_SUBSCRIPTION,
   UPDATE_REQUEST_MUTATION,
-  USER_ACTIVE_CLIENTS_SUBSCRIPTION,
-  USER_ACTIVE_CLIENTS_QUERY,
+  ACTIVE_CLIENTS_SUBSCRIPTION,
+  ACTIVE_CLIENTS_QUERY,
 } from '.';
 
 export const ChatsAndFriendsContext = createContext<any>({});
@@ -214,12 +214,12 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   });
 
   const {
-    data: userActiveClients,
-    loading: userActiveClientsLoading,
-    error: userActiveClientsError,
-    client: userActiveClientsClient,
-    called: userActiveClientsCalled,
-  } = useQuery(USER_ACTIVE_CLIENTS_QUERY, {
+    data: activeClients,
+    loading: activeClientsLoading,
+    error: activeClientsError,
+    client: activeClientsClient,
+    called: activeClientsCalled,
+  } = useQuery(ACTIVE_CLIENTS_QUERY, {
     variables: {
       userId: selectedDetails?._id,
     },
@@ -693,20 +693,20 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   });
 
   const {
-    data: OnUserActiveClients,
-    loading: OnUserActiveClientsLoading,
-    error: OnUserActiveClientsError,
-  } = useSubscription(USER_ACTIVE_CLIENTS_SUBSCRIPTION, {
+    data: OnActiveClients,
+    loading: OnActiveClientsLoading,
+    error: OnActiveClientsError,
+  } = useSubscription(ACTIVE_CLIENTS_SUBSCRIPTION, {
     onData: (res) => {
-      const OnUserActiveClients = res?.data?.data?.OnUserActiveClients;
-      const OnUserActiveClientsUserId = OnUserActiveClients?.userId;
-      if (OnUserActiveClientsUserId !== _id) {
-        userActiveClientsClient.writeQuery({
-          query: USER_ACTIVE_CLIENTS_QUERY,
+      const OnActiveClients = res?.data?.data?.OnActiveClients;
+      const OnActiveClientsUserId = OnActiveClients?.userId;
+      if (OnActiveClientsUserId !== _id) {
+        activeClientsClient.writeQuery({
+          query: ACTIVE_CLIENTS_QUERY,
           data: {
-            userActiveClients: OnUserActiveClients,
+            activeClients: OnActiveClients,
           },
-          variables: { userId: OnUserActiveClientsUserId },
+          variables: { userId: OnActiveClientsUserId },
         });
       }
     },
@@ -1015,12 +1015,12 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         messageGroupsClient,
         messageGroupsCalled,
         subscribeMessageGroupsToMore,
-        // userActiveClients
-        userActiveClients,
-        userActiveClientsLoading,
-        userActiveClientsError,
-        userActiveClientsClient,
-        userActiveClientsCalled,
+        // activeClients
+        activeClients,
+        activeClientsLoading,
+        activeClientsError,
+        activeClientsClient,
+        activeClientsCalled,
         // chats
         chats,
         chatsLoading,
@@ -1087,10 +1087,10 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         OnSessionActiveClients,
         OnSessionActiveClientsLoading,
         OnSessionActiveClientsError,
-        // OnUserActiveClients
-        OnUserActiveClients,
-        OnUserActiveClientsLoading,
-        OnUserActiveClientsError,
+        // OnActiveClients
+        OnActiveClients,
+        OnActiveClientsLoading,
+        OnActiveClientsError,
 
         // mutation
         // createMessage

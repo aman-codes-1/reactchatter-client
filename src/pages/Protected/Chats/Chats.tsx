@@ -63,8 +63,8 @@ const Chats = () => {
     messageGroupsPageInfo,
     messageGroupsQueuedPageInfo,
     messageGroupsClient,
-    userActiveClients,
-    userActiveClientsLoading,
+    activeClients,
+    activeClientsLoading,
     chatsClient,
     otherFriendsClient,
     createMessage,
@@ -418,8 +418,8 @@ const Chats = () => {
   const loading = chatLoading || chatCalled || friendLoading || friendCalled;
 
   const renderSecondary = () => {
-    if (userActiveClientsLoading) return '';
-    const onlineStatus = userActiveClients?.userActiveClients?.onlineStatus;
+    if (activeClientsLoading) return '';
+    const onlineStatus = activeClients?.activeClients?.onlineStatus;
     if (onlineStatus) {
       const isOnline = onlineStatus?.isOnline;
       const lastSeen = onlineStatus?.lastSeen;

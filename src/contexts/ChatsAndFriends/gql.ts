@@ -823,9 +823,9 @@ const SESSION_ACTIVE_CLIENTS_SUBSCRIPTION = gql(/* GraphQL */ `
   }
 `) as DocumentNode;
 
-const USER_ACTIVE_CLIENTS_QUERY = gql(/* GraphQL */ `
-  query userActiveClients($userId: String!) {
-    userActiveClients(input: { userId: $userId }) {
+const ACTIVE_CLIENTS_QUERY = gql(/* GraphQL */ `
+  query activeClients($userId: String!) {
+    activeClients(input: { userId: $userId }) {
       userId
       onlineStatus {
         isOnline
@@ -835,9 +835,9 @@ const USER_ACTIVE_CLIENTS_QUERY = gql(/* GraphQL */ `
   }
 `) as DocumentNode;
 
-const USER_ACTIVE_CLIENTS_SUBSCRIPTION = gql(/* GraphQL */ `
-  subscription OnUserActiveClients {
-    OnUserActiveClients {
+const ACTIVE_CLIENTS_SUBSCRIPTION = gql(/* GraphQL */ `
+  subscription OnActiveClients {
+    OnActiveClients {
       userId
       onlineStatus {
         isOnline
@@ -869,6 +869,6 @@ export {
   SENT_REQUESTS_QUERY,
   UPDATE_REQUEST_MUTATION,
   SESSION_ACTIVE_CLIENTS_SUBSCRIPTION,
-  USER_ACTIVE_CLIENTS_QUERY,
-  USER_ACTIVE_CLIENTS_SUBSCRIPTION,
+  ACTIVE_CLIENTS_QUERY,
+  ACTIVE_CLIENTS_SUBSCRIPTION,
 };
