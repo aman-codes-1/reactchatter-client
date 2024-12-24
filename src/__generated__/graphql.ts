@@ -20,6 +20,18 @@ export type Scalars = {
   Date: { input: any; output: any; }
 };
 
+/** AuthTokensObject */
+export type AuthTokens = {
+  __typename?: 'AuthTokens';
+  access_token: Scalars['String']['output'];
+  expires_in: Scalars['Int']['output'];
+  expiry_date: Scalars['Float']['output'];
+  id_token: Scalars['String']['output'];
+  refresh_token: Scalars['String']['output'];
+  scope: Scalars['String']['output'];
+  token_type: Scalars['String']['output'];
+};
+
 /** ChatObject */
 export type Chat = {
   __typename?: 'Chat';
@@ -68,14 +80,15 @@ export type ChatsInput = {
 /** ClientObject */
 export type Client = {
   __typename?: 'Client';
-  clientId: Scalars['String']['output'];
-  isClientActive: Scalars['Boolean']['output'];
-  lastActive: Scalars['Date']['output'];
+  _id: Scalars['String']['output'];
+  isClientActive?: Maybe<Scalars['Boolean']['output']>;
+  lastActive?: Maybe<Scalars['Date']['output']>;
+  sessionID: Scalars['String']['output'];
 };
 
-/** UserClientsDataObject */
-export type ClientsData = {
-  __typename?: 'ClientsData';
+/** ClientsDataObject */
+export type ClientData = {
+  __typename?: 'ClientData';
   clients?: Maybe<Array<Client>>;
   onlineStatus: OnlineStatus;
   userId: Scalars['String']['output'];
@@ -208,6 +221,13 @@ export type MessageInput = {
   messageId: Scalars['String']['input'];
 };
 
+/** MessageUpdatedDataObject */
+export type MessageUpdatedData = {
+  __typename?: 'MessageUpdatedData';
+  clients: Array<Client>;
+  message: Message;
+};
+
 /** MessagesDataObject */
 export type MessagesData = {
   __typename?: 'MessagesData';
@@ -279,7 +299,7 @@ export type PageInfo = {
 
 export type Query = {
   __typename?: 'Query';
-  activeClients: ClientsData;
+  activeClients: ClientData;
   chat: Chat;
   chats: Array<Chat>;
   friend: Friend;
@@ -291,6 +311,8 @@ export type Query = {
   pendingRequests: RequestsData;
   sentRequests: RequestsData;
   user: User;
+  userSession: UserSession;
+  userSessions: Array<UserSession>;
 };
 
 
@@ -363,6 +385,16 @@ export type QuerySentRequestsArgs = {
 
 export type QueryUserArgs = {
   input: UserInput;
+};
+
+
+export type QueryUserSessionArgs = {
+  input: UserSessionInput;
+};
+
+
+export type QueryUserSessionsArgs = {
+  input: UserSessionsInput;
 };
 
 /** QueuedStatusObject */
@@ -449,29 +481,21 @@ export type SentStatus = {
   timestamp: Scalars['Float']['output'];
 };
 
-/** SessionClientsDataObject */
-export type SessionClientsData = {
-  __typename?: 'SessionClientsData';
-  clients?: Maybe<Array<Client>>;
-  sessionID: Scalars['String']['output'];
-  userId: Scalars['String']['output'];
-};
-
 export type Subscription = {
   __typename?: 'Subscription';
-  OnActiveClients: ClientsData;
   OnChatAdded: ChatData;
   OnChatUpdated: ChatData;
+  OnClientsUpdated: ClientData;
   OnFriendAdded: FriendData;
   OnMessageAdded: MessageData;
-  OnMessageUpdated: MessageData;
+  OnMessageUpdated: MessageUpdatedData;
   OnRequestAdded: RequestData;
   OnRequestUpdated: RequestData;
-  OnSessionActiveClients: SessionClientsData;
+  OnSessionUpdated: UserSessionData;
 };
 
 
-export type SubscriptionOnSessionActiveClientsArgs = {
+export type SubscriptionOnSessionUpdatedArgs = {
   input: UserSessionInput;
 };
 
@@ -500,9 +524,34 @@ export type UserInput = {
   userId: Scalars['String']['input'];
 };
 
+/** UserSessionObject */
+export type UserSession = {
+  __typename?: 'UserSession';
+  _id: Scalars['String']['output'];
+  authTokens?: Maybe<AuthTokens>;
+  clients?: Maybe<Array<Client>>;
+  deviceDetails?: Maybe<Scalars['Any']['output']>;
+  expires?: Maybe<Scalars['Date']['output']>;
+  lastActive?: Maybe<Scalars['Date']['output']>;
+  lastModified?: Maybe<Scalars['Date']['output']>;
+  provider?: Maybe<Scalars['String']['output']>;
+  userId: Scalars['String']['output'];
+};
+
+/** UserSessionDataObject */
+export type UserSessionData = {
+  __typename?: 'UserSessionData';
+  session: UserSession;
+};
+
 /** UserSessionInput */
 export type UserSessionInput = {
   sessionID: Scalars['String']['input'];
+};
+
+/** UserSessionsInput */
+export type UserSessionsInput = {
+  userId: Scalars['String']['input'];
 };
 
 export type MessagesQueryVariables = Exact<{
@@ -543,7 +592,7 @@ export type OnMessageAddedSubscription = { __typename?: 'Subscription', OnMessag
 export type OnMessageUpdatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type OnMessageUpdatedSubscription = { __typename?: 'Subscription', OnMessageUpdated: { __typename?: 'MessageData', message: { __typename?: 'Message', _id: string, chatId: string, queueId: string, message: string, timestamp: number, sender: { __typename?: 'Sender', _id: string, name?: string | null, picture?: string | null, email?: string | null, email_verified?: string | null, given_name?: string | null, family_name?: string | null, retryStatus?: { __typename?: 'RetryStatus', isRetry: boolean, timestamp: number } | null, queuedStatus: { __typename?: 'QueuedStatus', isQueued: boolean, timestamp: number }, sentStatus: { __typename?: 'SentStatus', isSent: boolean, timestamp: number } }, otherMembers: Array<{ __typename?: 'OtherMember', _id: string, name?: string | null, picture?: string | null, email?: string | null, email_verified?: string | null, given_name?: string | null, family_name?: string | null, deliveredStatus?: { __typename?: 'DeliveredStatus', isDelivered: boolean, timestamp: number } | null, readStatus?: { __typename?: 'ReadStatus', isRead: boolean, timestamp: number } | null }> } } };
+export type OnMessageUpdatedSubscription = { __typename?: 'Subscription', OnMessageUpdated: { __typename?: 'MessageUpdatedData', message: { __typename?: 'Message', _id: string, chatId: string, queueId: string, message: string, timestamp: number, sender: { __typename?: 'Sender', _id: string, name?: string | null, picture?: string | null, email?: string | null, email_verified?: string | null, given_name?: string | null, family_name?: string | null, retryStatus?: { __typename?: 'RetryStatus', isRetry: boolean, timestamp: number } | null, queuedStatus: { __typename?: 'QueuedStatus', isQueued: boolean, timestamp: number }, sentStatus: { __typename?: 'SentStatus', isSent: boolean, timestamp: number } }, otherMembers: Array<{ __typename?: 'OtherMember', _id: string, name?: string | null, picture?: string | null, email?: string | null, email_verified?: string | null, given_name?: string | null, family_name?: string | null, deliveredStatus?: { __typename?: 'DeliveredStatus', isDelivered: boolean, timestamp: number } | null, readStatus?: { __typename?: 'ReadStatus', isRead: boolean, timestamp: number } | null }> } } };
 
 export type ChatQueryVariables = Exact<{
   chatId: Scalars['String']['input'];
@@ -658,24 +707,24 @@ export type OnRequestUpdatedSubscriptionVariables = Exact<{ [key: string]: never
 
 export type OnRequestUpdatedSubscription = { __typename?: 'Subscription', OnRequestUpdated: { __typename?: 'RequestData', request: { __typename?: 'Request', _id: string, members: Array<{ __typename?: 'RequestMember', _id: string, hasSent: boolean, name?: string | null, picture?: string | null, email?: string | null, email_verified?: string | null, given_name?: string | null, family_name?: string | null }> } } };
 
-export type OnSessionActiveClientsSubscriptionVariables = Exact<{
+export type OnSessionUpdatedSubscriptionVariables = Exact<{
   sessionID: Scalars['String']['input'];
 }>;
 
 
-export type OnSessionActiveClientsSubscription = { __typename?: 'Subscription', OnSessionActiveClients: { __typename?: 'SessionClientsData', sessionID: string, clients?: Array<{ __typename?: 'Client', clientId: string }> | null } };
+export type OnSessionUpdatedSubscription = { __typename?: 'Subscription', OnSessionUpdated: { __typename?: 'UserSessionData', session: { __typename?: 'UserSession', _id: string, clients?: Array<{ __typename?: 'Client', _id: string }> | null } } };
 
 export type ActiveClientsQueryVariables = Exact<{
   userId: Scalars['String']['input'];
 }>;
 
 
-export type ActiveClientsQuery = { __typename?: 'Query', activeClients: { __typename?: 'ClientsData', userId: string, onlineStatus: { __typename?: 'OnlineStatus', isOnline: boolean, lastSeen: any } } };
+export type ActiveClientsQuery = { __typename?: 'Query', activeClients: { __typename?: 'ClientData', userId: string, onlineStatus: { __typename?: 'OnlineStatus', isOnline: boolean, lastSeen: any } } };
 
-export type OnActiveClientsSubscriptionVariables = Exact<{ [key: string]: never; }>;
+export type OnClientsUpdatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type OnActiveClientsSubscription = { __typename?: 'Subscription', OnActiveClients: { __typename?: 'ClientsData', userId: string, onlineStatus: { __typename?: 'OnlineStatus', isOnline: boolean, lastSeen: any } } };
+export type OnClientsUpdatedSubscription = { __typename?: 'Subscription', OnClientsUpdated: { __typename?: 'ClientData', userId: string, onlineStatus: { __typename?: 'OnlineStatus', isOnline: boolean, lastSeen: any } } };
 
 
 export const MessagesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"messages"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"chatId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"after"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"messages"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"chatId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"chatId"}}}]}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"after"},"value":{"kind":"Variable","name":{"kind":"Name","value":"after"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"edges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"chatId"}},{"kind":"Field","name":{"kind":"Name","value":"queueId"}},{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"sender"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"picture"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"email_verified"}},{"kind":"Field","name":{"kind":"Name","value":"given_name"}},{"kind":"Field","name":{"kind":"Name","value":"family_name"}},{"kind":"Field","name":{"kind":"Name","value":"retryStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isRetry"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}}]}},{"kind":"Field","name":{"kind":"Name","value":"queuedStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isQueued"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}}]}},{"kind":"Field","name":{"kind":"Name","value":"sentStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isSent"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"otherMembers"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"picture"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"email_verified"}},{"kind":"Field","name":{"kind":"Name","value":"given_name"}},{"kind":"Field","name":{"kind":"Name","value":"family_name"}},{"kind":"Field","name":{"kind":"Name","value":"deliveredStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isDelivered"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}}]}},{"kind":"Field","name":{"kind":"Name","value":"readStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isRead"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"endCursor"}},{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}}]}}]}}]}}]} as unknown as DocumentNode<MessagesQuery, MessagesQueryVariables>;
@@ -698,6 +747,6 @@ export const CreateRequestDocument = {"kind":"Document","definitions":[{"kind":"
 export const UpdateRequestDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"updateRequest"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"requestId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"status"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateRequest"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"userId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"requestId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"requestId"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"status"},"value":{"kind":"Variable","name":{"kind":"Name","value":"status"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}}]}}]}}]} as unknown as DocumentNode<UpdateRequestMutation, UpdateRequestMutationVariables>;
 export const OnRequestAddedDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"OnRequestAdded"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"OnRequestAdded"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"request"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"members"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"hasSent"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"picture"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"email_verified"}},{"kind":"Field","name":{"kind":"Name","value":"given_name"}},{"kind":"Field","name":{"kind":"Name","value":"family_name"}}]}}]}}]}}]}}]} as unknown as DocumentNode<OnRequestAddedSubscription, OnRequestAddedSubscriptionVariables>;
 export const OnRequestUpdatedDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"OnRequestUpdated"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"OnRequestUpdated"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"request"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"members"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"hasSent"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"picture"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"email_verified"}},{"kind":"Field","name":{"kind":"Name","value":"given_name"}},{"kind":"Field","name":{"kind":"Name","value":"family_name"}}]}}]}}]}}]}}]} as unknown as DocumentNode<OnRequestUpdatedSubscription, OnRequestUpdatedSubscriptionVariables>;
-export const OnSessionActiveClientsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"OnSessionActiveClients"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"sessionID"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"OnSessionActiveClients"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"sessionID"},"value":{"kind":"Variable","name":{"kind":"Name","value":"sessionID"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sessionID"}},{"kind":"Field","name":{"kind":"Name","value":"clients"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"clientId"}}]}}]}}]}}]} as unknown as DocumentNode<OnSessionActiveClientsSubscription, OnSessionActiveClientsSubscriptionVariables>;
+export const OnSessionUpdatedDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"OnSessionUpdated"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"sessionID"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"OnSessionUpdated"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"sessionID"},"value":{"kind":"Variable","name":{"kind":"Name","value":"sessionID"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"session"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"clients"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}}]}}]}}]}}]}}]} as unknown as DocumentNode<OnSessionUpdatedSubscription, OnSessionUpdatedSubscriptionVariables>;
 export const ActiveClientsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"activeClients"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"activeClients"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"userId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"onlineStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isOnline"}},{"kind":"Field","name":{"kind":"Name","value":"lastSeen"}}]}}]}}]}}]} as unknown as DocumentNode<ActiveClientsQuery, ActiveClientsQueryVariables>;
-export const OnActiveClientsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"OnActiveClients"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"OnActiveClients"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"onlineStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isOnline"}},{"kind":"Field","name":{"kind":"Name","value":"lastSeen"}}]}}]}}]}}]} as unknown as DocumentNode<OnActiveClientsSubscription, OnActiveClientsSubscriptionVariables>;
+export const OnClientsUpdatedDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"OnClientsUpdated"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"OnClientsUpdated"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"onlineStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isOnline"}},{"kind":"Field","name":{"kind":"Name","value":"lastSeen"}}]}}]}}]}}]} as unknown as DocumentNode<OnClientsUpdatedSubscription, OnClientsUpdatedSubscriptionVariables>;

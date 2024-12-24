@@ -34,9 +34,9 @@ const documents = {
     "\n  mutation updateRequest(\n    $userId: String!\n    $requestId: String!\n    $status: String!\n  ) {\n    updateRequest(\n      input: { userId: $userId, requestId: $requestId, status: $status }\n    ) {\n      _id\n    }\n  }\n": types.UpdateRequestDocument,
     "\n  subscription OnRequestAdded {\n    OnRequestAdded {\n      request {\n        _id\n        members {\n          _id\n          hasSent\n          name\n          picture\n          email\n          email_verified\n          given_name\n          family_name\n        }\n      }\n    }\n  }\n": types.OnRequestAddedDocument,
     "\n  subscription OnRequestUpdated {\n    OnRequestUpdated {\n      request {\n        _id\n        members {\n          _id\n          hasSent\n          name\n          picture\n          email\n          email_verified\n          given_name\n          family_name\n        }\n      }\n    }\n  }\n": types.OnRequestUpdatedDocument,
-    "\n  subscription OnSessionActiveClients($sessionID: String!) {\n    OnSessionActiveClients(input: { sessionID: $sessionID }) {\n      sessionID\n      clients {\n        clientId\n      }\n    }\n  }\n": types.OnSessionActiveClientsDocument,
+    "\n  subscription OnSessionUpdated($sessionID: String!) {\n    OnSessionUpdated(input: { sessionID: $sessionID }) {\n      session {\n        _id\n        clients {\n          _id\n        }\n      }\n    }\n  }\n": types.OnSessionUpdatedDocument,
     "\n  query activeClients($userId: String!) {\n    activeClients(input: { userId: $userId }) {\n      userId\n      onlineStatus {\n        isOnline\n        lastSeen\n      }\n    }\n  }\n": types.ActiveClientsDocument,
-    "\n  subscription OnActiveClients {\n    OnActiveClients {\n      userId\n      onlineStatus {\n        isOnline\n        lastSeen\n      }\n    }\n  }\n": types.OnActiveClientsDocument,
+    "\n  subscription OnClientsUpdated {\n    OnClientsUpdated {\n      userId\n      onlineStatus {\n        isOnline\n        lastSeen\n      }\n    }\n  }\n": types.OnClientsUpdatedDocument,
 };
 
 /**
@@ -136,7 +136,7 @@ export function gql(source: "\n  subscription OnRequestUpdated {\n    OnRequestU
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  subscription OnSessionActiveClients($sessionID: String!) {\n    OnSessionActiveClients(input: { sessionID: $sessionID }) {\n      sessionID\n      clients {\n        clientId\n      }\n    }\n  }\n"): (typeof documents)["\n  subscription OnSessionActiveClients($sessionID: String!) {\n    OnSessionActiveClients(input: { sessionID: $sessionID }) {\n      sessionID\n      clients {\n        clientId\n      }\n    }\n  }\n"];
+export function gql(source: "\n  subscription OnSessionUpdated($sessionID: String!) {\n    OnSessionUpdated(input: { sessionID: $sessionID }) {\n      session {\n        _id\n        clients {\n          _id\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  subscription OnSessionUpdated($sessionID: String!) {\n    OnSessionUpdated(input: { sessionID: $sessionID }) {\n      session {\n        _id\n        clients {\n          _id\n        }\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -144,7 +144,7 @@ export function gql(source: "\n  query activeClients($userId: String!) {\n    ac
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  subscription OnActiveClients {\n    OnActiveClients {\n      userId\n      onlineStatus {\n        isOnline\n        lastSeen\n      }\n    }\n  }\n"): (typeof documents)["\n  subscription OnActiveClients {\n    OnActiveClients {\n      userId\n      onlineStatus {\n        isOnline\n        lastSeen\n      }\n    }\n  }\n"];
+export function gql(source: "\n  subscription OnClientsUpdated {\n    OnClientsUpdated {\n      userId\n      onlineStatus {\n        isOnline\n        lastSeen\n      }\n    }\n  }\n"): (typeof documents)["\n  subscription OnClientsUpdated {\n    OnClientsUpdated {\n      userId\n      onlineStatus {\n        isOnline\n        lastSeen\n      }\n    }\n  }\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};
