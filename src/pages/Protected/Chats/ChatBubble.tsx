@@ -72,7 +72,6 @@ const ChatBubble = ({
   return (
     <ChatBubbleStyled side={side}>
       <div
-        // key={key}
         ref={containerRef}
         className={`msg msg-${side} ${attachClass()} ${isQueued ? 'msg-animation' : ''} ${isOverflow ? 'msg-overflow' : ''}`}
       >

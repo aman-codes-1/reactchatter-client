@@ -1,7 +1,7 @@
 import { List } from '@mui/material';
 import { Button, ListItem } from '../../../../components';
 import { useAuth } from '../../../../hooks';
-import { renderMember } from '../../../../helpers';
+import { getMember } from '../../../../helpers';
 import { MainLayout } from '..';
 import { FriendRequestStyled } from './FriendRequest.styled';
 
@@ -20,7 +20,7 @@ const FriendRequest = ({
 
   const renderItem = (item: any, key: string) => {
     if (item && key) {
-      const { otherMember } = renderMember(item?.members, _id);
+      const { otherMember } = getMember(item?.members, _id);
       return otherMember?.[key];
     }
     return null;
@@ -43,7 +43,7 @@ const FriendRequest = ({
           <List disablePadding className="friend-request-list">
             {data?.map((item: any, idx: number) => (
               <ListItem
-                key={`${item?._id}-${idx}`}
+                key={item?._id}
                 disableGutters
                 disableHover
                 btnProps={{

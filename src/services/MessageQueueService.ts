@@ -1,5 +1,5 @@
 import { MessageData } from '../contexts';
-import { deleteKeyValuePairs } from '../helpers';
+import { deleteKeyValuePairs, getMember } from '../helpers';
 
 export class MessageQueueService {
   private createChat: any;
@@ -253,7 +253,7 @@ export class MessageQueueService {
     }
   }
 
-  async getLastQueuedMessagesByIds(data: any[]) {
+  async getLastQueuedMessageByData(data: any[], key?: string, _id?: string) {
     const db: any = await this.openDatabase();
 
     if (db) {
@@ -270,11 +270,15 @@ export class MessageQueueService {
 
             if (index) {
               const promises = data?.map((item) => {
-                const _id = item?._id;
+                let id = item?._id;
+                if (key === 'friend') {
+                  const { otherMember } = getMember(item?.members, _id || '');
+                  id = `${id}-${otherMember?._id}`;
+                }
                 const startTimestamp = item?.lastMessage?.timestamp;
                 return new Promise<void>((resolveItem, rejectItem) => {
-                  const lowerBound = [_id, startTimestamp ?? -Infinity];
-                  const upperBound = [_id, Infinity];
+                  const lowerBound = [id, startTimestamp ?? -Infinity];
+                  const upperBound = [id, Infinity];
                   const range = IDBKeyRange.bound(lowerBound, upperBound);
 
                   const request = index?.openCursor?.(range, 'prev');

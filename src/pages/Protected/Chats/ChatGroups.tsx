@@ -140,7 +140,7 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
 
               return (
                 <ChatMessage
-                  key={`${item?._id || item?.queueId}-${i}`}
+                  key={item?._id || item?.queueId}
                   index={i}
                   item={item}
                   lastItemIndex={lastItemIndex}

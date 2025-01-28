@@ -18,7 +18,7 @@ const MainLayoutLoader = ({
   listClassName,
   listItemTextClassName,
 }: any) => {
-  const data = Array(dataCount || 1).fill(0);
+  const data = Array.from({ length: dataCount || 1 }, (_, idx) => idx + 1);
 
   return (
     <MainLayoutLoaderStyled>
@@ -30,7 +30,7 @@ const MainLayoutLoader = ({
       >
         {data?.map((item: number, idx: number) => (
           <ListItem
-            key={`${item}-${idx}`}
+            key={item}
             disableHover
             disablePadding={disablePadding}
             disableGutters

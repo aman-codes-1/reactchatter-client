@@ -17,7 +17,7 @@ import {
   findAndUpdate,
   getFriendId,
   getLastMessage,
-  renderMember,
+  getMember,
   sortByLastMessageTimestamp,
   sortByTimestamp,
   uniqueQueuedMessages,
@@ -94,7 +94,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       const isPrivateChat = item?.type === 'private';
       const isGroupChat = item?.type === 'group';
       if (isPrivateChat) {
-        const { otherMember } = renderMember(item?.members, _id);
+        const { otherMember } = getMember(item?.members, _id);
         setSelectedItem(item);
         setSelectedDetails(otherMember);
       }
@@ -128,7 +128,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       if (itemHasChats) {
         navigate('/');
       } else {
-        const { otherMember } = renderMember(item?.members, _id);
+        const { otherMember } = getMember(item?.members, _id);
         setSelectedItem(item);
         setSelectedDetails(otherMember);
       }
@@ -228,7 +228,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     onCompleted: async (data) => {
       const chatsData = data?.chats;
       if (chatsData?.length) {
-        const res = await MessageQueue.getLastQueuedMessagesByIds(chatsData);
+        const res = await MessageQueue.getLastQueuedMessageByData(chatsData);
         if (res?.isUpdated) {
           const updatedChats = res?.data;
           if (updatedChats?.length) {
@@ -268,8 +268,11 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     onCompleted: async (data) => {
       const otherFriendsData = data?.otherFriends;
       if (otherFriendsData?.length) {
-        const res =
-          await MessageQueue.getLastQueuedMessagesByIds(otherFriendsData);
+        const res = await MessageQueue.getLastQueuedMessageByData(
+          otherFriendsData,
+          'friend',
+          _id,
+        );
         if (res?.isUpdated) {
           const updatedOtherFriends = res?.data;
           if (updatedOtherFriends?.length) {
@@ -523,7 +526,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
               }
 
               if (OnChatAddedFriendId === friendId) {
-                const { otherMember } = renderMember(OnChatAddedMembers, _id);
+                const { otherMember } = getMember(OnChatAddedMembers, _id);
                 if (isOtherMember) {
                   setSearchParams((params) => {
                     params.set('id', OnChatAddedChat?._id);

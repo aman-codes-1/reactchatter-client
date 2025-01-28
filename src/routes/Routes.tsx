@@ -20,9 +20,8 @@ const AppRoutes = () => {
   useLayoutEffect(() => {
     routesConfig(location).forEach((route: IRouteConfig, index: number) => {
       const { Element, path, type } = route;
-      const key = `${index + 1}`;
       const routeElement = (
-        <Route key={key} path={path} element={<Element />} />
+        <Route key={path} path={path} element={<Element />} />
       );
       if (type === 'private') {
         setPrivateRoutes((prev: ReactNode[]) => [...prev, routeElement]);

@@ -16,7 +16,7 @@ export const login = async (token: string, setAuth: any) => {
   }
 };
 
-export const renderMember = (members: any[], _id: string) => {
+export const getMember = (members: any[], _id: string) => {
   let currentMember;
   let otherMember;
 

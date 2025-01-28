@@ -3,7 +3,7 @@ import { Divider, List, useTheme } from '@mui/material';
 import { ListItem } from '../../../../components';
 import { useAuth } from '../../../../hooks';
 import { ChatsAndFriendsContext } from '../../../../contexts';
-import { renderMember, scrollToSelected } from '../../../../helpers';
+import { getMember, scrollToSelected } from '../../../../helpers';
 import { MessageStatus } from '..';
 
 const DataList = ({
@@ -103,7 +103,7 @@ const DataList = ({
     const isFriend = item?.type === 'friend';
 
     if (isPrivateChat || isFriend) {
-      const { otherMember } = renderMember(item?.members, _id);
+      const { otherMember } = getMember(item?.members, _id);
       details = otherMember;
     }
 
@@ -115,7 +115,7 @@ const DataList = ({
 
     if (details) {
       return (
-        <div key={`${item?._id}-${idx}`}>
+        <div key={item?._id}>
           <ListItem
             disableGutters={disableGutters}
             ref={(el) => {

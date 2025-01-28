@@ -298,8 +298,8 @@ const Chats = ({ loadingChats }: any) => {
             userId: _id,
             queueId,
             type: 'private',
-            friendIds: [queuedMessage?.friendId],
-            friendUserIds: [queuedMessage?.friendUserId],
+            friendIds: [friendId],
+            friendUserIds: [friendUserId],
           },
         });
 

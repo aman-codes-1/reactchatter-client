@@ -46,7 +46,7 @@ const InfiniteScroll = ({
   return (
     <div
       ref={containerRef}
-      onScroll={(e) => onScroll(e, containerRef)}
+      onScroll={(e) => onScroll?.(e, containerRef)}
       className={className}
       style={
         inverse
