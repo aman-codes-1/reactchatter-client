@@ -5,13 +5,13 @@ export const MainLayoutStyled = styled('div')<{ navbarHeight: number }>(
     display: 'flex',
     flexDirection: 'column',
     padding: '3.8rem 4.5rem',
-    height: '100svh',
+    height: '100dvh',
     overflow: 'auto',
     [theme.breakpoints.down('md')]: {
       padding: '2.5rem 3rem',
     },
     [theme.breakpoints.down('sm')]: {
-      height: `calc(100svh - ${navbarHeight || 0}px)`,
+      height: `calc(100dvh - ${navbarHeight || 0}px)`,
     },
     [theme.breakpoints.down('xs')]: {
       padding: '2.5rem 2rem',

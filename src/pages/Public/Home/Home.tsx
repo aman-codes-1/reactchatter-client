@@ -1,8 +1,8 @@
-import { useLayoutEffect, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { Link as MuiLink, Typography } from '@mui/material';
-import { decrypt, getCurrentYear, login } from '../../../helpers';
+import { decrypt, getCurrentYear, login, updateHeight } from '../../../helpers';
 import { HomeStyled } from './Home.styled';
 import { useAuth, useSnackbar } from '../../../hooks';
 
@@ -16,8 +16,23 @@ const Home = ({ loadingHome }: any) => {
   const code = searchParams.get('code');
   const from = searchParams.get('from');
   const [loading, setLoading] = useState(false);
+  const [footerHeight, setFooterHeight] = useState(0);
   const { setAuth } = useAuth();
   const { openSnackbar } = useSnackbar();
+  const footerRef = useRef<HTMLDivElement | null>(null);
+
+  useLayoutEffect(() => {
+    updateHeight(footerRef, setFooterHeight);
+    window.addEventListener('resize', () =>
+      updateHeight(footerRef, setFooterHeight),
+    );
+
+    return () => {
+      window.removeEventListener('resize', () =>
+        updateHeight(footerRef, setFooterHeight),
+      );
+    };
+  }, []);
 
   useLayoutEffect(() => {
     const googleLogin = async (Code: string) => {
@@ -61,7 +76,7 @@ const Home = ({ loadingHome }: any) => {
   if (loading) return null;
 
   return (
-    <HomeStyled>
+    <HomeStyled footerHeight={footerHeight}>
       <div className="home-header">
         <Typography className="home-heading" fontWeight={700}>
           ReactChatter
@@ -72,15 +87,6 @@ const Home = ({ loadingHome }: any) => {
           React.js v18, Material UI, Typescript, Nest.js, and GraphQL
           Subscriptions.
         </Typography>
-        {/* <Button
-          component={Link}
-          to="/"
-          size="large"
-          variant="contained"
-          className="home-login-btn"
-        >
-          Login
-        </Button> */}
         <div className="home-login-btn-wrapper">
           <GoogleLogin
             ux_mode="redirect"
@@ -88,11 +94,10 @@ const Home = ({ loadingHome }: any) => {
             // useOneTap
             click_listener={handleLogin}
             onSuccess={handleLogin}
-            // onSuccess={handleLoginOneTap}
           />
         </div>
       </div>
-      <div className="home-footer">
+      <div className="home-footer" ref={footerRef}>
         <Typography className="home-footer-sub-heading" fontWeight={400}>
           Made with ❤️ by{' '}
           <MuiLink

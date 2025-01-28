@@ -9,8 +9,8 @@ const BaseProtected = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [navbarHeight, setNavbarHeight] = useState(0);
   const [sideBarWidth, setSideBarWidth] = useState(0);
-  const navbarRef = useRef<any>(null);
-  const sideBarRef = useRef<any>(null);
+  const navbarRef = useRef<HTMLElement | null>(null);
+  const sideBarRef = useRef<HTMLDivElement | null>(null);
 
   const toggleDrawer = (newOpen: boolean, isSwitch?: boolean) => () => {
     if (isSwitch) {

@@ -44,16 +44,20 @@ const MainLayoutLoader = ({
                   ? {}
                   : {
                       primary: <Skeleton className="primary-skeleton" />,
-                      primaryTypographyProps: {
-                        fontSize: primaryFontSize || '1rem',
+                      slotProps: {
+                        primary: {
+                          fontSize: primaryFontSize || '1rem',
+                        },
                       },
                     }),
                 ...(disableSecondary
                   ? {}
                   : {
                       secondary: <Skeleton className="secondary-skeleton" />,
-                      secondaryTypographyProps: {
-                        fontSize: secondaryFontSize || '0.875rem',
+                      slotProps: {
+                        secondary: {
+                          fontSize: secondaryFontSize || '0.875rem',
+                        },
                       },
                     }),
                 className: listItemTextClassName,

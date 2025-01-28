@@ -1,3 +1,4 @@
+import { RefObject } from 'react';
 import moment from 'moment';
 import 'moment/min/locales';
 import { jwtDecode } from 'jwt-decode';
@@ -43,17 +44,18 @@ export const clickChat = async (
 ) => {
   setIsListItemClicked((prev: boolean) => !prev);
 
-  let id;
-  let type;
+  const id = item?._id;
+  const type =
+    item?.type === 'private' || item?.type === 'group' ? 'chat' : item?.type;
+  const userId = details?._id;
   let skipFinally = false;
+  let route = '';
 
   try {
-    id = item?._id;
-    type =
-      item?.type === 'private' || item?.type === 'group' ? 'chat' : item?.type;
     if (id && type) {
       if (type === 'chat') {
-        await getChatMessagesWithQueue(id, 'chatId');
+        await getChatMessagesWithQueue(id, 'chat');
+        route = `/chat?id=${id}&type=${type}`;
       }
       if (type === 'friend') {
         if (item?.hasChats) {
@@ -63,7 +65,9 @@ export const clickChat = async (
           skipFinally = true;
           return;
         }
-        await getChatMessagesWithQueue(id, 'friendId');
+        const fullFriendId = `${id}-${userId}`;
+        await getChatMessagesWithQueue(fullFriendId, 'friend');
+        route = `/chat?id=${fullFriendId}&type=${type}`;
       }
     } else {
       skipFinally = true;
@@ -75,27 +79,28 @@ export const clickChat = async (
       setSelectedItem(item);
       setSelectedDetails(details);
       toggleDrawer?.();
-      navigate(`/chat?id=${id}&type=${type}`);
+      navigate(route);
     }
   }
 };
 
-export const checkScrollbar = (ref: any, setHasScrollbar: any) => {
-  const listElement = ref?.current;
-  if (listElement) {
-    const { scrollHeight, clientHeight } = listElement;
-    setHasScrollbar(scrollHeight > clientHeight);
+export const getFriendId = (str: string | null) => {
+  const ids = str?.split?.('-');
+  const friendId = ids?.[0] || '';
+  const friendUserId = ids?.[1] || '';
+  return { friendId, friendUserId };
+};
+
+export const setFocus = (ref: RefObject<HTMLInputElement>) => {
+  const inputElement = ref?.current;
+  if (inputElement) {
+    setTimeout(() => {
+      inputElement?.focus();
+    }, 0);
   }
 };
 
-export const setFocus = (ref: any) => {
-  const listElement = ref?.current;
-  if (listElement) {
-    listElement?.focus();
-  }
-};
-
-export const updateHeight = (ref: any, setHeight: any) => {
+export const updateHeight = (ref: RefObject<HTMLElement>, setHeight: any) => {
   const listElement = ref?.current;
   if (listElement) {
     setHeight(listElement?.clientHeight);
@@ -106,13 +111,6 @@ export const updateWidth = (ref: any, setHeight: any) => {
   const listElement = ref?.current;
   if (listElement) {
     setHeight(listElement?.clientWidth);
-  }
-};
-
-export const scrollIntoView = (ref: any) => {
-  const listElement = ref?.current;
-  if (listElement) {
-    listElement?.scrollIntoView?.({ block: 'end', inline: 'nearest' });
   }
 };
 
@@ -255,218 +253,9 @@ export const findAndMoveToTop = (
   }
 };
 
-export const groupMessages = (messages: any[] = [], _id: string) => {
-  if (!messages?.length) return messages;
-
-  const groupedByDay = messages.reduce((acc: any, message: any) => {
-    const timestamp = message?.timestamp;
-
-    if (timestamp) {
-      const dateLabel = getDateLabel(timestamp);
-
-      if (!acc[dateLabel]) {
-        acc[dateLabel] = [];
-      }
-
-      acc[dateLabel].push(message);
-    }
-
-    return acc;
-  }, {});
-
-  const flattenedMessages = Object.entries(groupedByDay).map(
-    ([dateLabel, messages]: any) => ({
-      dateLabel,
-      groups: messages
-        ?.reduce((acc: any, message: any) => {
-          const lastGroup = acc && acc?.length ? acc?.[acc?.length - 1] : null;
-          const isSameSender = lastGroup
-            ? lastGroup?.[0]?.sender?._id === message?.sender?._id
-            : false;
-          if (isSameSender) {
-            lastGroup.push(message);
-          } else {
-            acc.push([message]);
-          }
-          return acc;
-        }, [])
-        .map((msgGroups: any) => ({
-          side: msgGroups?.[0]?.sender?._id === _id ? 'right' : 'left',
-          data: msgGroups,
-          groupDetails: msgGroups?.[0]?.sender,
-        })),
-    }),
-  );
-
-  return flattenedMessages;
-};
-
-export const unGroupMessages = (messageGroups: any[]) => {
-  const unGroupedMessages = messageGroups.flatMap((day) =>
-    day?.groups?.flatMap((group: any) => group?.data),
-  );
-
-  return unGroupedMessages;
-};
-
-export const groupMessage = (
-  messageGroups: any[] = [],
-  message: any,
-  _id: string,
-) => {
-  const timestamp = message?.timestamp;
-  const dateLabel = getDateLabel(timestamp);
-  const side = message.sender?._id === _id ? 'right' : 'left';
-  const newGroup = {
-    side,
-    data: [message],
-    groupDetails: message?.sender,
-  };
-
-  const messageGroupsCopy = [...messageGroups];
-  const messageGroupIndex = messageGroupsCopy?.findIndex(
-    (messageGroup) => messageGroup?.dateLabel === dateLabel,
-  );
-
-  if (messageGroupIndex < 0) {
-    const newGroupData = {
-      dateLabel,
-      groups: [newGroup],
-    };
-
-    messageGroupsCopy?.push(newGroupData);
-  } else {
-    const messageGroup = messageGroupsCopy[messageGroupIndex];
-    const groupsCopy = [...messageGroup.groups];
-
-    const lastGroupIndex = groupsCopy.length - 1;
-    const lastGroup = groupsCopy[lastGroupIndex];
-
-    if (lastGroup && lastGroup?.side === side) {
-      groupsCopy[lastGroupIndex] = {
-        ...lastGroup,
-        data: [...lastGroup.data, message],
-      };
-    } else {
-      groupsCopy.push(newGroup);
-    }
-
-    const updatedGroup = { ...messageGroup, groups: groupsCopy };
-    messageGroupsCopy[messageGroupIndex] = updatedGroup;
-  }
-
-  return messageGroupsCopy;
-};
-
-export const updateGroupedQueuedMessage = (
-  messageGroups: any[] = [],
-  queueId: string,
-  newMessage: any,
-  _id: string,
-) => {
-  let messageFound = false;
-  let updatedMessageGroups = [];
-
-  updatedMessageGroups = messageGroups?.map((messageGroup) => ({
-    ...messageGroup,
-    groups: messageGroup?.groups?.map((group: any) => ({
-      ...group,
-      data: group?.data?.map((message: any) => {
-        if (message?.queueId === queueId) {
-          messageFound = true;
-          return newMessage;
-        }
-        return message;
-      }),
-    })),
-  }));
-
-  if (!messageFound) {
-    updatedMessageGroups = groupMessage(updatedMessageGroups, newMessage, _id);
-  }
-
-  return updatedMessageGroups;
-};
-
-export const mergeAllByDateLabel = (prevArray: any[], newArray: any[]) => {
-  const map = new Map();
-
-  newArray?.forEach((item) => {
-    map.set(item?.dateLabel, structuredClone(item));
-  });
-
-  prevArray?.forEach((item) => {
-    if (map.has(item?.dateLabel)) {
-      const existingItem = map.get(item?.dateLabel);
-      existingItem.groups = [...item.groups, ...existingItem.groups];
-    } else {
-      map.set(item?.dateLabel, structuredClone(item));
-    }
-  });
-
-  const mergedArray = Array.from(map.values()).map((item) => {
-    const mergedGroups: any[] = [];
-    item?.groups?.forEach((group: any) => {
-      const lastGroupIndex = mergedGroups?.length - 1;
-      const lastGroup = mergedGroups[lastGroupIndex];
-      if (lastGroup && lastGroup?.side === group?.side) {
-        lastGroup.data = [...lastGroup.data, ...group.data];
-      } else {
-        mergedGroups?.push(structuredClone(group));
-      }
-    });
-
-    return {
-      ...item,
-      groups: mergedGroups,
-    };
-  });
-
-  return mergedArray;
-};
-
-export const mergeLastByDateLabel = (prevArray: any[], newArray: any[]) => {
-  const prevArrayFirstGroup = prevArray[0];
-  const newArrayLastIndex = newArray?.length - 1;
-  const newArrayLastGroup = newArray[newArrayLastIndex];
-
-  if (prevArrayFirstGroup?.dateLabel === newArrayLastGroup?.dateLabel) {
-    const combinedGroups = [
-      ...newArrayLastGroup.groups,
-      ...prevArrayFirstGroup.groups,
-    ];
-    const mergedGroups: any[] = [];
-
-    combinedGroups?.forEach((group) => {
-      const lastGroupIndex = mergedGroups?.length - 1;
-      const lastGroup = mergedGroups[lastGroupIndex];
-      if (lastGroup && lastGroup?.side === group?.side) {
-        lastGroup.data = [...lastGroup.data, ...group.data];
-      } else {
-        mergedGroups?.push(structuredClone(group));
-      }
-    });
-
-    const mergedFirstGroup = {
-      ...prevArrayFirstGroup,
-      groups: mergedGroups,
-    };
-
-    return [
-      ...newArray.slice(0, newArrayLastIndex),
-      mergedFirstGroup,
-      ...prevArray.slice(1),
-    ];
-  }
-
-  return [...newArray, ...prevArray];
-};
-
 export const getLastMessage = (edges: any[]) => {
   const lastEdgeIndex = edges?.length - 1;
-  const lastEdge = edges[lastEdgeIndex];
-  const lastGroup = lastEdge?.groups?.[lastEdge?.groups?.length - 1];
-  const lastMessage = lastGroup?.data?.[lastGroup?.data?.length - 1] || null;
+  const lastMessage = edges?.[lastEdgeIndex] || null;
   return lastMessage;
 };
 
@@ -496,12 +285,12 @@ export const getSender = (members: any[], timestamp: number, _id: string) => {
       const { hasAdded, ...rest } = sender || {};
       return {
         ...rest,
-        retryStatus: null,
         queuedStatus: {
           isQueued: true,
           timestamp,
         },
         sentStatus: null,
+        retryStatus: null,
       };
     }
     return {};
@@ -572,21 +361,14 @@ export const checkMessageStatus = (msg: MessageData, selectedItem: any) => {
   };
 };
 
-export const uniqueQueuedMessages = (arr: any[], arrayToFilter: any[]) => {
-  const uniqueMessages = arrayToFilter?.filter((queuedMessage: any) => {
-    const isUnique = !arr?.some((cachedMessageGroup: any) =>
-      cachedMessageGroup?.groups?.some((group: any) =>
-        group?.data?.some(
-          (msg: any) =>
-            msg?.queueId === queuedMessage?.queueId &&
-            msg?.sender?.queuedStatus?.isQueued &&
-            !msg?.sender?.sentStatus,
-        ),
-      ),
-    );
-    return isUnique;
+export const uniqueQueuedMessages = (edges: any[], queuedMessages: any[]) => {
+  return queuedMessages?.filter((queuedMessage: any) => {
+    return !edges?.some((msg: any) => msg?.queueId === queuedMessage?.queueId);
   });
-  return uniqueMessages;
+  // const res = Array.from(
+  //   new Map([...arr1, ...arr2].map((item) => [item?.[key], item])).values(),
+  // );
+  // return res;
 };
 
 export const validateSearchParams = (search: string) => {
@@ -612,7 +394,7 @@ export const validateSearchParams = (search: string) => {
   return false;
 };
 
-export const sortByTimestamp = (data: any[]) => {
+export const sortByLastMessageTimestamp = (data: any[]) => {
   const sortedData = [...data].sort((a, b) => {
     const timestampA = a?.lastMessage?.timestamp || a?.createdAt || 0;
     const timestampB = b?.lastMessage?.timestamp || b?.createdAt || 0;
@@ -621,17 +403,23 @@ export const sortByTimestamp = (data: any[]) => {
   return sortedData;
 };
 
+export const sortByTimestamp = (data: any[]) => {
+  const sortedData = [...data].sort((a, b) => {
+    const timestampA = a?.timestamp || 0;
+    const timestampB = b?.timestamp || 0;
+    return timestampA - timestampB;
+  });
+  return sortedData;
+};
+
+export const calculateSide = (message: any, _id: string) =>
+  message?.sender?._id === _id ? 'right' : 'left';
+
 export const getOnlineStatus = (isOnline: boolean) => {
   return {
     isOnline,
     lastSeen: Date.now(),
   };
-};
-
-export const handleKeyPress = (event: KeyboardEvent, handler: any) => {
-  if (event.key === 'Enter') {
-    handler();
-  }
 };
 
 export const getDateLabel = (timestamp: number) => {
@@ -717,12 +505,31 @@ export const deleteKeyValuePairs = (obj: any, keysToDelete: any[]) => {
   return newObj;
 };
 
+export const checkKeys = (uniqueKeys: any[], item: any) => {
+  let value = '';
+  if (uniqueKeys?.length) {
+    for (const key of uniqueKeys) {
+      if (item?.[key]) {
+        value = item[key];
+        break;
+      }
+    }
+  }
+  return value;
+};
+
 export const debounce = (func: any, delay: number) => {
   let timeoutId: any;
   return (...args: any) => {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => func(...args), delay);
   };
+};
+
+export const handleKeyPress = (event: KeyboardEvent, handler: any) => {
+  if (event.key === 'Enter') {
+    handler();
+  }
 };
 
 const getTextEncoding = (text: string) => {

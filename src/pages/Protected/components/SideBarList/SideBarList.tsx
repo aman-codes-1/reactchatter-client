@@ -98,6 +98,7 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
     _: React.MouseEvent<HTMLDivElement, MouseEvent>,
     link: string,
   ) => {
+    _?.preventDefault();
     setIsListItemClicked((prev: boolean) => !prev);
     toggleDrawer?.();
     navigate(link);
@@ -118,10 +119,12 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
             btnProps={{
               textProps: {
                 primary: 'Chats',
-                primaryTypographyProps: {
-                  className: 'default-heading heading',
-                  style: {
-                    WebkitLineClamp: 1,
+                slotProps: {
+                  primary: {
+                    className: 'default-heading heading',
+                    style: {
+                      WebkitLineClamp: 1,
+                    },
                   },
                 },
               },
@@ -153,10 +156,12 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
             btnProps={{
               textProps: {
                 primary: currentChats?.length ? 'New Chat' : 'Your Friends',
-                primaryTypographyProps: {
-                  className: 'default-heading',
-                  style: {
-                    WebkitLineClamp: 1,
+                slotProps: {
+                  primary: {
+                    className: 'default-heading',
+                    style: {
+                      WebkitLineClamp: 1,
+                    },
                   },
                 },
               },
@@ -191,10 +196,12 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
             btnProps={{
               textProps: {
                 primary: 'Overview',
-                primaryTypographyProps: {
-                  className: 'default-heading',
-                  style: {
-                    WebkitLineClamp: 1,
+                slotProps: {
+                  primary: {
+                    className: 'default-heading',
+                    style: {
+                      WebkitLineClamp: 1,
+                    },
                   },
                 },
               },
@@ -207,10 +214,12 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
                 btnProps={{
                   textProps: {
                     primary: navLink?.title || '',
-                    primaryTypographyProps: {
-                      fontSize: '0.875rem',
-                      style: {
-                        WebkitLineClamp: 1,
+                    slotProps: {
+                      primary: {
+                        fontSize: '0.875rem',
+                        style: {
+                          WebkitLineClamp: 1,
+                        },
                       },
                     },
                   },

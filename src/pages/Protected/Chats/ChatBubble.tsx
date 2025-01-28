@@ -5,16 +5,37 @@ import { checkMessageStatus, getTime } from '../../../helpers';
 import { MessageStatus } from '../components';
 import { ChatBubbleStyled } from './Chats.styled';
 
-const ChatBubble = ({ msg, index, data, side, isResize }: any) => {
+const ChatBubble = ({
+  msg,
+  side,
+  isFirstOfGroup,
+  isLastOfGroup,
+  isFirstOfDateGroup,
+  isLastOfDateGroup,
+}: any) => {
   const theme = useTheme();
+  const [isResize, setIsResize] = useState(false);
   const [isOverflow, setIsOverflow] = useState(false);
   const { selectedItem } = useContext(ChatsAndFriendsContext);
-  const containerRef = useRef<any>(null);
-  const messageRef = useRef<any>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const messageRef = useRef<HTMLSpanElement | null>(null);
 
   const timestamp = msg?.timestamp;
   const messageStatus = checkMessageStatus(msg, selectedItem);
   const { isQueued } = messageStatus || {};
+
+  useLayoutEffect(() => {
+    const handleResize = () => {
+      setIsResize((prev) => !prev);
+      setIsOverflow(false);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   useLayoutEffect(() => {
     const checkOverflow = () => {
@@ -24,10 +45,10 @@ const ChatBubble = ({ msg, index, data, side, isResize }: any) => {
         const containerHeight = containerElement?.offsetHeight;
         const messageHeight = messageElement?.offsetHeight;
         const height = containerHeight - messageHeight;
-        if (!isNaN(height) && height > 24) {
-          setIsOverflow(true);
-        } else {
+        if (!isNaN(height) && height < 40) {
           setIsOverflow(false);
+        } else {
+          setIsOverflow(true);
         }
       }
     };
@@ -36,21 +57,24 @@ const ChatBubble = ({ msg, index, data, side, isResize }: any) => {
   }, [msg?._id, msg?.queueId, isResize]);
 
   const attachClass = () => {
-    if (index === 0) {
-      return `msg-${side}-first`;
+    const classes = [];
+
+    if (isFirstOfGroup || isFirstOfDateGroup) {
+      classes.push(`msg-first msg-${side}-first`);
     }
-    if (data && Array.isArray(data) && index === data?.length - 1) {
-      return `msg-${side}-last`;
+    if (isLastOfGroup || isLastOfDateGroup) {
+      classes.push(`msg-last msg-${side}-last`);
     }
-    return '';
+
+    return classes?.length ? classes.join(' ') : '';
   };
 
   return (
-    <ChatBubbleStyled>
+    <ChatBubbleStyled side={side}>
       <div
-        className={`msg msg-${side} ${attachClass()} ${isQueued ? 'msg-animation' : ''} ${isOverflow ? 'msg-overflow' : ''}`}
+        // key={key}
         ref={containerRef}
-        key={`${msg?._id || msg?.queueId}-${index}`}
+        className={`msg msg-${side} ${attachClass()} ${isQueued ? 'msg-animation' : ''} ${isOverflow ? 'msg-overflow' : ''}`}
       >
         {msg?.message ? (
           <Typography

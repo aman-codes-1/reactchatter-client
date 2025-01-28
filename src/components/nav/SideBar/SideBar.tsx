@@ -2,7 +2,7 @@ import { forwardRef } from 'react';
 import { NavBar, SideBarFooter } from '..';
 import { SideBarStyled } from './SideBar.styled';
 
-const SideBar = forwardRef((props: any, ref: any) => {
+const SideBar = forwardRef<HTMLDivElement, any>((props, ref) => {
   const { className, children } = props;
 
   return (

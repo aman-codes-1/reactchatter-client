@@ -8,7 +8,7 @@ export const WebSocketContext = createContext<any>({});
 export const WebSocketProvider = ({ children }: any) => {
   const { auth, setAuth } = useAuth();
   const socket = useRef<Socket | null>(null);
-  const isHiddenOrBlurredRef = useRef(false);
+  const isHiddenOrBlurredRef = useRef<boolean | null>(false);
   const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const updateOnlineStatus = (isOnline: boolean) => {
@@ -31,7 +31,7 @@ export const WebSocketProvider = ({ children }: any) => {
   const startInactivityTimer = () => {
     clearInactivityTimer();
     inactivityTimerRef.current = setTimeout(() => {
-      if (isHiddenOrBlurredRef.current) {
+      if (isHiddenOrBlurredRef?.current) {
         updateOnlineStatus(false);
       }
     }, 10000);

@@ -31,18 +31,12 @@ export class MessageQueueService {
               keyPath: 'queueId',
             });
             objectStore.createIndex('chatId', 'chatId', { unique: false });
-            objectStore.createIndex('friendId', 'friendId', { unique: false });
             objectStore.createIndex('timestamp', 'timestamp', {
               unique: false,
             });
             objectStore.createIndex(
               'chatId_timestamp',
               ['chatId', 'timestamp'],
-              { unique: false },
-            );
-            objectStore.createIndex(
-              'friendId_timestamp',
-              ['friendId', 'timestamp'],
               { unique: false },
             );
           }
@@ -176,7 +170,6 @@ export class MessageQueueService {
   }
 
   async getQueuedMessageById(queueId: number | null) {
-    // to do: implement cursor pagination
     const db: any = await this.openDatabase();
 
     if (db) {
@@ -201,7 +194,7 @@ export class MessageQueueService {
               };
 
               request.onerror = () => {
-                reject('Error fetching message by ID');
+                reject('Error fetching queued message');
               };
             }
           }
@@ -212,9 +205,8 @@ export class MessageQueueService {
 
   async getQueuedMessagesById(
     id: string,
-    key: string,
-    limit: number,
-    offset: number,
+    startTimestamp?: number,
+    endTimestamp?: number,
   ) {
     const db: any = await this.openDatabase();
 
@@ -226,18 +218,17 @@ export class MessageQueueService {
           const objectStore = transaction?.objectStore?.('messageQueueStore');
 
           if (objectStore) {
-            const index = objectStore?.index?.(`${key}_timestamp`);
+            const index = objectStore?.index?.('chatId_timestamp');
 
             if (index) {
-              const lowerBound = [id, -Infinity];
-              const upperBound = [id, Infinity];
+              const lowerBound = [id, startTimestamp ?? -Infinity];
+              const upperBound = [id, endTimestamp ?? Infinity];
               const range = IDBKeyRange.bound(lowerBound, upperBound);
 
               const request = index?.openCursor?.(range, 'next');
 
               if (request) {
                 const messages: any[] = [];
-                let count = 0;
 
                 request.onsuccess = (event: any) => {
                   const cursor = event?.target?.result;
@@ -247,21 +238,12 @@ export class MessageQueueService {
                     return;
                   }
 
-                  if (count >= offset && messages?.length < limit) {
-                    messages?.push?.(cursor?.value);
-                  }
-
-                  count++;
-
-                  if (messages?.length < limit) {
-                    cursor?.continue?.();
-                  } else {
-                    resolve(messages);
-                  }
+                  messages?.push?.(cursor?.value);
+                  cursor?.continue?.();
                 };
 
                 request.onerror = () => {
-                  reject('Error fetching paginated messages');
+                  reject('Error fetching queued messages');
                 };
               }
             }
@@ -271,7 +253,7 @@ export class MessageQueueService {
     }
   }
 
-  async getLastQueuedMessagesByIds(data: any[], key: string) {
+  async getLastQueuedMessagesByIds(data: any[]) {
     const db: any = await this.openDatabase();
 
     if (db) {
@@ -282,15 +264,17 @@ export class MessageQueueService {
           const objectStore = transaction?.objectStore?.('messageQueueStore');
 
           if (objectStore) {
-            const index = objectStore?.index?.(`${key}_timestamp`);
+            const index = objectStore?.index?.('chatId_timestamp');
             const resultMap = new Map();
             let isUpdated = false;
 
             if (index) {
               const promises = data?.map((item) => {
+                const _id = item?._id;
+                const startTimestamp = item?.lastMessage?.timestamp;
                 return new Promise<void>((resolveItem, rejectItem) => {
-                  const lowerBound = [item?._id, -Infinity];
-                  const upperBound = [item?._id, Infinity];
+                  const lowerBound = [_id, startTimestamp ?? -Infinity];
+                  const upperBound = [_id, Infinity];
                   const range = IDBKeyRange.bound(lowerBound, upperBound);
 
                   const request = index?.openCursor?.(range, 'prev');

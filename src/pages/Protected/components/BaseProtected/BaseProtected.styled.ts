@@ -3,7 +3,7 @@ import { styled } from '@mui/system';
 export const BaseProtectedStyled = styled('div')(({ theme }: any) => ({
   display: 'flex',
   width: '100%',
-  height: '100svh',
+  height: '100dvh',
   [theme.breakpoints.up('sm')]: {
     '.hidden-from-web': {
       display: 'none',

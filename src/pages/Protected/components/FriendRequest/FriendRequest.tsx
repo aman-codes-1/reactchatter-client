@@ -54,17 +54,16 @@ const FriendRequest = ({
                   textProps: {
                     primary: renderItem(item, nameKey),
                     secondary: renderItem(item, emailKey),
-                    primaryTypographyProps: {
-                      fontSize: '1.125rem',
-                      style: {
-                        WebkitLineClamp: 1,
+                    slotProps: {
+                      primary: {
+                        fontSize: '1.125rem',
+                      },
+                      secondary: {
+                        fontSize: '1rem',
                       },
                     },
-                    secondaryTypographyProps: {
-                      fontSize: '1rem',
-                      style: {
-                        WebkitLineClamp: 1,
-                      },
+                    style: {
+                      WebkitLineClamp: 1,
                     },
                   },
                   wrapperClassName: 'friend-request-list-item-btn',

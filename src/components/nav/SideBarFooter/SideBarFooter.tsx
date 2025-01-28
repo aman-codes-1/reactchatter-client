@@ -27,16 +27,13 @@ const SideBarFooter = ({ className }: any) => {
             textProps: {
               primary: name,
               secondary: email,
-              primaryTypographyProps: {
-                style: {
-                  WebkitLineClamp: 1,
+              slotProps: {
+                secondary: {
+                  fontSize: '0.75rem',
                 },
               },
-              secondaryTypographyProps: {
-                fontSize: '0.75rem',
-                style: {
-                  WebkitLineClamp: 1,
-                },
+              style: {
+                WebkitLineClamp: 1,
               },
             },
             avatarProps: {

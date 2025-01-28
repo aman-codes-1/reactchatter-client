@@ -1,6 +1,64 @@
 import { DocumentNode } from 'graphql';
 import { gql } from '../../__generated__/gql';
 
+const CACHED_MESSAGES_QUERY = gql(/* GraphQL */ `
+  query cachedMessages($chatId: String!) {
+    cachedMessages(input: { chatId: $chatId }) {
+      edges {
+        _id
+        chatId
+        queueId
+        message
+        sender {
+          _id
+          name
+          picture
+          email
+          email_verified
+          given_name
+          family_name
+          retryStatus {
+            isRetry
+            timestamp
+          }
+          queuedStatus {
+            isQueued
+            timestamp
+          }
+          sentStatus {
+            isSent
+            timestamp
+          }
+        }
+        otherMembers {
+          _id
+          name
+          picture
+          email
+          email_verified
+          given_name
+          family_name
+          deliveredStatus {
+            isDelivered
+            timestamp
+          }
+          readStatus {
+            isRead
+            timestamp
+          }
+        }
+        timestamp
+      }
+      pageInfo {
+        endCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      scrollPosition
+    }
+  }
+`) as DocumentNode;
+
 const MESSAGES_QUERY = gql(/* GraphQL */ `
   query messages($chatId: String!, $limit: Int, $after: ID) {
     messages(input: { chatId: $chatId }, limit: $limit, after: $after) {
@@ -51,81 +109,7 @@ const MESSAGES_QUERY = gql(/* GraphQL */ `
       }
       pageInfo {
         endCursor
-        hasNextPage
-      }
-    }
-  }
-`) as DocumentNode;
-
-const MESSAGE_GROUPS_QUERY = gql(/* GraphQL */ `
-  query messageGroups($chatId: String!) {
-    messageGroups(input: { chatId: $chatId }) {
-      edges {
-        dateLabel
-        groups {
-          side
-          data {
-            _id
-            chatId
-            queueId
-            message
-            sender {
-              _id
-              name
-              picture
-              email
-              email_verified
-              given_name
-              family_name
-              retryStatus {
-                isRetry
-                timestamp
-              }
-              queuedStatus {
-                isQueued
-                timestamp
-              }
-              sentStatus {
-                isSent
-                timestamp
-              }
-            }
-            otherMembers {
-              _id
-              name
-              picture
-              email
-              email_verified
-              given_name
-              family_name
-              deliveredStatus {
-                isDelivered
-                timestamp
-              }
-              readStatus {
-                isRead
-                timestamp
-              }
-            }
-            timestamp
-          }
-          groupDetails {
-            _id
-            name
-            picture
-            email
-            email_verified
-            given_name
-            family_name
-          }
-        }
-      }
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-      queuedPageInfo {
-        endCursor
+        hasPreviousPage
         hasNextPage
       }
       scrollPosition
@@ -874,9 +858,9 @@ export {
   CREATE_REQUEST_MUTATION,
   FRIENDS_QUERY,
   FRIEND_ADDED_SUBSCRIPTION,
+  CACHED_MESSAGES_QUERY,
   MESSAGES_QUERY,
   MESSAGE_ADDED_SUBSCRIPTION,
-  MESSAGE_GROUPS_QUERY,
   FRIEND_QUERY,
   MESSAGE_UPDATED_SUBSCRIPTION,
   OTHER_FRIENDS_QUERY,

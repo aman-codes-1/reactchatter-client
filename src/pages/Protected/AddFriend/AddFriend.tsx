@@ -32,7 +32,7 @@ const AddFriend = () => {
   const { createRequest, createRequestLoading, isListItemClicked } = useContext(
     ChatsAndFriendsContext,
   );
-  const inputRef = useRef<any>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const resetStates = () => {
     setState({

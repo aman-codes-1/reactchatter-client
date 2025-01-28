@@ -1,19 +1,18 @@
-import { minWidth, styled } from '@mui/system';
+import { display, styled } from '@mui/system';
 
-export const HomeStyled = styled('div')(({ theme }) => ({
+export const HomeStyled = styled('div')<{
+  footerHeight: number;
+}>(({ theme, footerHeight }) => ({
   backgroundImage: 'url(/assets/images/cool-background.svg)',
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   backgroundRepeat: 'no-repeat',
-  display: 'flex',
-  alignItems: 'center',
-  flexDirection: 'column',
   width: '100%',
-  height: '100svh',
+  height: '100dvh',
   zIndex: '-1',
   userSelect: 'none',
   '.home-header': {
-    marginTop: '11rem',
+    height: '100%',
     padding: '0px 30px',
     display: 'flex',
     flexDirection: 'column',
@@ -21,8 +20,12 @@ export const HomeStyled = styled('div')(({ theme }) => ({
     justifyContent: 'center',
     gap: '0.625rem',
     textAlign: 'center',
+    paddingBottom: `calc(${footerHeight}px + 15px)`,
     [theme.breakpoints.down('sm')]: {
       gap: '0.5rem',
+    },
+    [theme.breakpoints.down('xs')]: {
+      marginBottom: '6rem',
     },
     '.home-heading': {
       fontSize: '3.625rem',
@@ -40,6 +43,8 @@ export const HomeStyled = styled('div')(({ theme }) => ({
       },
     },
     '.home-login-btn-wrapper': {
+      display: 'flex',
+      justifyContent: 'center',
       margin: '1rem 0rem',
       [theme.breakpoints.down('sm')]: {
         margin: '0.875rem 0rem',
@@ -47,8 +52,13 @@ export const HomeStyled = styled('div')(({ theme }) => ({
     },
   },
   '.home-footer': {
-    padding: '0px 30px',
     position: 'fixed',
+    padding: '0px 30px',
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
     bottom: 0,
     marginBottom: '0.5rem',
     textAlign: 'center',

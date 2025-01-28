@@ -41,7 +41,11 @@ export const routesConfig = (location: any) => [
     type: 'private',
     path: '/chat',
     Element: () => (
-      <SuspenseWrapper path="pages" compName="Chats" fallback={<Chats />} />
+      <SuspenseWrapper
+        path="pages"
+        compName="Chats"
+        fallback={<Chats loadingChats />}
+      />
     ),
   },
   {

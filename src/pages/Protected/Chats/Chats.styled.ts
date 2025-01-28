@@ -37,6 +37,8 @@ export const ChatsStyled = styled('div')<{
     },
   },
   '.app-bar': {
+    minHeight: '4rem',
+    justifyContent: 'center',
     backgroundColor: theme.palette.primary.light,
   },
   '.text-field-wrapper': {
@@ -78,73 +80,79 @@ export const ChatGroupsStyled = styled('div')<{
   textFieldHeight: number;
 }>(({ theme, navbarHeight, appBarHeight, textFieldHeight }) => ({
   '.chat-container': {
-    display: 'flex',
     width: '100%',
     marginTop: `${appBarHeight}px`,
     overflow: 'auto',
     padding: '0rem 4rem',
-    height: `calc(100svh - ${appBarHeight || 0}px - ${textFieldHeight || 0}px)`,
+    height: `calc(100dvh - ${appBarHeight || 0}px - ${textFieldHeight || 0}px)`,
     [theme.breakpoints.down('md')]: {
       padding: '0rem 2rem',
     },
     [theme.breakpoints.down('sm')]: {
       padding: '0rem 1rem',
-      height: `calc(100svh - ${appBarHeight || 0}px - ${textFieldHeight || 0}px - ${navbarHeight || 0}px)`,
+      height: `calc(100dvh - ${appBarHeight || 0}px - ${textFieldHeight || 0}px - ${navbarHeight || 0}px)`,
     },
   },
   '.no-messages-wrapper': {
+    height: '100%',
     display: 'flex',
-    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  '.chat-wrapper': {
-    width: '100%',
-    marginTop: 'auto',
-  },
-  '.chat-grid': {
-    display: 'grid',
-    margin: '0.8rem 0rem 1.438rem 0rem',
+  '.chat-viewport': {
+    marginBottom: '1.5rem',
     [theme.breakpoints.down('sm')]: {
-      margin: '0.8rem 0rem 1.063rem 0rem',
+      marginBottom: '1.125rem',
     },
   },
-  '.chat-group': {
-    '.date-label-wrapper': {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      margin: '1.75rem 0rem 0.875rem 0rem',
+  '.chat-msg': {
+    display: 'flex',
+    alignItems: 'flex-end',
+    gap: '0.625rem',
+  },
+  '.chat-wrapper': {
+    padding: '0.15rem 0rem',
+  },
+  '.chat-wrapper-date-label': {
+    padding: '1.625rem 0rem 0.15rem 0rem',
+  },
+  '.chat-wrapper-first': {
+    paddingTop: '0 !important',
+  },
+  '.chat-wrapper-last': {
+    paddingBottom: '0 !important',
+  },
+  '.chat-margin-top': {
+    paddingTop: '0.625rem !important',
+  },
+  '.chat-margin-bottom': {
+    paddingBottom: '0.625rem !important',
+  },
+  '.date-label-wrapper': {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: '1rem',
+  },
+  '.date-label-chip': {
+    borderRadius: '8px',
+    '& .MuiChip-label': {
+      fontWeight: 500,
+      display: 'block',
+      whiteSpace: 'normal',
+      textTransform: 'uppercase',
+      fontSize: '0.75rem',
     },
-    '.date-label-chip': {
-      // height: 'auto',
-      borderRadius: '8px',
-      '& .MuiChip-label': {
-        fontWeight: 500,
-        display: 'block',
-        whiteSpace: 'normal',
-        textTransform: 'uppercase',
-        fontSize: '0.75rem',
-      },
-    },
-  },
-  '.chat-group:nth-of-type(1)': {
-    '.date-label-wrapper': {
-      margin: '0.25rem 0rem 0.875rem 0rem',
-    },
-  },
-  '.chat-group-grid': {
-    margin: '7px 0rem',
-  },
-  '.chat-group-grid:nth-of-type(1)': {
-    marginTop: 0,
-  },
-  '.chat-group-grid:nth-last-of-type(1)': {
-    marginBottom: 0,
   },
 }));
 
-export const ChatBubbleStyled = styled('div')(({ theme }) => ({
+export const ChatBubbleStyled = styled('div')<{
+  side: string;
+}>(({ theme, side }) => ({
+  display: 'flex',
+  flexDirection: side === 'right' ? 'row-reverse' : 'row',
+  width: '80%',
+  marginLeft: side === 'right' ? 'auto' : '',
   '.msg': {
     display: 'inline-block',
     maxWidth: '100%',

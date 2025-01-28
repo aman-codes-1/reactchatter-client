@@ -4,7 +4,7 @@ import { ListItemButton } from '..';
 import { ListItemProps } from './IListItem';
 import { ListItemStyled } from './ListItem.styled';
 
-const ListItem = forwardRef((props: ListItemProps, ref: any) => {
+const ListItem = forwardRef<HTMLDivElement, ListItemProps>((props, ref) => {
   const {
     width = '',
     disableHover = false,

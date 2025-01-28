@@ -15,20 +15,19 @@ import { AppBar, IconButton, List, TextField, Toolbar } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import { useAuth } from '../../../hooks';
 import {
+  CACHED_MESSAGES_QUERY,
   ChatsAndFriendsContext,
-  MESSAGE_GROUPS_QUERY,
 } from '../../../contexts';
 import {
   addObject,
-  deleteKeyValuePairs,
   deleteObject,
   findAndMoveToTop,
   findAndUpdate,
   getDateLabel2,
+  getFriendId,
   getOtherMembers,
   getSender,
   getTime,
-  groupMessage,
   handleKeyPress,
   setFocus,
   updateHeight,
@@ -40,7 +39,7 @@ import { MainLayoutLoader } from '../components';
 import ChatGroups from './ChatGroups';
 import { ChatsStyled } from './Chats.styled';
 
-const Chats = () => {
+const Chats = ({ loadingChats }: any) => {
   const MessageQueue = new MessageQueueService();
   const navigate = useNavigate();
   const { search } = useLocation();
@@ -48,7 +47,7 @@ const Chats = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const chatId =
     searchParams.get('type') === 'chat' ? searchParams.get('id') : null;
-  const friendId =
+  const fullFriendId =
     searchParams.get('type') === 'friend' ? searchParams.get('id') : null;
   const [message, setMessage] = useState('');
   const [appBarHeight, setAppBarHeight] = useState(0);
@@ -59,10 +58,14 @@ const Chats = () => {
     chatCalled,
     friendLoading,
     friendCalled,
-    messageGroups = [],
-    messageGroupsPageInfo,
-    messageGroupsQueuedPageInfo,
-    messageGroupsClient,
+    cachedMessagesClient,
+    messages = [],
+    messagesPageInfo,
+    messagesScrollPosition,
+    messagesLoading,
+    loadingQueued,
+    scrollToBottom,
+    scrollToPosition,
     activeClients,
     activeClientsLoading,
     chatsClient,
@@ -75,9 +78,9 @@ const Chats = () => {
     setLoadingCreateMessage,
     setScrollToBottom,
   } = useContext(ChatsAndFriendsContext);
-  const inputRef = useRef<any>(null);
-  const appBarRef = useRef<any>(null);
-  const textFieldRef = useRef<any>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const appBarRef = useRef<HTMLElement | null>(null);
+  const textFieldRef = useRef<HTMLDivElement | null>(null);
 
   useLayoutEffect(() => {
     setFocus(inputRef);
@@ -115,7 +118,7 @@ const Chats = () => {
 
   useLayoutEffect(() => {
     resetAllStates();
-  }, [chatId, friendId]);
+  }, [chatId, fullFriendId]);
 
   useLayoutEffect(() => {
     try {
@@ -207,24 +210,20 @@ const Chats = () => {
   };
 
   const renderMessage = (queuedMessage: any, id: string) => {
-    const edges = groupMessage(messageGroups, queuedMessage, _id);
+    const edges = [...messages, queuedMessage];
     const pageInfo = {
       endCursor: '',
+      hasPreviousPage: false,
       hasNextPage: false,
     };
 
-    messageGroupsClient.writeQuery({
-      query: MESSAGE_GROUPS_QUERY,
+    cachedMessagesClient.writeQuery({
+      query: CACHED_MESSAGES_QUERY,
       data: {
-        messageGroups: {
+        cachedMessages: {
           edges,
-          pageInfo: messageGroupsPageInfo?.endCursor
-            ? messageGroupsPageInfo
-            : pageInfo,
-          queuedPageInfo: messageGroupsQueuedPageInfo?.endCursor
-            ? messageGroupsQueuedPageInfo
-            : pageInfo,
-          scrollPosition: -1,
+          pageInfo: messagesPageInfo?.endCursor ? messagesPageInfo : pageInfo,
+          scrollPosition: 0,
         },
       },
       variables: { chatId: id },
@@ -256,15 +255,15 @@ const Chats = () => {
         sender: getSender(selectedItem?.members, timestamp, _id),
       };
 
-      if (!chatIdToUse && friendId) {
+      if (!chatIdToUse && fullFriendId) {
         queuedMessage = {
           ...queuedMessageData,
-          chatId: '',
-          friendId,
-          friendUserId: selectedDetails?._id,
+          chatId: fullFriendId,
         };
 
-        renderMessage(queuedMessage, friendId);
+        const { friendId, friendUserId } = getFriendId(queuedMessage?.chatId);
+
+        renderMessage(queuedMessage, fullFriendId);
 
         deleteFriend(friendId);
 
@@ -318,7 +317,6 @@ const Chats = () => {
         const updatedQueuedMessage = await MessageQueue.updateMessageToQueue(
           queueId,
           newData,
-          ['chatId', 'friendId', 'friendUserId'],
         ).catch((err) => {
           console.error('Error updating to queue:', err);
           return null;
@@ -330,11 +328,6 @@ const Chats = () => {
         }
 
         if (!isUpdated) {
-          queuedMessage = deleteKeyValuePairs(queuedMessage, [
-            'chatId',
-            'friendId',
-            'friendUserId',
-          ]);
           queuedMessage = {
             ...queuedMessage,
             ...newData,
@@ -456,16 +449,9 @@ const Chats = () => {
                     textProps: {
                       primary: selectedDetails?.name,
                       secondary: renderSecondary(),
-                      primaryTypographyProps: {
-                        style: {
-                          WebkitLineClamp: 1,
-                        },
-                      },
-                      secondaryTypographyProps: {
-                        style: {
-                          WebkitLineClamp: 1,
-                        },
-                      },
+                    },
+                    style: {
+                      WebkitLineClamp: 1,
                     },
                     avatarProps: {
                       src: selectedDetails?.picture,
@@ -477,10 +463,12 @@ const Chats = () => {
           </Toolbar>
         </AppBar>
       </div>
-      <ChatGroups
-        appBarHeight={appBarHeight}
-        textFieldHeight={textFieldHeight}
-      />
+      {loadingChats ? null : (
+        <ChatGroups
+          appBarHeight={appBarHeight}
+          textFieldHeight={textFieldHeight}
+        />
+      )}
       <div className="text-field-wrapper" ref={textFieldRef}>
         <AppBar position="static" className="app-bar text-field-app-bar">
           <Toolbar disableGutters variant="dense">

@@ -1,4 +1,4 @@
-import { useContext, useLayoutEffect, useRef } from 'react';
+import { RefObject, useContext, useLayoutEffect, useRef } from 'react';
 import { Divider, List, useTheme } from '@mui/material';
 import { ListItem } from '../../../../components';
 import { useAuth } from '../../../../hooks';
@@ -18,8 +18,8 @@ const DataList = ({
 }: any) => {
   const theme = useTheme();
   const { auth: { _id = '' } = {} } = useAuth();
-  const listRef = useRef<any>(null);
-  const listItemsRef = useRef<any>([]);
+  const listRef = useRef<HTMLUListElement | null>(null);
+  const listItemsRef = useRef<HTMLDivElement[] | null[]>([]);
   const { isHomeButtonClicked } = useContext(ChatsAndFriendsContext);
 
   useLayoutEffect(() => {
@@ -95,7 +95,7 @@ const DataList = ({
     idx: number,
     selected: boolean,
     handleClick: any,
-    itemsRef: any,
+    itemsRef: RefObject<HTMLDivElement[] | null[]>,
   ) => {
     let details: any;
     const isPrivateChat = item?.type === 'private';
@@ -118,34 +118,37 @@ const DataList = ({
         <div key={`${item?._id}-${idx}`}>
           <ListItem
             disableGutters={disableGutters}
-            ref={itemsRef ? (el) => (itemsRef.current[idx] = el) : null}
+            ref={(el) => {
+              if (itemsRef?.current) {
+                itemsRef.current[idx] = el;
+              }
+            }}
             btnProps={{
               textProps: {
                 primary: details?.name,
                 secondary: component,
-                primaryTypographyProps: {
-                  style: {
-                    WebkitLineClamp: 1,
+                slotProps: {
+                  primary: {
+                    ...(details?.unreadMessageCount // to do
+                      ? {
+                          fontWeight: 600,
+                        }
+                      : {}),
                   },
-                  ...(details?.unreadMessageCount // to do
-                    ? {
-                        fontWeight: 600,
-                      }
-                    : {}),
+                  secondary: {
+                    ...(isComponent ? { component: 'div' as any } : {}),
+                    ...(details?.unreadMessageCount // to do
+                      ? {
+                          fontWeight: 700,
+                          style: {
+                            color: theme.palette.text.primary,
+                          },
+                        }
+                      : {}),
+                  },
                 },
-                secondaryTypographyProps: {
-                  style: {
-                    WebkitLineClamp: 1,
-                  },
-                  ...(isComponent ? { component: 'div' as any } : {}),
-                  ...(details?.unreadMessageCount // to do
-                    ? {
-                        fontWeight: 700,
-                        style: {
-                          color: theme.palette.text.primary,
-                        },
-                      }
-                    : {}),
+                style: {
+                  WebkitLineClamp: 1,
                 },
               },
               avatarProps: {

@@ -7,21 +7,25 @@ import { SuccessErrorMessageProps } from './ISuccessErrorMessage';
 import { SuccessErrorMessageStyled } from './SuccessErrorMessage.styled';
 
 const SuccessErrorMessage = ({ message, type }: SuccessErrorMessageProps) => {
-  const [height, setHeight] = useState(0);
-  const ref = useRef<any>(null);
+  const [wrapperHeight, setWrapperHeight] = useState(0);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
 
   useLayoutEffect(() => {
-    updateHeight(ref, setHeight);
-    window.addEventListener('resize', () => updateHeight(ref, setHeight));
+    updateHeight(wrapperRef, setWrapperHeight);
+    window.addEventListener('resize', () =>
+      updateHeight(wrapperRef, setWrapperHeight),
+    );
 
     return () => {
-      window.removeEventListener('resize', () => updateHeight(ref, setHeight));
+      window.removeEventListener('resize', () =>
+        updateHeight(wrapperRef, setWrapperHeight),
+      );
     };
   }, []);
 
   return (
-    <SuccessErrorMessageStyled height={height}>
-      <div className="success-error-message-wrapper" ref={ref}>
+    <SuccessErrorMessageStyled wrapperHeight={wrapperHeight}>
+      <div className="success-error-message-wrapper" ref={wrapperRef}>
         {type === 'error' ? (
           <CancelIcon className="error-dark" />
         ) : (

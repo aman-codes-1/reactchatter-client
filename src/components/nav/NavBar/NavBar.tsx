@@ -1,4 +1,4 @@
-import { forwardRef, useContext } from 'react';
+import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
@@ -6,47 +6,45 @@ import { BaseSvg, Button } from '../..';
 import { ChatsAndFriendsContext } from '../../../contexts';
 import { NavBarStyled } from './NavBar.styled';
 
-const NavBar = forwardRef(
-  ({ onMenuClick, toggleDrawer, className }: any, ref: any) => {
-    const {
-      chats = [],
-      otherFriends = [],
-      setIsHomeButtonClicked,
-      fetchAll,
-    } = useContext(ChatsAndFriendsContext);
+const NavBar = ({ onMenuClick, toggleDrawer, className }: any) => {
+  const {
+    chats = [],
+    otherFriends = [],
+    setIsHomeButtonClicked,
+    fetchAll,
+  } = useContext(ChatsAndFriendsContext);
 
-    const handleClickLogo = async () => {
-      setIsHomeButtonClicked((prev: boolean) => !prev);
-      toggleDrawer?.();
-      await fetchAll();
-    };
+  const handleClickLogo = async () => {
+    setIsHomeButtonClicked((prev: boolean) => !prev);
+    toggleDrawer?.();
+    await fetchAll();
+  };
 
-    return (
-      <NavBarStyled className={className} ref={ref}>
-        <Link to="/" className="nav-logo" onClick={handleClickLogo}>
-          <BaseSvg id="logo" className="nav-logo-svg" />
-        </Link>
-        {chats?.length || otherFriends?.length ? (
-          <Button
-            color="secondary"
-            variant="outlined"
-            startIcon={<CommentOutlinedIcon />}
-            className="text-hidden-xs"
-          >
-            <div>New Chat</div>
-          </Button>
-        ) : null}
+  return (
+    <NavBarStyled className={className}>
+      <Link to="/" className="nav-logo" onClick={handleClickLogo}>
+        <BaseSvg id="logo" className="nav-logo-svg" />
+      </Link>
+      {chats?.length || otherFriends?.length ? (
         <Button
-          endIcon={<MenuRoundedIcon />}
-          onClick={onMenuClick}
-          className="nav-menu-btn text-hidden-xs"
+          color="secondary"
+          variant="outlined"
+          startIcon={<CommentOutlinedIcon />}
+          className="text-hidden-xs"
         >
-          <div>Menu</div>
+          <div>New Chat</div>
         </Button>
-      </NavBarStyled>
-    );
-  },
-);
+      ) : null}
+      <Button
+        endIcon={<MenuRoundedIcon />}
+        onClick={onMenuClick}
+        className="nav-menu-btn text-hidden-xs"
+      >
+        <div>Menu</div>
+      </Button>
+    </NavBarStyled>
+  );
+};
 
 NavBar.displayName = 'NavBar';
 

@@ -24,11 +24,7 @@ const RecentChats = ({ loadingRecentChats }: any) => {
   useLayoutEffect(() => {
     if (isFetchingChats2 || isFetchingOtherFriends2 || loadingRecentChats)
       return;
-    if (chats?.length) {
-      setCurrentChats(chats);
-    } else {
-      setCurrentChats([]);
-    }
+    setCurrentChats(chats);
   }, [chats, isFetchingChats2, isFetchingOtherFriends2, loadingRecentChats]);
 
   const handleClickChat = async (
