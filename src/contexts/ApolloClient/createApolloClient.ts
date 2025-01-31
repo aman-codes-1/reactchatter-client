@@ -14,6 +14,7 @@ import { RetryLink } from '@apollo/client/link/retry';
 
 export const createApolloClient = (
   callLogout: (includeFromState?: boolean) => Promise<void>,
+  setIsWsConnected: any,
 ) => {
   const uri = `${process.env.REACT_APP_PROXY_URI}/graphql`;
 
@@ -28,6 +29,17 @@ export const createApolloClient = (
       retryAttempts: 5,
       lazy: true,
       shouldRetry: () => true,
+      on: {
+        connected: () => {
+          setIsWsConnected(true);
+        },
+        closed: () => {
+          setIsWsConnected(false);
+        },
+        error: () => {
+          setIsWsConnected(false);
+        },
+      },
     }),
   );
 

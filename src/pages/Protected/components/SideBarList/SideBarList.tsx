@@ -27,8 +27,6 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
     setSelectedDetails,
     isFetchingChats,
     isFetchingOtherFriends,
-    isFetchingChats2,
-    isFetchingOtherFriends2,
     getChatMessagesWithQueue,
     fetchAll,
   } = useContext(ChatsAndFriendsContext);
@@ -59,15 +57,15 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
 
   useLayoutEffect(() => {
     setToggleChats(!!chats?.length);
-    if (isFetchingChats2 || isFetchingOtherFriends2) return;
+    if (isFetchingChats || isFetchingOtherFriends) return;
     setCurrentChats(chats);
-  }, [chats, isFetchingChats2, isFetchingOtherFriends2]);
+  }, [chats, isFetchingChats, isFetchingOtherFriends]);
 
   useLayoutEffect(() => {
     setToggleFriends(!!otherFriends?.length);
-    if (isFetchingChats2 || isFetchingOtherFriends2) return;
+    if (isFetchingChats || isFetchingOtherFriends) return;
     setCurrentOtherFriends(otherFriends);
-  }, [otherFriends, isFetchingChats2, isFetchingOtherFriends2]);
+  }, [otherFriends, isFetchingChats, isFetchingOtherFriends]);
 
   const handleToggle = (
     _: React.MouseEvent<HTMLDivElement, MouseEvent>,
@@ -98,7 +96,6 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
     _: React.MouseEvent<HTMLDivElement, MouseEvent>,
     link: string,
   ) => {
-    _?.preventDefault();
     setIsListItemClicked((prev: boolean) => !prev);
     toggleDrawer?.();
     navigate(link);

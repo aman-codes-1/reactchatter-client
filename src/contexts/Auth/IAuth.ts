@@ -9,4 +9,6 @@ export type Auth = any;
 export type Context = {
   auth: Auth;
   setAuth: any;
+  isWsConnected: boolean;
+  setIsWsConnected: any;
 };

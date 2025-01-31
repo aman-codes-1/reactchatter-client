@@ -14,7 +14,9 @@ const MessageStatus = ({
   const theme = useTheme();
 
   const { isQueued, isSent, isDelivered, isRead } =
-    messageStatus || checkMessageStatus(msg, selectedItem) || {};
+    (msg && selectedItem
+      ? checkMessageStatus(msg, selectedItem)
+      : messageStatus) || {};
 
   return (
     <>

@@ -1,22 +1,37 @@
 import { MessageData } from '../contexts';
-import { deleteKeyValuePairs, getMember } from '../helpers';
+import {
+  addUpdateChat,
+  deleteKeyValuePairs,
+  getFriendId,
+  getMember,
+} from '../helpers';
 
 export class MessageQueueService {
+  private friendId: any;
   private createChat: any;
   private createMessage: any;
-  private setMessageGroups: any;
+  private chatsClient: any;
+  private setSearchParams: any;
   private setLoadingProcessNextMessage: any;
+  private chatIdToUse: any;
+  private friendIdToUse: any;
 
   constructor(
-    createChatMutation?: any,
-    createMessageMutation?: any,
-    setChatMessageGroups?: any,
-    setLoadingProcessMessage?: any,
+    friendId?: any,
+    createChat?: any,
+    createMessage?: any,
+    chatsClient?: any,
+    setSearchParams?: any,
+    setLoadingProcessNextMessage?: any,
   ) {
-    this.createChat = createChatMutation || null;
-    this.createMessage = createMessageMutation || null;
-    this.setMessageGroups = setChatMessageGroups || null;
-    this.setLoadingProcessNextMessage = setLoadingProcessMessage || null;
+    this.friendId = friendId || null;
+    this.createChat = createChat || null;
+    this.createMessage = createMessage || null;
+    this.chatsClient = chatsClient || null;
+    this.setSearchParams = setSearchParams || null;
+    this.setLoadingProcessNextMessage = setLoadingProcessNextMessage || null;
+    this.chatIdToUse = null;
+    this.friendIdToUse = null;
   }
 
   openDatabase() {
@@ -330,7 +345,7 @@ export class MessageQueueService {
           const objectStore = transaction?.objectStore?.('messageQueueStore');
 
           if (objectStore) {
-            const index = objectStore.index('timestamp');
+            const index = objectStore?.index?.('timestamp');
 
             if (index) {
               const request = index?.openCursor?.();
@@ -371,35 +386,57 @@ export class MessageQueueService {
     }
   }
 
+  async bulkUpdateChatIdCursor(oldChatId: string, newChatId: string) {
+    const db: any = await this.openDatabase();
+
+    if (db) {
+      return new Promise<void>((resolve, reject) => {
+        const transaction = db?.transaction?.('messageQueueStore', 'readwrite');
+
+        if (transaction) {
+          const objectStore = transaction?.objectStore?.('messageQueueStore');
+
+          if (objectStore) {
+            const index = objectStore?.index?.('chatId');
+
+            if (index) {
+              const request = index?.openCursor?.(
+                IDBKeyRange?.only?.(oldChatId),
+              );
+
+              if (request) {
+                let updatedCount = 0;
+
+                request.onsuccess = (event: any) => {
+                  const cursor = event?.target?.result;
+                  if (cursor) {
+                    const record = cursor?.value;
+                    record.chatId = newChatId;
+                    cursor.update(record);
+                    updatedCount++;
+                    cursor?.continue?.();
+                  }
+                };
+
+                transaction.oncomplete = () => resolve();
+                transaction.onerror = () => reject(transaction?.error);
+                request.onerror = () => reject('Error updating bulk records');
+              }
+            }
+          }
+        }
+      });
+    }
+  }
+
   async removeCursorFromQueueAndRestart(cursor: any) {
     await cursor?.delete?.();
+    this.setLoadingProcessNextMessage(false);
     return this.processNextMessage(0);
   }
 
   async removeFromQueueAndRestart(queueId: string) {
     await this.deleteMessageFromQueue(queueId);
-
-    this.setMessageGroups?.((prevGroup: any) => {
-      if (!prevGroup?.length) return prevGroup;
-
-      const updatedGroups = prevGroup?.map((group: any) => {
-        const index = group?.data?.findIndex(
-          (item: any) => item?.queueId === queueId,
-        );
-
-        if (index < 0) return group;
-
-        const dataCopy = group.data.filter((_: any, i: number) => i !== index);
-
-        return {
-          ...group,
-          data: dataCopy,
-        };
-      });
-
-      return updatedGroups;
-    });
-
     return this.processNextMessage(0);
   }
 
@@ -421,71 +458,6 @@ export class MessageQueueService {
     return this.processNextMessage(0, offset + 1);
   }
 
-  async createChatAndUpdateToQueue(
-    userId: string,
-    queueId: string,
-    friendId: string,
-    friendUserId: string,
-    retryCount: number,
-    isRetry: boolean,
-    offset: number,
-  ) {
-    const createdChat = await this.createChat?.({
-      variables: {
-        userId,
-        friendId,
-        queueId,
-        type: 'private',
-        friendUserId,
-      },
-    });
-
-    const createdChatData = createdChat?.data?.createChat;
-    const createdChatId = createdChatData?._id;
-    if (!createdChatId)
-      await this.shouldRetryAndProcessNext(
-        queueId,
-        retryCount,
-        isRetry,
-        offset,
-      );
-
-    await this.updateMessageToQueue(queueId, {
-      chatId: createdChatId,
-    });
-
-    return createdChatId;
-  }
-
-  async createMessageAndProcessNext(
-    userId: string,
-    queueId: string,
-    chatId: string,
-    rest: any,
-    retryCount: number,
-    isRetry: boolean,
-    offset: number,
-  ) {
-    const createdMessage = await this.createMessage?.({
-      variables: {
-        ...rest,
-        userId,
-        chatId,
-        queueId,
-      },
-    });
-
-    const createdMessageData = createdMessage?.data?.createMessage;
-    const createdMessageId = createdMessageData?._id;
-    if (!createdMessageId)
-      await this.shouldRetryAndProcessNext(
-        queueId,
-        retryCount,
-        isRetry,
-        offset,
-      );
-  }
-
   async getNextMessageForProcessing(offset: number): Promise<any> {
     const data = await this.getNextQueuedMessage(offset);
     return data;
@@ -497,43 +469,152 @@ export class MessageQueueService {
 
     if (!message) return;
 
-    const { queueId, sender, chatId, friendId, friendUserId, ...rest } =
-      message || {};
+    this.setLoadingProcessNextMessage(true);
+
+    let queuedMessage = message;
+    const { queueId, sender, chatId } = queuedMessage || {};
 
     if (!queueId) await this.removeCursorFromQueueAndRestart(cursor);
 
     const userId = sender?._id;
-    const isRetry = sender?.sentStatus?.isRetry || false;
+    const isRetry = sender?.retryStatus?.isRetry || false;
+    const timestamp = Date.now();
+    this.chatIdToUse = chatId;
+    let isUpdated = false;
 
-    let chatIdToUse = chatId || '';
-
-    this.setLoadingProcessNextMessage(true);
+    const { friendId, friendUserId } = getFriendId(this.chatIdToUse);
 
     try {
-      if (!chatIdToUse && friendId && friendUserId) {
-        chatIdToUse = await this.createChatAndUpdateToQueue(
-          userId,
+      if (friendId && friendUserId) {
+        const newChat = await this.createChat?.({
+          variables: {
+            userId,
+            type: 'private',
+            friendIds: [friendId],
+            friendUserIds: [friendUserId],
+          },
+        });
+
+        const createdChatData = newChat?.data?.createChat;
+        const createdChatIsAlreadyCreated = createdChatData?.isAlreadyCreated;
+        const createdChat = createdChatData?.chat;
+        const createdChatId = createdChat?._id;
+        const createdChatFriends = createdChat?.friends;
+        const createdChatFriendId = createdChatFriends?.[0]?._id;
+
+        if (!createdChatId || !createdChatFriendId) {
+          await this.shouldRetryAndProcessNext(
+            queueId,
+            retryCount,
+            isRetry,
+            offset,
+          );
+        }
+
+        await this.bulkUpdateChatIdCursor(this.chatIdToUse, createdChatId);
+
+        this.chatIdToUse = createdChatId;
+        this.friendIdToUse = createdChatFriendId;
+
+        const chatData = {
+          ...createdChat,
+          lastMessage: queuedMessage,
+        };
+
+        if (createdChatIsAlreadyCreated) {
+          addUpdateChat(
+            this.chatsClient,
+            userId,
+            this.chatIdToUse,
+            '_id',
+            chatData,
+          );
+        } else {
+          addUpdateChat(
+            this.chatsClient,
+            userId,
+            this.friendIdToUse,
+            '_id',
+            chatData,
+          );
+        }
+
+        const newData = {
+          chatId: this.chatIdToUse,
+        };
+
+        const updatedQueuedMessage = await this.updateMessageToQueue(
           queueId,
-          friendId,
-          friendUserId,
-          retryCount,
-          isRetry,
-          offset,
-        );
+          newData,
+        ).catch((err) => {
+          console.error('Error updating to queue:', err);
+          return null;
+        });
+
+        if (updatedQueuedMessage) {
+          queuedMessage = updatedQueuedMessage;
+          isUpdated = true;
+        }
+
+        if (!isUpdated) {
+          queuedMessage = {
+            ...queuedMessage,
+            ...newData,
+          };
+        }
       }
 
-      if (chatIdToUse) {
-        await this.createMessageAndProcessNext(
-          userId,
-          queueId,
-          chatIdToUse,
-          rest,
-          retryCount,
-          isRetry,
-          offset,
-        );
+      if (this.chatIdToUse && !friendUserId) {
+        const queuedMessageMessage = queuedMessage?.message;
+        const queuedMessageSender = queuedMessage?.sender;
+        const queuedMessageQueuedStatus = queuedMessageSender?.queuedStatus;
+        const queuedMessageQueuedStatusIsQueued =
+          queuedMessageQueuedStatus?.isQueued || true;
+        const queuedMessageQueuedStatusTimestamp =
+          queuedMessageQueuedStatus?.timestamp || timestamp;
 
-        await this.removeFromQueueAndRestart(queueId);
+        const newMessage = await this.createMessage?.({
+          variables: {
+            userId,
+            chatId: this.chatIdToUse,
+            queueId,
+            isQueued: queuedMessageQueuedStatusIsQueued,
+            queuedTimestamp: queuedMessageQueuedStatusTimestamp,
+            isSent: true,
+            sentTimestamp: Date.now(),
+            message: queuedMessageMessage,
+          },
+        });
+
+        const createdMessageData = newMessage?.data?.createMessage;
+        const createdMessageId = createdMessageData?._id;
+        const createdMessageQueueId = createdMessageData?.queueId;
+
+        if (!createdMessageId) {
+          await this.shouldRetryAndProcessNext(
+            queueId,
+            retryCount,
+            isRetry,
+            offset,
+          );
+        }
+
+        if (
+          this.friendId &&
+          this.friendIdToUse &&
+          this.chatIdToUse &&
+          this.friendId === this.friendIdToUse
+        ) {
+          this.setSearchParams?.((params: any) => {
+            params.set('id', this.chatIdToUse);
+            params.set('type', 'chat');
+            return params;
+          });
+        }
+
+        if (createdMessageQueueId) {
+          await this.removeFromQueueAndRestart(createdMessageQueueId);
+        }
       }
 
       await this.shouldRetryAndProcessNext(

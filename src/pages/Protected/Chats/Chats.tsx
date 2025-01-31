@@ -19,10 +19,8 @@ import {
   ChatsAndFriendsContext,
 } from '../../../contexts';
 import {
-  addObject,
-  deleteObject,
-  findAndMoveToTop,
-  findAndUpdate,
+  addUpdateChat,
+  deleteFriend,
   getDateLabel2,
   getFriendId,
   getOtherMembers,
@@ -49,6 +47,7 @@ const Chats = ({ loadingChats }: any) => {
     searchParams.get('type') === 'chat' ? searchParams.get('id') : null;
   const fullFriendId =
     searchParams.get('type') === 'friend' ? searchParams.get('id') : null;
+  const { friendId, friendUserId } = getFriendId(fullFriendId);
   const [message, setMessage] = useState('');
   const [appBarHeight, setAppBarHeight] = useState(0);
   const [textFieldHeight, setTextFieldHeight] = useState(0);
@@ -61,11 +60,7 @@ const Chats = ({ loadingChats }: any) => {
     cachedMessagesClient,
     messages = [],
     messagesPageInfo,
-    messagesScrollPosition,
-    messagesLoading,
-    loadingQueued,
-    scrollToBottom,
-    scrollToPosition,
+    messagesIsFetched,
     activeClients,
     activeClientsLoading,
     chatsClient,
@@ -137,78 +132,6 @@ const Chats = ({ loadingChats }: any) => {
     setMessage(e?.target?.value);
   };
 
-  const addUpdateChat = (
-    dataToUpdate: any,
-    updateKey: string,
-    selectedEl?: any,
-    id?: string,
-    key?: string,
-  ) => {
-    let idx = -1;
-    let isChatAdded = false;
-    let isChatUpdated = false;
-
-    chatsClient.cache.modify({
-      fields: {
-        [`chats({"input":{"userId":"${_id}"}})`](existingData: any) {
-          if (selectedEl) {
-            const chat = {
-              ...selectedEl,
-              [updateKey]: dataToUpdate,
-            };
-            const newData = addObject(chat, existingData);
-            isChatAdded = true;
-            return newData;
-          }
-          if (id && key) {
-            const { isFoundAndUpdated, data, index } = findAndUpdate(
-              id,
-              key,
-              existingData,
-              dataToUpdate,
-              updateKey,
-            );
-            idx = index;
-            if (isFoundAndUpdated && data?.length) {
-              isChatUpdated = true;
-              return data;
-            }
-          }
-          return existingData;
-        },
-      },
-    });
-
-    if (idx > 0 && id && key) {
-      setTimeout(() => {
-        chatsClient.cache.modify({
-          fields: {
-            [`chats({"input":{"userId":"${_id}"}})`](existingData: any) {
-              const data = findAndMoveToTop(id, key, existingData);
-              return data;
-            },
-          },
-        });
-      }, 200);
-    }
-
-    return {
-      isChatAdded,
-      isChatUpdated,
-    };
-  };
-
-  const deleteFriend = (id: string) => {
-    otherFriendsClient.cache.modify({
-      fields: {
-        [`otherFriends({"input":{"userId":"${_id}"}})`](existingData: any) {
-          const data = deleteObject(id, existingData);
-          return data;
-        },
-      },
-    });
-  };
-
   const renderMessage = (queuedMessage: any, id: string) => {
     const edges = [...messages, queuedMessage];
     const pageInfo = {
@@ -216,6 +139,8 @@ const Chats = ({ loadingChats }: any) => {
       hasPreviousPage: false,
       hasNextPage: false,
     };
+    const scrollPosition = 0;
+    const isFetched = messagesIsFetched;
 
     cachedMessagesClient.writeQuery({
       query: CACHED_MESSAGES_QUERY,
@@ -223,7 +148,8 @@ const Chats = ({ loadingChats }: any) => {
         cachedMessages: {
           edges,
           pageInfo: messagesPageInfo?.endCursor ? messagesPageInfo : pageInfo,
-          scrollPosition: 0,
+          scrollPosition,
+          isFetched,
         },
       },
       variables: { chatId: id },
@@ -241,6 +167,7 @@ const Chats = ({ loadingChats }: any) => {
       const queueId = crypto.randomUUID();
       const timestamp = Date.now();
       let chatIdToUse = chatId || '';
+      let friendIdToUse = friendId || '';
       let queuedMessage: any;
       let isAdded = false;
       let isUpdated = false;
@@ -261,25 +188,27 @@ const Chats = ({ loadingChats }: any) => {
           chatId: fullFriendId,
         };
 
-        const { friendId, friendUserId } = getFriendId(queuedMessage?.chatId);
-
         renderMessage(queuedMessage, fullFriendId);
 
-        deleteFriend(friendId);
+        deleteFriend(otherFriendsClient, _id, friendIdToUse);
 
-        const chat = {
+        const friend = {
           ...selectedItem,
           hasChats: true,
-          queueId,
+          lastMessage: queuedMessage,
         };
 
-        const { isChatAdded } = addUpdateChat(
-          queuedMessage,
-          'lastMessage',
-          chat,
+        const { isChatAdded, isChatUpdated } = addUpdateChat(
+          chatsClient,
+          _id,
+          friendIdToUse,
+          '_id',
+          friend,
+          undefined,
+          true,
         );
 
-        isChatDone = isChatAdded;
+        isChatDone = isChatAdded || isChatUpdated;
 
         const addedQueuedMessage = await MessageQueue.addMessageToQueue(
           queuedMessage,
@@ -293,22 +222,38 @@ const Chats = ({ loadingChats }: any) => {
           isAdded = true;
         }
 
-        const createdChat = await createChat({
+        const newChat = await createChat({
           variables: {
             userId: _id,
-            queueId,
             type: 'private',
-            friendIds: [friendId],
+            friendIds: [friendIdToUse],
             friendUserIds: [friendUserId],
           },
         });
 
-        const createdChatData = createdChat?.data?.createChat;
-        const createdChatId = createdChatData?._id;
-        if (!createdChatId) throw new Error('Failed to create chat');
-        chatIdToUse = createdChatId;
+        const createdChatData = newChat?.data?.createChat;
+        const createdChatIsAlreadyCreated = createdChatData?.isAlreadyCreated;
+        const createdChat = createdChatData?.chat;
+        const createdChatId = createdChat?._id;
+        const createdChatFriends = createdChat?.friends;
+        const createdChatFriendId = createdChatFriends?.[0]?._id;
 
-        addUpdateChat(chatIdToUse, '_id', undefined, friendId, '_id');
+        if (!createdChatId || !createdChatFriendId)
+          throw new Error('Failed to create chat');
+
+        chatIdToUse = createdChatId;
+        friendIdToUse = createdChatFriendId;
+
+        const chatData = {
+          ...createdChat,
+          lastMessage: queuedMessage,
+        };
+
+        if (createdChatIsAlreadyCreated) {
+          addUpdateChat(chatsClient, _id, chatIdToUse, '_id', chatData);
+        } else {
+          addUpdateChat(chatsClient, _id, friendIdToUse, '_id', chatData);
+        }
 
         const newData = {
           chatId: chatIdToUse,
@@ -343,19 +288,28 @@ const Chats = ({ loadingChats }: any) => {
 
         renderMessage(queuedMessage, chatIdToUse);
 
-        setSearchParams((params) => {
-          params.set('id', chatIdToUse);
-          params.set('type', 'chat');
-          return params;
-        });
+        if (
+          friendId &&
+          friendIdToUse &&
+          chatIdToUse &&
+          friendId === friendIdToUse
+        ) {
+          setSearchParams((params) => {
+            params.set('id', chatIdToUse);
+            params.set('type', 'chat');
+            return params;
+          });
+        }
 
         if (!isChatDone) {
           addUpdateChat(
-            queuedMessage,
-            'lastMessage',
-            undefined,
+            chatsClient,
+            _id,
             chatIdToUse,
             '_id',
+            queuedMessage,
+            'lastMessage',
+            true,
           );
         }
 
@@ -394,9 +348,9 @@ const Chats = ({ loadingChats }: any) => {
 
         const createdMessageData = createdMessage?.data?.createMessage;
         const createdMessageId = createdMessageData?._id;
+        const createdMessageQueueId = createdMessageData?.queueId;
         if (!createdMessageId) throw new Error('Failed to create message');
 
-        const createdMessageQueueId = createdMessageData?.queueId;
         if (createdMessageQueueId) {
           await MessageQueue.deleteMessageFromQueue(createdMessageQueueId);
         }

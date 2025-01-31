@@ -14,18 +14,15 @@ const RecentChats = ({ loadingRecentChats }: any) => {
     setSelectedDetails,
     isFetchingChats,
     isFetchingOtherFriends,
-    isFetchingChats2,
-    isFetchingOtherFriends2,
     getChatMessagesWithQueue,
     fetchAll,
   } = useContext(ChatsAndFriendsContext);
   const [currentChats, setCurrentChats] = useState(chats);
 
   useLayoutEffect(() => {
-    if (isFetchingChats2 || isFetchingOtherFriends2 || loadingRecentChats)
-      return;
+    if (isFetchingChats || isFetchingOtherFriends || loadingRecentChats) return;
     setCurrentChats(chats);
-  }, [chats, isFetchingChats2, isFetchingOtherFriends2, loadingRecentChats]);
+  }, [chats, isFetchingChats, isFetchingOtherFriends, loadingRecentChats]);
 
   const handleClickChat = async (
     _: React.MouseEvent<HTMLDivElement, MouseEvent>,

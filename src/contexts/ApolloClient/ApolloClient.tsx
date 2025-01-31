@@ -4,11 +4,11 @@ import { useApi, useAuth } from '../../hooks';
 import { createApolloClient } from './createApolloClient';
 
 export const ApolloClientProvider = ({ children }: any) => {
-  const { auth } = useAuth();
+  const { auth, setIsWsConnected } = useAuth();
   const { callLogout } = useApi();
 
   const client: any = useMemo(
-    () => createApolloClient(callLogout),
+    () => createApolloClient(callLogout, setIsWsConnected),
     [auth?.isLoggedIn],
   );
 

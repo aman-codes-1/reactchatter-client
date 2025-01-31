@@ -76,6 +76,8 @@ export const WebSocketProvider = ({ children }: any) => {
     }[] = [
       { target: window, event: 'mousemove', handler: handleOnline },
       { target: window, event: 'keydown', handler: handleOnline },
+      { target: window, event: 'click', handler: handleOnline },
+      { target: window, event: 'scroll', handler: handleOnline },
       { target: window, event: 'blur', handler: handleBlur },
       { target: window, event: 'focus', handler: handleFocus },
       { target: window, event: 'online', handler: handleInternetOnline },

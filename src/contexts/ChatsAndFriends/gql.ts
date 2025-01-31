@@ -55,6 +55,7 @@ const CACHED_MESSAGES_QUERY = gql(/* GraphQL */ `
         hasNextPage
       }
       scrollPosition
+      isFetched
     }
   }
 `) as DocumentNode;
@@ -113,6 +114,7 @@ const MESSAGES_QUERY = gql(/* GraphQL */ `
         hasNextPage
       }
       scrollPosition
+      isFetched
     }
   }
 `) as DocumentNode;
@@ -254,7 +256,6 @@ const CHAT_QUERY = gql(/* GraphQL */ `
   query chat($chatId: String!) {
     chat(input: { chatId: $chatId }) {
       _id
-      queueId
       type
       members {
         _id
@@ -305,7 +306,6 @@ const CHATS_QUERY = gql(/* GraphQL */ `
   query chats($userId: String!, $limit: Int, $after: ID) {
     chats(input: { userId: $userId }, limit: $limit, after: $after) {
       _id
-      queueId
       type
       members {
         _id
@@ -355,7 +355,6 @@ const CHATS_QUERY = gql(/* GraphQL */ `
 const CREATE_CHAT_MUTATION = gql(/* GraphQL */ `
   mutation createChat(
     $userId: String!
-    $queueId: String!
     $type: String!
     $friendIds: [String!]!
     $friendUserIds: [String!]!
@@ -363,14 +362,30 @@ const CREATE_CHAT_MUTATION = gql(/* GraphQL */ `
     createChat(
       input: {
         userId: $userId
-        queueId: $queueId
         type: $type
         friendIds: $friendIds
         friendUserIds: $friendUserIds
       }
     ) {
-      _id
-      queueId
+      isAlreadyCreated
+      chat {
+        _id
+        type
+        members {
+          _id
+          hasAdded
+          name
+          picture
+          email
+          email_verified
+          given_name
+          family_name
+        }
+        friends {
+          _id
+        }
+        createdAt
+      }
     }
   }
 `) as DocumentNode;
@@ -381,7 +396,6 @@ const CHAT_ADDED_SUBSCRIPTION = gql(/* GraphQL */ `
       friendIds
       chat {
         _id
-        queueId
         type
         members {
           _id
@@ -434,7 +448,6 @@ const CHAT_UPDATED_SUBSCRIPTION = gql(/* GraphQL */ `
     OnChatUpdated {
       chat {
         _id
-        queueId
         type
         members {
           _id
@@ -486,7 +499,6 @@ const FRIEND_QUERY = gql(/* GraphQL */ `
   query friend($friendId: String!, $userId: String!) {
     friend(input: { friendId: $friendId, userId: $userId }) {
       _id
-      queueId
       type
       members {
         _id
@@ -538,7 +550,6 @@ const FRIENDS_QUERY = gql(/* GraphQL */ `
   query friends($userId: String!, $limit: Int, $after: ID) {
     friends(input: { userId: $userId }, limit: $limit, after: $after) {
       _id
-      queueId
       type
       members {
         _id
@@ -590,7 +601,6 @@ const OTHER_FRIENDS_QUERY = gql(/* GraphQL */ `
   query otherFriends($userId: String!, $limit: Int, $after: ID) {
     otherFriends(input: { userId: $userId }, limit: $limit, after: $after) {
       _id
-      queueId
       type
       members {
         _id
@@ -643,7 +653,6 @@ const FRIEND_ADDED_SUBSCRIPTION = gql(/* GraphQL */ `
     OnFriendAdded {
       friend {
         _id
-        queueId
         type
         members {
           _id

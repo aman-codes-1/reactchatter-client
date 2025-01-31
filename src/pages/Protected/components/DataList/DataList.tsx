@@ -64,7 +64,7 @@ const DataList = ({
             alignItems: 'center',
           }}
         >
-          {msg?.sender?._id === _id ? (
+          {msg?.sender?._id && msg?.sender?._id === _id ? (
             <MessageStatus msg={msg} selectedItem={item} />
           ) : null}
           <span
@@ -187,7 +187,7 @@ const DataList = ({
         renderList(
           item,
           idx,
-          item?._id === selectedItem?._id,
+          item?._id && selectedItem?._id && item?._id === selectedItem?._id,
           handleClickListItem,
           listItemsRef,
         ),

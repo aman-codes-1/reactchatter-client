@@ -21,10 +21,12 @@ export const getMember = (members: any[], _id: string) => {
   let otherMember;
 
   for (const member of members) {
-    if (member?._id === _id) {
-      currentMember = member;
-    } else if (member?._id !== _id) {
-      otherMember = member;
+    if (member?._id) {
+      if (member?._id === _id) {
+        currentMember = member;
+      } else if (member?._id !== _id) {
+        otherMember = member;
+      }
     }
   }
 
@@ -43,34 +45,29 @@ export const clickChat = async (
   toggleDrawer?: any,
 ) => {
   setIsListItemClicked((prev: boolean) => !prev);
-
-  const id = item?._id;
-  const type =
-    item?.type === 'private' || item?.type === 'group' ? 'chat' : item?.type;
-  const userId = details?._id;
   let skipFinally = false;
   let route = '';
 
   try {
-    if (id && type) {
-      if (type === 'chat') {
-        await getChatMessagesWithQueue(id, 'chat');
-        route = `/chat?id=${id}&type=${type}`;
+    const id = item?._id;
+    const type =
+      item?.type === 'private' || item?.type === 'group' ? 'chat' : item?.type;
+    const userId = details?._id;
+    if (type === 'chat') {
+      await getChatMessagesWithQueue(id, type);
+      route = `/chat?id=${id}&type=${type}`;
+    }
+    if (type === 'friend') {
+      if (item?.hasChats) {
+        toggleDrawer?.();
+        navigate('/');
+        await fetchAll();
+        skipFinally = true;
+        return;
       }
-      if (type === 'friend') {
-        if (item?.hasChats) {
-          toggleDrawer?.();
-          navigate('/');
-          await fetchAll();
-          skipFinally = true;
-          return;
-        }
-        const fullFriendId = `${id}-${userId}`;
-        await getChatMessagesWithQueue(fullFriendId, 'friend');
-        route = `/chat?id=${fullFriendId}&type=${type}`;
-      }
-    } else {
-      skipFinally = true;
+      const fullFriendId = `${id}-${userId}`;
+      await getChatMessagesWithQueue(fullFriendId, 'friend');
+      route = `/chat?id=${fullFriendId}&type=${type}`;
     }
   } catch (error: any) {
     console.error('Error fetching messages:', error);
@@ -121,7 +118,8 @@ export const scrollToSelected = (
   selectedListItem: any,
 ) => {
   const selectedItemIndex = listItems?.findIndex(
-    (item) => item?._id === selectedListItem?._id,
+    (item) =>
+      item?._id && selectedListItem?._id && item?._id === selectedListItem?._id,
   );
   const listElement = ref?.current;
   const itemElement = itemsRef?.current?.[selectedItemIndex];
@@ -138,7 +136,7 @@ export const scrollToSelected = (
 };
 
 export const filterDataById = (data: any[], targetId: string) => {
-  return data?.filter((el: any) => el?._id !== targetId);
+  return data?.filter((el: any) => el?._id && targetId && el?._id !== targetId);
 };
 
 export const addRequest = (OnRequestAddedRequest: any, existingData: any) => {
@@ -212,7 +210,7 @@ export const findAndUpdate = (
   let data = existingData;
   let index = -1;
   if (data?.length) {
-    index = data?.findIndex((el: any) => el?.[key] === id);
+    index = data?.findIndex((el: any) => el?.[key] && id && el?.[key] === id);
     if (index >= 0) {
       const dataCopy = [...data];
       if (updateKey) {
@@ -242,7 +240,9 @@ export const findAndMoveToTop = (
 ) => {
   let data = existingData;
   if (data?.length) {
-    const index = data?.findIndex((el: any) => el?.[key] === id);
+    const index = data?.findIndex(
+      (el: any) => el?.[key] && id && el?.[key] === id,
+    );
     if (index >= 0) {
       const dataCopy = [...data];
       const [foundElement] = dataCopy.splice(index, 1);
@@ -280,7 +280,9 @@ export const getOtherMembers = (members: any[], _id: string) => {
 
 export const getSender = (members: any[], timestamp: number, _id: string) => {
   if (members?.length) {
-    const sender = members?.find((member: any) => member?._id === _id);
+    const sender = members?.find(
+      (member: any) => member?._id && member?._id === _id,
+    );
     if (sender) {
       const { hasAdded, ...rest } = sender || {};
       return {
@@ -298,6 +300,92 @@ export const getSender = (members: any[], timestamp: number, _id: string) => {
   return {};
 };
 
+export const addUpdateChat = (
+  chatsClient: any,
+  _id: string,
+  id: string,
+  key: string,
+  dataToUpdate: any,
+  updateKey?: string,
+  isMoveToTop?: boolean,
+) => {
+  let isChatAdded = false;
+  let isChatUpdated = false;
+
+  chatsClient.cache.modify({
+    fields: {
+      [`chats({"input":{"userId":"${_id}"}})`](existingData: any) {
+        const { isFoundAndUpdated, data } = findAndUpdate(
+          id,
+          key,
+          existingData,
+          dataToUpdate,
+          updateKey,
+        );
+        if (isFoundAndUpdated && data?.length) {
+          isChatUpdated = true;
+          if (isMoveToTop) {
+            const updatedData = findAndMoveToTop(id, key, data);
+            return updatedData;
+          }
+          return data;
+        }
+        if (!isFoundAndUpdated) {
+          const newData = addObject(dataToUpdate, existingData);
+          isChatAdded = true;
+          return newData;
+        }
+        return existingData;
+      },
+    },
+  });
+
+  return {
+    isChatAdded,
+    isChatUpdated,
+  };
+};
+
+export const asyncAddUpdateChat = (
+  chatsClient: any,
+  _id: string,
+  id: string,
+  key: string,
+  dataToUpdate: any,
+  updateKey?: string,
+  isMoveToTop?: boolean,
+) => {
+  return new Promise<any>((resolve) => {
+    setTimeout(() => {
+      const { isChatAdded, isChatUpdated } = addUpdateChat(
+        chatsClient,
+        _id,
+        id,
+        key,
+        dataToUpdate,
+        updateKey,
+        isMoveToTop,
+      );
+      resolve({ isChatAdded, isChatUpdated });
+    }, 1000);
+  });
+};
+
+export const deleteFriend = (
+  otherFriendsClient: any,
+  _id: string,
+  id: string,
+) => {
+  otherFriendsClient.cache.modify({
+    fields: {
+      [`otherFriends({"input":{"userId":"${_id}"}})`](existingData: any) {
+        const data = deleteObject(id, existingData);
+        return data;
+      },
+    },
+  });
+};
+
 export const checkIsMemberExists = (
   members: any[],
   key: string,
@@ -307,7 +395,7 @@ export const checkIsMemberExists = (
   let isOtherMember = false;
 
   for (const member of members) {
-    if (member?._id === _id) {
+    if (member?._id && member?._id === _id) {
       if (member[key]) {
         isCurrentMember = true;
       } else if (member[key] === false) {
@@ -363,12 +451,13 @@ export const checkMessageStatus = (msg: MessageData, selectedItem: any) => {
 
 export const uniqueQueuedMessages = (edges: any[], queuedMessages: any[]) => {
   return queuedMessages?.filter((queuedMessage: any) => {
-    return !edges?.some((msg: any) => msg?.queueId === queuedMessage?.queueId);
+    return !edges?.some(
+      (msg: any) =>
+        msg?.queueId &&
+        queuedMessage?.queueId &&
+        msg?.queueId === queuedMessage?.queueId,
+    );
   });
-  // const res = Array.from(
-  //   new Map([...arr1, ...arr2].map((item) => [item?.[key], item])).values(),
-  // );
-  // return res;
 };
 
 export const validateSearchParams = (search: string) => {
@@ -383,7 +472,9 @@ export const validateSearchParams = (search: string) => {
       const expectedTypeParams = ['chat', 'friend'];
       if (
         param === 'type' &&
-        !expectedTypeParams.some((typeParam) => typeParam === value)
+        !expectedTypeParams.some(
+          (typeParam) => typeParam && value && typeParam === value,
+        )
       ) {
         return false;
       }
@@ -413,7 +504,7 @@ export const sortByTimestamp = (data: any[]) => {
 };
 
 export const calculateSide = (message: any, _id: string) =>
-  message?.sender?._id === _id ? 'right' : 'left';
+  message?.sender?._id && message?.sender?._id === _id ? 'right' : 'left';
 
 export const getOnlineStatus = (isOnline: boolean) => {
   return {
@@ -480,12 +571,12 @@ export const getTime = (timestamp: number) => {
 };
 
 export const compareObjects = (first: any, second: any) => {
-  if (first === second) return true;
+  if (first && second && first === second) return true;
   if (first === null || second === null) return false;
   if (typeof first !== 'object' || typeof second !== 'object') return false;
   const first_keys = Object.getOwnPropertyNames(first);
   const second_keys = Object.getOwnPropertyNames(second);
-  if (first_keys.length !== second_keys.length) return false;
+  if (first_keys?.length !== second_keys?.length) return false;
   for (const key of first_keys) {
     if (!Object.hasOwn(second, key)) return false;
     if (compareObjects(first[key], second[key]) === false) return false;

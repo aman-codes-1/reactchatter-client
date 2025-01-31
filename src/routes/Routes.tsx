@@ -18,10 +18,11 @@ const AppRoutes = () => {
   const { auth } = useAuth();
 
   useLayoutEffect(() => {
-    routesConfig(location).forEach((route: IRouteConfig, index: number) => {
+    routesConfig(location).forEach((route: IRouteConfig) => {
       const { Element, path, type } = route;
+      const key = `${path}-${type}`;
       const routeElement = (
-        <Route key={path} path={path} element={<Element />} />
+        <Route key={key} path={path} element={<Element />} />
       );
       if (type === 'private') {
         setPrivateRoutes((prev: ReactNode[]) => [...prev, routeElement]);

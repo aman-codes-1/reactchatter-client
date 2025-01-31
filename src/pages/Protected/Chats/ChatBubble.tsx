@@ -1,4 +1,4 @@
-import { useContext, useLayoutEffect, useRef, useState } from 'react';
+import { useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Typography, useTheme } from '@mui/material';
 import { ChatsAndFriendsContext } from '../../../contexts';
 import { checkMessageStatus, getTime } from '../../../helpers';
@@ -21,7 +21,10 @@ const ChatBubble = ({
   const messageRef = useRef<HTMLSpanElement | null>(null);
 
   const timestamp = msg?.timestamp;
-  const messageStatus = checkMessageStatus(msg, selectedItem);
+  const messageStatus = useMemo(
+    () => checkMessageStatus(msg, selectedItem),
+    [msg, selectedItem],
+  );
   const { isQueued } = messageStatus || {};
 
   useLayoutEffect(() => {

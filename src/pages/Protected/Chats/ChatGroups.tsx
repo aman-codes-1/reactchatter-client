@@ -1,4 +1,4 @@
-import { RefObject, useContext, useEffect } from 'react';
+import { RefObject, useContext, useLayoutEffect } from 'react';
 import { useOutletContext, useSearchParams } from 'react-router-dom';
 import { InfiniteScroll } from '../../../components';
 import {
@@ -24,6 +24,7 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
     messagesLoading,
     fetchMoreMessages,
     loadingQueued,
+    setLoadingQueued,
     scrollToBottom,
     scrollToPosition,
     isRefetchingMessages,
@@ -31,9 +32,10 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
     getChatMessagesWithQueue,
   } = useContext(ChatsAndFriendsContext);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const fetchQueuedMessages = async () => {
       if (fullFriendId) {
+        setLoadingQueued(true);
         await getChatMessagesWithQueue(fullFriendId, 'friend');
       }
     };
@@ -84,6 +86,7 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
             edges,
             pageInfo: moreMessagesPageInfo,
             scrollPosition: containerRef?.current?.scrollTop,
+            isFetched: true,
           },
         },
         variables: { chatId },

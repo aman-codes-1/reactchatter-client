@@ -1,7 +1,7 @@
 import {
   ReactElement,
   createContext,
-  useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -16,7 +16,7 @@ export const ConnectionProvider = ({
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const isInitialLoad = useRef(true);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
       if (!isInitialLoad?.current && navigator?.onLine && document.hasFocus()) {
