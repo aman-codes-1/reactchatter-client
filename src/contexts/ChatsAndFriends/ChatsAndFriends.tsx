@@ -451,12 +451,6 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
           });
         }
 
-        if (scrollPosition === 0) {
-          setScrollToBottom((prev) => !prev);
-        } else {
-          setScrollToPosition((prev) => !prev);
-        }
-
         if (isWriteChats) {
           chatsClient.cache.modify({
             fields: {

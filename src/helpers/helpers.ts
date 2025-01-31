@@ -346,31 +346,6 @@ export const addUpdateChat = (
   };
 };
 
-export const asyncAddUpdateChat = (
-  chatsClient: any,
-  _id: string,
-  id: string,
-  key: string,
-  dataToUpdate: any,
-  updateKey?: string,
-  isMoveToTop?: boolean,
-) => {
-  return new Promise<any>((resolve) => {
-    setTimeout(() => {
-      const { isChatAdded, isChatUpdated } = addUpdateChat(
-        chatsClient,
-        _id,
-        id,
-        key,
-        dataToUpdate,
-        updateKey,
-        isMoveToTop,
-      );
-      resolve({ isChatAdded, isChatUpdated });
-    }, 1000);
-  });
-};
-
 export const deleteFriend = (
   otherFriendsClient: any,
   _id: string,

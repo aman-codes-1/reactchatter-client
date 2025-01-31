@@ -51,6 +51,7 @@ const Chats = ({ loadingChats }: any) => {
   const [message, setMessage] = useState('');
   const [appBarHeight, setAppBarHeight] = useState(0);
   const [textFieldHeight, setTextFieldHeight] = useState(0);
+  const [loadingCreateChat, setLoadingCreateChat] = useState(false);
   const { auth: { _id = '' } = {} } = useAuth();
   const {
     chatLoading,
@@ -159,7 +160,7 @@ const Chats = ({ loadingChats }: any) => {
   };
 
   const handleSendMessage = async () => {
-    if (!message) return;
+    if (!message || loadingCreateChat) return;
     setMessage('');
     setLoadingCreateMessage(true);
 
@@ -183,6 +184,8 @@ const Chats = ({ loadingChats }: any) => {
       };
 
       if (!chatIdToUse && fullFriendId) {
+        setLoadingCreateChat(true);
+
         queuedMessage = {
           ...queuedMessageData,
           chatId: fullFriendId,
@@ -278,6 +281,8 @@ const Chats = ({ loadingChats }: any) => {
             ...newData,
           };
         }
+
+        setLoadingCreateChat(false);
       }
 
       if (chatIdToUse) {
@@ -358,6 +363,7 @@ const Chats = ({ loadingChats }: any) => {
     } catch (error) {
       console.error('Error sending message:', error);
     } finally {
+      setLoadingCreateChat(false);
       setLoadingCreateMessage(false);
     }
   };
