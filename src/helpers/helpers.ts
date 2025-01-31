@@ -143,7 +143,7 @@ export const addRequest = (OnRequestAddedRequest: any, existingData: any) => {
   let data = existingData?.data;
   let totalCount = existingData?.totalCount;
   if (OnRequestAddedRequest && data?.length && totalCount) {
-    data = [OnRequestAddedRequest, ...data];
+    data = addObject(OnRequestAddedRequest, data, true);
     totalCount = totalCount + 1;
   } else if (OnRequestAddedRequest) {
     data = [OnRequestAddedRequest];
@@ -171,10 +171,18 @@ export const deleteRequest = (
   };
 };
 
-export const addObject = (dataToAdd: any, existingData: any) => {
+export const addObject = (
+  dataToAdd: any,
+  existingData: any,
+  addToTop?: boolean,
+) => {
   let data = existingData;
   if (dataToAdd && data?.length) {
-    data = [dataToAdd, ...data];
+    if (addToTop) {
+      data = [dataToAdd, ...data];
+    } else {
+      data = [...data, dataToAdd];
+    }
   } else if (dataToAdd) {
     data = [dataToAdd];
   }
@@ -331,7 +339,7 @@ export const addUpdateChat = (
           return data;
         }
         if (!isFoundAndUpdated) {
-          const newData = addObject(dataToUpdate, existingData);
+          const newData = addObject(dataToUpdate, existingData, true);
           isChatAdded = true;
           return newData;
         }

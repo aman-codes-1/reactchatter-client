@@ -71,6 +71,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   const [scrollToBottom, setScrollToBottom] = useState(false);
   const [scrollToPosition, setScrollToPosition] = useState(false);
   const [isRefetchingMessages, setIsRefetchingMessages] = useState(false);
+  const [isFetchingMessages, setIsFetchingMessages] = useState(true);
   const [isFetchingChats, setIsFetchingChats] = useState(true);
   const [isFetchingOtherFriends, setIsFetchingOtherFriends] = useState(true);
   const [isHomeButtonClicked, setIsHomeButtonClicked] = useState(false);
@@ -144,7 +145,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         edges: messages = [],
         pageInfo: messagesPageInfo = {},
         scrollPosition: messagesScrollPosition = 0,
-        isFetched: messagesIsFetched = false,
+        isFetched: messagesIsFetched = true,
       } = {},
     } = {},
     client: cachedMessagesClient,
@@ -167,16 +168,19 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     variables: { chatId },
     skip: !chatId || !!fullFriendId || !!selectedItem || !!selectedDetails,
     onCompleted: async (data) => {
+      setLoadingQueued(true);
       const messagesData = data?.messages;
       let edges = messagesData?.edges;
       const pageInfo = messagesData?.pageInfo;
       const scrollPosition = messagesData?.scrollPosition;
-      const isFetched = true;
+      const isFetched = messagesData?.isFetched;
       if (chatId && !isRefetchingMessages) {
-        setLoadingQueued(true);
         const fetchedQueuedMessages =
           (await getQueuedMessages(chatId, edges, pageInfo)) || [];
-        edges = sortByTimestamp([...edges, ...fetchedQueuedMessages]);
+        const updatedData = addArray(fetchedQueuedMessages, edges);
+        if (updatedData?.length) {
+          edges = sortByTimestamp(updatedData);
+        }
         cachedMessagesClient.writeQuery({
           query: CACHED_MESSAGES_QUERY,
           data: {
@@ -191,10 +195,12 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         });
         setScrollToBottom((prev: boolean) => !prev);
       }
+      setIsFetchingMessages(false);
       setIsRefetchingMessages(false);
       setLoadingQueued(false);
     },
     onError: (error) => {
+      setIsFetchingMessages(false);
       setIsRefetchingMessages(false);
       setLoadingQueued(false);
       const err = error?.message;
@@ -422,17 +428,14 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
           if (isFoundAndUpdated && data?.length) {
             edges = data;
           } else {
-            edges = [...edges, OnMessageAddedMessage];
+            edges = addObject(OnMessageAddedMessage, edges);
           }
           isWrite = true;
         }
 
         if (isOtherMemberExists) {
-          if (cachedMessagesQuery) {
-            edges = [...edges, OnMessageAddedMessage];
-            isWrite = true;
-          }
-
+          edges = addObject(OnMessageAddedMessage, edges);
+          isWrite = true;
           isWriteChats = true;
         }
 
@@ -528,7 +531,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
           if (isFoundAndUpdated && data?.length) {
             edges = data;
           } else {
-            edges = [...edges, OnMessageUpdatedMessage];
+            edges = addObject(OnMessageUpdatedMessage, edges);
           }
 
           cachedMessagesClient.writeQuery({
@@ -589,17 +592,18 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
                     },
                   },
                 });
-                const data = {
-                  ...chats,
-                  chats: chats?.length
-                    ? [OnChatAddedChat, ...chats]
-                    : [OnChatAddedChat],
-                };
-                chatsClient.writeQuery({
-                  query: CHATS_QUERY,
-                  data,
-                  variables: {
-                    userId: _id,
+                chatsClient.cache.modify({
+                  fields: {
+                    [`chats({"input":{"userId":"${_id}"}})`](
+                      existingData: any,
+                    ) {
+                      const data = addObject(
+                        OnChatAddedChat,
+                        existingData,
+                        true,
+                      );
+                      return data;
+                    },
                   },
                 });
               }
@@ -686,7 +690,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         otherFriendsClient.cache.modify({
           fields: {
             [`otherFriends({"input":{"userId":"${_id}"}})`](existingData: any) {
-              const data = addObject(OnFriendAddedFriend, existingData);
+              const data = addObject(OnFriendAddedFriend, existingData, true);
               return data;
             },
           },
@@ -972,10 +976,12 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
           const fetchedMessages = fetchedData?.data?.messages;
           const fetchedMessagesEdges = fetchedMessages?.edges;
           const fetchedMessagesPageInfo = fetchedMessages?.pageInfo;
+          const fetchedMessagesScrollPosition = fetchedMessages?.scrollPosition;
+          const fetchedMessagesIsFetched = fetchedMessages?.isFetched;
           edges = fetchedMessagesEdges || [];
           pageInfo = fetchedMessagesPageInfo;
-          scrollPosition = 0;
-          isFetched = true;
+          scrollPosition = fetchedMessagesScrollPosition;
+          isFetched = fetchedMessagesIsFetched;
           isWrite = true;
         }
       }
@@ -993,7 +999,10 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         );
 
         if (uniqueMessages?.length) {
-          edges = sortByTimestamp([...edges, ...uniqueMessages]);
+          const updatedData = addArray(uniqueMessages, edges);
+          if (updatedData?.length) {
+            edges = sortByTimestamp(updatedData);
+          }
           scrollPosition = 0;
           isWrite = true;
         }
@@ -1206,6 +1215,9 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         // isRefetchingMessages
         isRefetchingMessages,
         setIsRefetchingMessages,
+        // isFetchingMessage
+        isFetchingMessages,
+        setIsFetchingMessages,
         // isFetchingChats
         isFetchingChats,
         setIsFetchingChats,

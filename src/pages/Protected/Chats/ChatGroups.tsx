@@ -7,7 +7,12 @@ import {
 } from '../../../contexts';
 import ChatMessage from './ChatMessage';
 import { ChatGroupsStyled } from './Chats.styled';
-import { debounce, sortByTimestamp } from '../../../helpers';
+import {
+  addArray,
+  addObject,
+  debounce,
+  sortByTimestamp,
+} from '../../../helpers';
 
 const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
   const [navbarHeight] = useOutletContext<any>();
@@ -21,13 +26,12 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
     messages = [],
     messagesPageInfo,
     messagesScrollPosition,
-    messagesLoading,
     fetchMoreMessages,
     loadingQueued,
     setLoadingQueued,
     scrollToBottom,
     scrollToPosition,
-    isRefetchingMessages,
+    isFetchingMessages,
     getQueuedMessages,
     getChatMessagesWithQueue,
   } = useContext(ChatsAndFriendsContext);
@@ -62,7 +66,7 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
       const moreMessages = moreMessagesData?.messages;
       let moreMessagesEdges = moreMessages?.edges;
       const moreMessagesPageInfo = moreMessages?.pageInfo;
-      const newEdges = [...moreMessagesEdges, messages?.[0]];
+      const newEdges = addObject(messages?.[0], moreMessagesEdges);
 
       const fetchedQueuedMessages = await getQueuedMessages(
         chatId,
@@ -77,7 +81,7 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
         ]);
       }
 
-      const edges = [...moreMessagesEdges, ...messages];
+      const edges = addArray(messages, moreMessagesEdges);
 
       cachedMessagesClient.writeQuery({
         query: CACHED_MESSAGES_QUERY,
@@ -111,7 +115,7 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
     });
   }, 50);
 
-  if ((messagesLoading && !isRefetchingMessages) || loadingQueued) return null;
+  if (isFetchingMessages || loadingQueued) return null;
 
   return (
     <ChatGroupsStyled

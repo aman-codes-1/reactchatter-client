@@ -9,6 +9,7 @@ import {
   ChatsAndFriendsProvider,
   WebSocketProvider,
 } from '../contexts';
+import { addObject } from '../helpers';
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -25,11 +26,11 @@ const AppRoutes = () => {
         <Route key={key} path={path} element={<Element />} />
       );
       if (type === 'private') {
-        setPrivateRoutes((prev: ReactNode[]) => [...prev, routeElement]);
+        setPrivateRoutes((prev: ReactNode[]) => addObject(routeElement, prev));
       } else if (type === 'public') {
-        setPublicRoutes((prev: ReactNode[]) => [...prev, routeElement]);
+        setPublicRoutes((prev: ReactNode[]) => addObject(routeElement, prev));
       } else if (type === 'default') {
-        setDefaultRoutes((prev: ReactNode[]) => [...prev, routeElement]);
+        setDefaultRoutes((prev: ReactNode[]) => addObject(routeElement, prev));
       }
     });
   }, [location?.pathname]);

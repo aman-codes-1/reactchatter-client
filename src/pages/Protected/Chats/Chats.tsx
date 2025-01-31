@@ -19,6 +19,7 @@ import {
   ChatsAndFriendsContext,
 } from '../../../contexts';
 import {
+  addObject,
   addUpdateChat,
   deleteFriend,
   getDateLabel2,
@@ -134,12 +135,13 @@ const Chats = ({ loadingChats }: any) => {
   };
 
   const renderMessage = (queuedMessage: any, id: string) => {
-    const edges = [...messages, queuedMessage];
-    const pageInfo = {
+    const edges = addObject(queuedMessage, messages);
+    let pageInfo = {
       endCursor: '',
       hasPreviousPage: false,
       hasNextPage: false,
     };
+    pageInfo = messagesPageInfo?.endCursor ? messagesPageInfo : pageInfo;
     const scrollPosition = 0;
     const isFetched = messagesIsFetched;
 
@@ -148,7 +150,7 @@ const Chats = ({ loadingChats }: any) => {
       data: {
         cachedMessages: {
           edges,
-          pageInfo: messagesPageInfo?.endCursor ? messagesPageInfo : pageInfo,
+          pageInfo,
           scrollPosition,
           isFetched,
         },
