@@ -14,12 +14,8 @@ import {
 import { AppBar, IconButton, List, TextField, Toolbar } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import { useAuth } from '../../../hooks';
+import { ChatsAndFriendsContext } from '../../../contexts';
 import {
-  CACHED_MESSAGES_QUERY,
-  ChatsAndFriendsContext,
-} from '../../../contexts';
-import {
-  addObject,
   addUpdateChat,
   deleteFriend,
   deleteFriendsCachedMessages,
@@ -422,12 +418,10 @@ const Chats = ({ loadingChats }: any) => {
           </Toolbar>
         </AppBar>
       </div>
-      {loadingChats ? null : (
-        <ChatGroups
-          appBarHeight={appBarHeight}
-          textFieldHeight={textFieldHeight}
-        />
-      )}
+      <ChatGroups
+        appBarHeight={appBarHeight}
+        textFieldHeight={textFieldHeight}
+      />
       <div className="text-field-wrapper" ref={textFieldRef}>
         <AppBar position="static" className="app-bar text-field-app-bar">
           <Toolbar disableGutters variant="dense">
