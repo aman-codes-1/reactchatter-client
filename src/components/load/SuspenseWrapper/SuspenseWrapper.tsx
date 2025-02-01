@@ -10,7 +10,7 @@ const SuspenseWrapper = (props: SuspenseWrapperProps) => {
   );
 
   return (
-    <Suspense fallback={fallback}>
+    <Suspense fallback={fallback || null}>
       <LazyComponent {...rest} />
     </Suspense>
   );
