@@ -22,12 +22,14 @@ import {
   addObject,
   addUpdateChat,
   deleteFriend,
+  deleteFriendsCachedMessages,
   getDateLabel2,
   getFriendId,
   getOtherMembers,
   getSender,
   getTime,
   handleKeyPress,
+  renderMessage,
   setFocus,
   updateHeight,
   validateSearchParams,
@@ -60,9 +62,6 @@ const Chats = ({ loadingChats }: any) => {
     friendLoading,
     friendCalled,
     cachedMessagesClient,
-    messages = [],
-    messagesPageInfo,
-    messagesIsFetched,
     activeClients,
     activeClientsLoading,
     chatsClient,
@@ -134,33 +133,6 @@ const Chats = ({ loadingChats }: any) => {
     setMessage(e?.target?.value);
   };
 
-  const renderMessage = (queuedMessage: any, id: string) => {
-    const edges = addObject(queuedMessage, messages);
-    let pageInfo = {
-      endCursor: '',
-      hasPreviousPage: false,
-      hasNextPage: false,
-    };
-    pageInfo = messagesPageInfo?.endCursor ? messagesPageInfo : pageInfo;
-    const scrollPosition = 0;
-    const isFetched = messagesIsFetched;
-
-    cachedMessagesClient.writeQuery({
-      query: CACHED_MESSAGES_QUERY,
-      data: {
-        cachedMessages: {
-          edges,
-          pageInfo,
-          scrollPosition,
-          isFetched,
-        },
-      },
-      variables: { chatId: id },
-    });
-
-    setScrollToBottom((prev: boolean) => !prev);
-  };
-
   const handleSendMessage = async () => {
     if (!message || loadingCreateChat) return;
     setMessage('');
@@ -175,6 +147,7 @@ const Chats = ({ loadingChats }: any) => {
       let isAdded = false;
       let isUpdated = false;
       let isChatDone = false;
+      let isRenderedChatMessage = false;
 
       const queuedMessageData = {
         _id: '',
@@ -193,7 +166,12 @@ const Chats = ({ loadingChats }: any) => {
           chatId: fullFriendId,
         };
 
-        renderMessage(queuedMessage, fullFriendId);
+        await renderMessage(
+          cachedMessagesClient,
+          queuedMessage,
+          fullFriendId,
+          setScrollToBottom,
+        );
 
         deleteFriend(otherFriendsClient, _id, friendIdToUse);
 
@@ -246,6 +224,15 @@ const Chats = ({ loadingChats }: any) => {
         if (!createdChatId || !createdChatFriendId)
           throw new Error('Failed to create chat');
 
+        const { isRendered } = await renderMessage(
+          cachedMessagesClient,
+          queuedMessage,
+          createdChatId,
+        );
+        isRenderedChatMessage = isRendered;
+
+        deleteFriendsCachedMessages(cachedMessagesClient, fullFriendId);
+
         chatIdToUse = createdChatId;
         friendIdToUse = createdChatFriendId;
 
@@ -284,6 +271,22 @@ const Chats = ({ loadingChats }: any) => {
           };
         }
 
+        if (
+          friendId &&
+          friendIdToUse &&
+          chatIdToUse &&
+          friendId === friendIdToUse
+        ) {
+          setSearchParams(
+            (params) => {
+              params.set('id', chatIdToUse);
+              params.set('type', 'chat');
+              return params;
+            },
+            { replace: true },
+          );
+        }
+
         setLoadingCreateChat(false);
       }
 
@@ -293,19 +296,13 @@ const Chats = ({ loadingChats }: any) => {
           chatId: chatIdToUse,
         };
 
-        renderMessage(queuedMessage, chatIdToUse);
-
-        if (
-          friendId &&
-          friendIdToUse &&
-          chatIdToUse &&
-          friendId === friendIdToUse
-        ) {
-          setSearchParams((params) => {
-            params.set('id', chatIdToUse);
-            params.set('type', 'chat');
-            return params;
-          });
+        if (!isRenderedChatMessage) {
+          await renderMessage(
+            cachedMessagesClient,
+            queuedMessage,
+            chatIdToUse,
+            setScrollToBottom,
+          );
         }
 
         if (!isChatDone) {

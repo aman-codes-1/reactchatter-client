@@ -27,8 +27,6 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
     messagesPageInfo,
     messagesScrollPosition,
     fetchMoreMessages,
-    loadingQueued,
-    setLoadingQueued,
     scrollToBottom,
     scrollToPosition,
     isFetchingMessages,
@@ -39,7 +37,6 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
   useLayoutEffect(() => {
     const fetchQueuedMessages = async () => {
       if (fullFriendId) {
-        setLoadingQueued(true);
         await getChatMessagesWithQueue(fullFriendId, 'friend');
       }
     };
@@ -115,7 +112,7 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
     });
   }, 50);
 
-  if (isFetchingMessages || loadingQueued) return null;
+  if (isFetchingMessages) return null;
 
   return (
     <ChatGroupsStyled

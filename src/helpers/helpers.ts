@@ -2,7 +2,7 @@ import { RefObject } from 'react';
 import moment from 'moment';
 import 'moment/min/locales';
 import { jwtDecode } from 'jwt-decode';
-import { MessageData, OtherMember } from '../contexts';
+import { CACHED_MESSAGES_QUERY, MessageData, OtherMember } from '../contexts';
 
 moment.locale(navigator.language);
 
@@ -352,6 +352,70 @@ export const addUpdateChat = (
     isChatAdded,
     isChatUpdated,
   };
+};
+
+export const renderMessage = async (
+  cachedMessagesClient: any,
+  queuedMessage: any,
+  id: string,
+  setScrollToBottom?: any,
+) => {
+  let edges: any[] = [];
+  let pageInfo = {
+    endCursor: '',
+    hasPreviousPage: false,
+    hasNextPage: false,
+  };
+  let scrollPosition = 0;
+  let isFetched = false;
+  let isRendered = false;
+
+  const cachedMessagesQuery = await cachedMessagesClient.readQuery({
+    query: CACHED_MESSAGES_QUERY,
+    variables: { chatId: id },
+  });
+
+  if (cachedMessagesQuery) {
+    const cachedData = cachedMessagesQuery?.cachedMessages;
+    edges = addObject(queuedMessage, cachedData?.edges) || [];
+    pageInfo = cachedData?.pageInfo?.endCursor
+      ? cachedData?.pageInfo
+      : pageInfo;
+    scrollPosition = cachedData?.scrollPosition;
+    isFetched = cachedData?.isFetched;
+  } else {
+    edges = [queuedMessage];
+  }
+
+  cachedMessagesClient.writeQuery({
+    query: CACHED_MESSAGES_QUERY,
+    data: {
+      cachedMessages: {
+        edges,
+        pageInfo,
+        scrollPosition,
+        isFetched,
+      },
+    },
+    variables: { chatId: id },
+  });
+
+  setScrollToBottom?.((prev: boolean) => !prev);
+
+  isRendered = true;
+
+  return { isRendered };
+};
+
+export const deleteFriendsCachedMessages = (
+  cachedMessagesClient: any,
+  id: string,
+) => {
+  cachedMessagesClient.cache.evict({
+    fieldName: 'cachedMessages',
+    args: { input: { chatId: id } },
+  });
+  cachedMessagesClient.cache.gc();
 };
 
 export const deleteFriend = (

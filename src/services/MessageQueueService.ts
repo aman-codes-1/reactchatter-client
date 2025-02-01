@@ -1,37 +1,44 @@
 import { MessageData } from '../contexts';
 import {
   addUpdateChat,
+  deleteFriendsCachedMessages,
   deleteKeyValuePairs,
   getFriendId,
   getMember,
+  renderMessage,
 } from '../helpers';
 
 export class MessageQueueService {
-  private friendId: any;
+  private friendId: string;
   private createChat: any;
   private createMessage: any;
   private chatsClient: any;
+  private cachedMessagesClient: any;
   private setSearchParams: any;
   private setLoadingProcessNextMessage: any;
-  private chatIdToUse: any;
+  private chatIdToUse: string;
   private friendIdToUse: any;
+  private isUpdated: boolean;
 
   constructor(
-    friendId?: any,
+    friendId?: string,
     createChat?: any,
     createMessage?: any,
     chatsClient?: any,
+    cachedMessagesClient?: any,
     setSearchParams?: any,
     setLoadingProcessNextMessage?: any,
   ) {
-    this.friendId = friendId || null;
+    this.friendId = friendId || '';
     this.createChat = createChat || null;
     this.createMessage = createMessage || null;
     this.chatsClient = chatsClient || null;
+    this.cachedMessagesClient = cachedMessagesClient || null;
     this.setSearchParams = setSearchParams || null;
     this.setLoadingProcessNextMessage = setLoadingProcessNextMessage || null;
-    this.chatIdToUse = null;
-    this.friendIdToUse = null;
+    this.chatIdToUse = '';
+    this.friendIdToUse = '';
+    this.isUpdated = false;
   }
 
   openDatabase() {
@@ -466,9 +473,7 @@ export class MessageQueueService {
   async processNextMessage(retryCount = 0, offset = 0): Promise<void> {
     const { message, cursor } =
       (await this.getNextMessageForProcessing(offset)) || {};
-
     if (!message) return;
-
     this.setLoadingProcessNextMessage(true);
 
     let queuedMessage = message;
@@ -476,21 +481,21 @@ export class MessageQueueService {
 
     if (!queueId) await this.removeCursorFromQueueAndRestart(cursor);
 
+    const { friendId, friendUserId } = getFriendId(this.chatIdToUse);
     const userId = sender?._id;
     const isRetry = sender?.retryStatus?.isRetry || false;
     const timestamp = Date.now();
-    this.chatIdToUse = chatId;
-    let isUpdated = false;
-
-    const { friendId, friendUserId } = getFriendId(this.chatIdToUse);
+    this.chatIdToUse = chatId || '';
+    this.friendIdToUse = friendId || '';
+    this.isUpdated = false;
 
     try {
-      if (friendId && friendUserId) {
+      if (this.friendIdToUse && friendUserId) {
         const newChat = await this.createChat?.({
           variables: {
             userId,
             type: 'private',
-            friendIds: [friendId],
+            friendIds: [this.friendIdToUse],
             friendUserIds: [friendUserId],
           },
         });
@@ -510,6 +515,17 @@ export class MessageQueueService {
             offset,
           );
         }
+
+        await renderMessage(
+          this.cachedMessagesClient,
+          queuedMessage,
+          createdChatId,
+        );
+
+        deleteFriendsCachedMessages(
+          this.cachedMessagesClient,
+          this.chatIdToUse,
+        );
 
         await this.bulkUpdateChatIdCursor(this.chatIdToUse, createdChatId);
 
@@ -553,14 +569,30 @@ export class MessageQueueService {
 
         if (updatedQueuedMessage) {
           queuedMessage = updatedQueuedMessage;
-          isUpdated = true;
+          this.isUpdated = true;
         }
 
-        if (!isUpdated) {
+        if (!this.isUpdated) {
           queuedMessage = {
             ...queuedMessage,
             ...newData,
           };
+        }
+
+        if (
+          this.friendId &&
+          this.friendIdToUse &&
+          this.chatIdToUse &&
+          this.friendId === this.friendIdToUse
+        ) {
+          this.setSearchParams?.(
+            (params: any) => {
+              params.set('id', this.chatIdToUse);
+              params.set('type', 'chat');
+              return params;
+            },
+            { replace: true },
+          );
         }
       }
 
@@ -599,23 +631,14 @@ export class MessageQueueService {
           );
         }
 
-        if (
-          this.friendId &&
-          this.friendIdToUse &&
-          this.chatIdToUse &&
-          this.friendId === this.friendIdToUse
-        ) {
-          this.setSearchParams?.((params: any) => {
-            params.set('id', this.chatIdToUse);
-            params.set('type', 'chat');
-            return params;
-          });
-        }
-
         if (createdMessageQueueId) {
           await this.removeFromQueueAndRestart(createdMessageQueueId);
         }
       }
+
+      this.chatIdToUse = '';
+      this.friendIdToUse = '';
+      this.isUpdated = false;
 
       await this.shouldRetryAndProcessNext(
         queueId,

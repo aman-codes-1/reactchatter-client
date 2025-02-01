@@ -67,7 +67,6 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   const [loadingCreateMessage, setLoadingCreateMessage] = useState(false);
   const [loadingProcessNextMessage, setLoadingProcessNextMessage] =
     useState(false);
-  const [loadingQueued, setLoadingQueued] = useState(false);
   const [scrollToBottom, setScrollToBottom] = useState(false);
   const [scrollToPosition, setScrollToPosition] = useState(false);
   const [isRefetchingMessages, setIsRefetchingMessages] = useState(false);
@@ -168,7 +167,6 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     variables: { chatId },
     skip: !chatId || !!fullFriendId || !!selectedItem || !!selectedDetails,
     onCompleted: async (data) => {
-      setLoadingQueued(true);
       const messagesData = data?.messages;
       let edges = messagesData?.edges;
       const pageInfo = messagesData?.pageInfo;
@@ -197,12 +195,10 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       }
       setIsFetchingMessages(false);
       setIsRefetchingMessages(false);
-      setLoadingQueued(false);
     },
     onError: (error) => {
       setIsFetchingMessages(false);
       setIsRefetchingMessages(false);
-      setLoadingQueued(false);
       const err = error?.message;
       if (err?.includes('Chat not found')) {
         navigate('/');
@@ -615,11 +611,14 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
                 OnChatAddedFriendId === friendId
               ) {
                 if (isOtherMember) {
-                  setSearchParams((params) => {
-                    params.set('id', OnChatAddedChatId);
-                    params.set('type', 'chat');
-                    return params;
-                  });
+                  setSearchParams(
+                    (params) => {
+                      params.set('id', OnChatAddedChatId);
+                      params.set('type', 'chat');
+                      return params;
+                    },
+                    { replace: true },
+                  );
                 }
                 const { otherMember } = getMember(OnChatAddedMembers, _id);
                 setSelectedItem(OnChatAddedChat);
@@ -852,6 +851,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       createChat,
       createMessage,
       chatsClient,
+      cachedMessagesClient,
       setSearchParams,
       setLoadingProcessNextMessage,
     );
@@ -861,7 +861,9 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         !isWsConnected ||
         loadingCreateMessage ||
         loadingProcessNextMessage ||
-        loadingQueued
+        isFetchingMessages ||
+        isFetchingChats ||
+        isFetchingOtherFriends
       )
         return;
       await messageQueueService.processQueue();
@@ -902,7 +904,9 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     isWsConnected,
     loadingCreateMessage,
     loadingProcessNextMessage,
-    loadingQueued,
+    isFetchingMessages,
+    isFetchingChats,
+    isFetchingOtherFriends,
   ]);
 
   const fetchMessages = async (id: string) => {
@@ -940,7 +944,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       startTimestamp,
       endTimestamp,
     );
-    setLoadingQueued(false);
+    setIsFetchingMessages(false);
     return res;
   };
 
@@ -1203,9 +1207,6 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         // loadingProcessNextMessage
         loadingProcessNextMessage,
         setLoadingProcessNextMessage,
-        // loadingQueued
-        loadingQueued,
-        setLoadingQueued,
         // scrollToBottom
         scrollToBottom,
         setScrollToBottom,
