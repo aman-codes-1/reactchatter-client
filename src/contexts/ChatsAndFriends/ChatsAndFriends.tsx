@@ -857,14 +857,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     );
 
     const startQueueProcessing = async () => {
-      if (
-        !isWsConnected ||
-        loadingCreateMessage ||
-        loadingProcessNextMessage ||
-        isFetchingMessages ||
-        isFetchingChats ||
-        isFetchingOtherFriends
-      )
+      if (!isWsConnected || loadingCreateMessage || loadingProcessNextMessage)
         return;
       await messageQueueService.processQueue();
     };
@@ -904,9 +897,6 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     isWsConnected,
     loadingCreateMessage,
     loadingProcessNextMessage,
-    isFetchingMessages,
-    isFetchingChats,
-    isFetchingOtherFriends,
   ]);
 
   const fetchMessages = async (id: string) => {
