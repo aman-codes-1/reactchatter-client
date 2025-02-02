@@ -2,6 +2,7 @@ import { Suspense, lazy } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
+import { ErrorBoundary } from './components';
 import { AuthProvider, ConnectionProvider, SnackbarProvider } from './contexts';
 import { theme } from './style';
 
@@ -14,13 +15,15 @@ const App = () => (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <BrowserRouter>
-        <SnackbarProvider>
-          <ConnectionProvider>
-            <AuthProvider>
-              <AppRoutes />
-            </AuthProvider>
-          </ConnectionProvider>
-        </SnackbarProvider>
+        <ErrorBoundary>
+          <SnackbarProvider>
+            <ConnectionProvider>
+              <AuthProvider>
+                <AppRoutes />
+              </AuthProvider>
+            </ConnectionProvider>
+          </SnackbarProvider>
+        </ErrorBoundary>
       </BrowserRouter>
     </ThemeProvider>
   </Suspense>
