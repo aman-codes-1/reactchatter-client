@@ -90,15 +90,17 @@ export const WebSocketProvider = ({ children }: any) => {
     ];
 
     eventListeners.forEach(({ target, event, handler }) =>
-      target.addEventListener(event, handler),
+      target.addEventListener(event, handler, { passive: true }),
     );
 
     return () => {
-      eventListeners.forEach(({ target, event, handler }) =>
-        target.removeEventListener(event, handler),
-      );
-      clearInactivityTimer();
-      handleOffline();
+      setTimeout(() => {
+        eventListeners.forEach(({ target, event, handler }) =>
+          target.removeEventListener(event, handler),
+        );
+        clearInactivityTimer();
+        handleOffline();
+      }, 0);
     };
   }, [auth?.isLoggedIn]);
 
