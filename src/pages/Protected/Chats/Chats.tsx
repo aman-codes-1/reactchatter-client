@@ -5,16 +5,13 @@ import {
   useRef,
   useState,
 } from 'react';
-import {
-  useLocation,
-  useNavigate,
-  useOutletContext,
-  useSearchParams,
-} from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { AppBar, IconButton, List, TextField, Toolbar } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import { ListItem, MainLayoutLoader } from '../../../components';
 import { useAuth } from '../../../hooks';
-import { ChatsAndFriendsContext } from '../../../contexts';
+import { ChatsAndFriendsContext, DrawerContext } from '../../../contexts';
 import {
   addUpdateChat,
   deleteFriend,
@@ -30,9 +27,7 @@ import {
   updateHeight,
   validateSearchParams,
 } from '../../../helpers';
-import { ListItem } from '../../../components';
 import { MessageQueueService } from '../../../services';
-import { MainLayoutLoader } from '../components';
 import ChatGroups from './ChatGroups';
 import { ChatsStyled } from './Chats.styled';
 
@@ -40,7 +35,6 @@ const Chats = () => {
   const MessageQueue = new MessageQueueService();
   const navigate = useNavigate();
   const { search } = useLocation();
-  const [navbarHeight, sideBarWidth] = useOutletContext<any>();
   const [searchParams, setSearchParams] = useSearchParams();
   const chatId =
     searchParams.get('type') === 'chat' ? searchParams.get('id') : null;
@@ -70,6 +64,8 @@ const Chats = () => {
     setLoadingCreateMessage,
     setScrollToBottom,
   } = useContext(ChatsAndFriendsContext);
+  const { navbarHeight, sideBarWidth } = useContext(DrawerContext);
+  console.log(sideBarWidth);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const appBarRef = useRef<HTMLElement | null>(null);
   const textFieldRef = useRef<HTMLDivElement | null>(null);
@@ -382,6 +378,10 @@ const Chats = () => {
     return selectedDetails?.email;
   };
 
+  const handleClickBack = () => {
+    navigate(-1);
+  };
+
   return (
     <ChatsStyled
       navbarHeight={navbarHeight}
@@ -390,31 +390,40 @@ const Chats = () => {
     >
       <div className="app-bar-wrapper">
         <AppBar position="static" className="app-bar" ref={appBarRef}>
-          <Toolbar>
-            {loading ? (
-              <MainLayoutLoader dense disablePadding disableGutters />
-            ) : (
-              <List dense disablePadding>
-                <ListItem
-                  disablePadding
-                  disableGutters
-                  disableHover
-                  btnProps={{
-                    disableGutters: true,
-                    textProps: {
-                      primary: selectedDetails?.name,
-                      secondary: renderSecondary(),
-                    },
-                    style: {
-                      WebkitLineClamp: 1,
-                    },
-                    avatarProps: {
-                      src: selectedDetails?.picture,
-                    },
-                  }}
-                />
-              </List>
-            )}
+          <Toolbar className="tool-bar">
+            <div className="top-app-bar">
+              <IconButton
+                size="small"
+                className="top-bar-back-btn"
+                onClick={handleClickBack}
+              >
+                <ArrowBackIosNewIcon />
+              </IconButton>
+              {loading ? (
+                <MainLayoutLoader dense disablePadding disableGutters />
+              ) : (
+                <List dense disablePadding>
+                  <ListItem
+                    disablePadding
+                    disableGutters
+                    disableHover
+                    btnProps={{
+                      disableGutters: true,
+                      textProps: {
+                        primary: selectedDetails?.name,
+                        secondary: renderSecondary(),
+                      },
+                      style: {
+                        WebkitLineClamp: 1,
+                      },
+                      avatarProps: {
+                        src: selectedDetails?.picture,
+                      },
+                    }}
+                  />
+                </List>
+              )}
+            </div>
           </Toolbar>
         </AppBar>
       </div>

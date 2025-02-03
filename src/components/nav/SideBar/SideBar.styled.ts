@@ -4,21 +4,18 @@ export const SideBarStyled = styled('div')(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
-  maxWidth: '22%',
+  maxWidth: '400px',
   height: '100dvh',
   borderRight: `1px solid ${theme.palette.grey[300]}`,
   overflow: 'auto',
   '.flex-item:nth-last-of-type(1)': {
     paddingTop: '1rem',
   },
-  [theme.breakpoints.down('xl')]: {
-    maxWidth: '30%',
-  },
   [theme.breakpoints.down('lg')]: {
-    maxWidth: '38%',
+    maxWidth: '350px',
   },
   [theme.breakpoints.down('md')]: {
-    maxWidth: '42%',
+    maxWidth: '320px',
   },
   [theme.breakpoints.down('sm')]: {
     maxWidth: '100%',

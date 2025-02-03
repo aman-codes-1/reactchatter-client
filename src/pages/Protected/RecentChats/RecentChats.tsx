@@ -1,7 +1,7 @@
 import { useContext, useLayoutEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChatsAndFriendsContext } from '../../../contexts';
-import { DataList, MainLayout } from '../components';
+import { DataList, MainLayout } from '../../../components';
+import { ChatsAndFriendsContext, DrawerContext } from '../../../contexts';
 import { clickChat } from '../../../helpers';
 
 const RecentChats = ({ loadingRecentChats }: any) => {
@@ -17,7 +17,9 @@ const RecentChats = ({ loadingRecentChats }: any) => {
     getChatMessagesWithQueue,
     fetchAll,
   } = useContext(ChatsAndFriendsContext);
+  const { toggleDrawer } = useContext(DrawerContext);
   const [currentChats, setCurrentChats] = useState(chats);
+  const prevPathname = `${location?.pathname}${location?.search}`;
 
   useLayoutEffect(() => {
     if (isFetchingChats || isFetchingOtherFriends || loadingRecentChats) return;
@@ -37,7 +39,9 @@ const RecentChats = ({ loadingRecentChats }: any) => {
       setSelectedItem,
       setSelectedDetails,
       navigate,
+      prevPathname,
       fetchAll,
+      toggleDrawer,
     );
   };
 

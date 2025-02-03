@@ -1,21 +1,21 @@
 import { RefObject, useContext, useLayoutEffect } from 'react';
-import { useOutletContext, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { InfiniteScroll } from '../../../components';
 import {
   CACHED_MESSAGES_QUERY,
   ChatsAndFriendsContext,
+  DrawerContext,
 } from '../../../contexts';
-import ChatMessage from './ChatMessage';
-import { ChatGroupsStyled } from './Chats.styled';
 import {
   addArray,
   addObject,
   debounce,
   sortByTimestamp,
 } from '../../../helpers';
+import ChatMessage from './ChatMessage';
+import { ChatGroupsStyled } from './Chats.styled';
 
 const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
-  const [navbarHeight] = useOutletContext<any>();
   const [searchParams] = useSearchParams();
   const chatId =
     searchParams.get('type') === 'chat' ? searchParams.get('id') : null;
@@ -33,6 +33,7 @@ const ChatGroups = ({ appBarHeight, textFieldHeight }: any) => {
     getQueuedMessages,
     getChatMessagesWithQueue,
   } = useContext(ChatsAndFriendsContext);
+  const { navbarHeight } = useContext(DrawerContext);
 
   useLayoutEffect(() => {
     const fetchQueuedMessages = async () => {

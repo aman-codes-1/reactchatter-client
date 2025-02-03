@@ -2,9 +2,9 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { Link as MuiLink, Typography } from '@mui/material';
+import { useAuth, useSnackbar } from '../../../hooks';
 import { decrypt, getCurrentYear, login, updateHeight } from '../../../helpers';
 import { HomeStyled } from './Home.styled';
-import { useAuth, useSnackbar } from '../../../hooks';
 
 const Home = ({ loadingHome }: any) => {
   const navigate = useNavigate();

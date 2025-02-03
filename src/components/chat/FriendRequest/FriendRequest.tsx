@@ -1,8 +1,7 @@
 import { List } from '@mui/material';
-import { Button, ListItem } from '../../../../components';
-import { useAuth } from '../../../../hooks';
-import { getMember } from '../../../../helpers';
-import { MainLayout } from '..';
+import { Button, ListItem, MainLayout } from '../..';
+import { useAuth } from '../../../hooks';
+import { getMember } from '../../../helpers';
 import { FriendRequestStyled } from './FriendRequest.styled';
 
 const FriendRequest = ({
@@ -87,7 +86,9 @@ const FriendRequest = ({
                           variant="contained"
                           color="inherit"
                           fullWidth
-                          onClick={(_) => deleteBtnProps?.onClick(_, idx, item)}
+                          onClick={(_: any) =>
+                            deleteBtnProps?.onClick(_, idx, item)
+                          }
                           wrapperClassName={
                             isConfirmBtn
                               ? 'flex-item-action-btn'

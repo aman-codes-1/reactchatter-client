@@ -1,6 +1,6 @@
 import { styled } from '@mui/system';
 
-export const BaseProtectedStyled = styled('div')(({ theme }: any) => ({
+export const DrawerStyled = styled('div')(({ theme }: any) => ({
   display: 'flex',
   width: '100%',
   height: '100dvh',

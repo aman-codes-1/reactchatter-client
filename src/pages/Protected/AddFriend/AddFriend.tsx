@@ -7,11 +7,10 @@ import {
 } from 'react';
 import { TextField, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { SuccessErrorMessage } from '../../../components';
-import { handleKeyPress, regex, setFocus } from '../../../helpers';
+import { MainLayout, SuccessErrorMessage } from '../../../components';
 import { useAuth, useTimeout } from '../../../hooks';
 import { ChatsAndFriendsContext } from '../../../contexts';
-import { MainLayout } from '../components';
+import { handleKeyPress, regex, setFocus } from '../../../helpers';
 import { AddFriendStyled } from './AddFriend.styled';
 
 const AddFriend = () => {

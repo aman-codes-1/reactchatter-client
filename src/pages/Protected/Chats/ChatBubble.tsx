@@ -1,8 +1,8 @@
 import { useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Typography, useTheme } from '@mui/material';
+import { MessageStatus } from '../../../components';
 import { ChatsAndFriendsContext } from '../../../contexts';
 import { checkMessageStatus, getTime } from '../../../helpers';
-import { MessageStatus } from '../components';
 import { ChatBubbleStyled } from './Chats.styled';
 
 const ChatBubble = ({

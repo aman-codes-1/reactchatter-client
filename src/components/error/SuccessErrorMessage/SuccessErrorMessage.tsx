@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { Typography } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { updateHeight } from '../../helpers';
+import { updateHeight } from '../../../helpers';
 import { SuccessErrorMessageProps } from './ISuccessErrorMessage';
 import { SuccessErrorMessageStyled } from './SuccessErrorMessage.styled';
 

@@ -41,8 +41,9 @@ export const clickChat = async (
   setSelectedItem: any,
   setSelectedDetails: any,
   navigate: any,
+  prevPathname: string,
   fetchAll: any,
-  toggleDrawer?: any,
+  toggleDrawer: any,
 ) => {
   setIsListItemClicked((prev: boolean) => !prev);
   let skipFinally = false;
@@ -59,7 +60,7 @@ export const clickChat = async (
     }
     if (type === 'friend') {
       if (item?.hasChats) {
-        toggleDrawer?.();
+        toggleDrawer();
         navigate('/');
         await fetchAll();
         skipFinally = true;
@@ -75,8 +76,10 @@ export const clickChat = async (
     if (!skipFinally) {
       setSelectedItem(item);
       setSelectedDetails(details);
-      toggleDrawer?.();
-      navigate(route);
+      toggleDrawer();
+      if (prevPathname !== route) {
+        navigate(route);
+      }
     }
   }
 };

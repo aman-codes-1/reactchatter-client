@@ -3,7 +3,7 @@ import { Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks';
 import { routesConfig } from './config';
 import { IRouteConfig } from './IRoutes';
-import { BaseProtected } from '../pages';
+import { Dashboard } from '../pages';
 import {
   ApolloClientProvider,
   ChatsAndFriendsProvider,
@@ -56,7 +56,7 @@ const AppRoutes = () => {
               <ApolloClientProvider>
                 <WebSocketProvider>
                   <ChatsAndFriendsProvider>
-                    <BaseProtected />
+                    <Dashboard />
                   </ChatsAndFriendsProvider>
                 </WebSocketProvider>
               </ApolloClientProvider>

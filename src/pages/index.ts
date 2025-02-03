@@ -1,7 +1,7 @@
 export {
   AddFriend,
-  BaseProtected,
   Chats,
+  Dashboard,
   FriendRequests,
   RecentChats,
   SentRequests,

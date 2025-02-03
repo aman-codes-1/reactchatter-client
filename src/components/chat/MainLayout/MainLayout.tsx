@@ -1,7 +1,7 @@
-import { useOutletContext } from 'react-router-dom';
+import { useContext } from 'react';
 import { Typography } from '@mui/material';
-import { SuccessErrorMessage } from '../../../../components';
-import { MainLayoutLoader } from '.';
+import { MainLayoutLoader, SuccessErrorMessage } from '../..';
+import { DrawerContext } from '../../../contexts';
 import { MainLayoutProps } from './IMainLayout';
 import { MainLayoutStyled } from './MainLayout.styled';
 
@@ -16,7 +16,7 @@ const MainLayout = ({
   onlyChildren = false,
   children,
 }: MainLayoutProps) => {
-  const [navbarHeight] = useOutletContext<any>();
+  const { navbarHeight } = useContext(DrawerContext);
   const isLoading = loading && !disableLoader;
 
   return (

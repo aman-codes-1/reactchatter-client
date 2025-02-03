@@ -1,5 +1,5 @@
 import { List, Skeleton } from '@mui/material';
-import { ListItem } from '../../../../components';
+import { ListItem } from '../..';
 import { MainLayoutLoaderStyled } from './MainLayout.styled';
 
 const MainLayoutLoader = ({

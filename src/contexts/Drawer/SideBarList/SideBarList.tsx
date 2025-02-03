@@ -6,13 +6,12 @@ import Face4OutlinedIcon from '@mui/icons-material/Face4Outlined';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { ChatsAndFriendsContext } from '../../../../contexts';
-import { ListItem } from '../../../../components';
-import { DataList } from '..';
+import { DataList, ListItem } from '../../../components';
+import { clickChat } from '../../../helpers';
+import { ChatsAndFriendsContext, DrawerContext } from '../..';
 import { SideBarListStyled } from './SideBarList.styled';
-import { clickChat } from '../../../../helpers';
 
-const SideBarList = ({ toggleDrawer, className }: any) => {
+const SideBarList = ({ className }: any) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const selectedOverviewLink = pathname?.split?.('/')?.[1];
@@ -30,10 +29,12 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
     getChatMessagesWithQueue,
     fetchAll,
   } = useContext(ChatsAndFriendsContext);
+  const { toggleDrawer } = useContext(DrawerContext);
   const [toggleChats, setToggleChats] = useState(!!chats?.length);
   const [toggleFriends, setToggleFriends] = useState(!!otherFriends?.length);
   const [currentChats, setCurrentChats] = useState(chats);
   const [currentOtherFriends, setCurrentOtherFriends] = useState(otherFriends);
+  const prevPathname = `${location?.pathname}${location?.search}`;
 
   const navLinks = [
     {
@@ -87,6 +88,7 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
       setSelectedItem,
       setSelectedDetails,
       navigate,
+      prevPathname,
       fetchAll,
       toggleDrawer,
     );
@@ -97,8 +99,10 @@ const SideBarList = ({ toggleDrawer, className }: any) => {
     link: string,
   ) => {
     setIsListItemClicked((prev: boolean) => !prev);
-    toggleDrawer?.();
-    navigate(link);
+    toggleDrawer();
+    if (prevPathname !== link) {
+      navigate(link);
+    }
   };
 
   const isLoaded = !isFetchingChats && !isFetchingOtherFriends;

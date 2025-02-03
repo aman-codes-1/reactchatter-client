@@ -41,6 +41,25 @@ export const ChatsStyled = styled('div')<{
     justifyContent: 'center',
     backgroundColor: theme.palette.primary.light,
   },
+  '.tool-bar': {
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 4,
+    },
+  },
+  '.top-app-bar': {
+    display: 'flex',
+    gap: '0.875rem',
+    alignItems: 'center',
+    width: '100%',
+    [theme.breakpoints.down('xs')]: {
+      gap: '0.5rem',
+    },
+  },
+  '.top-bar-back-btn': {
+    [theme.breakpoints.up('sm')]: {
+      display: 'none',
+    },
+  },
   '.text-field-wrapper': {
     position: 'fixed',
     width: `calc(100% - ${sideBarWidth || 0}px)`,

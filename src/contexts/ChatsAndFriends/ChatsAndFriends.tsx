@@ -30,8 +30,8 @@ import {
   uniqueQueuedMessages,
 } from '../../helpers';
 import { MessageQueueService } from '../../services';
-import { ApolloClientContext } from '..';
 import {
+  ApolloClientContext,
   CHATS_QUERY,
   CHAT_ADDED_SUBSCRIPTION,
   CHAT_QUERY,
@@ -53,7 +53,7 @@ import {
   UPDATE_REQUEST_MUTATION,
   USER_ONLINE_STATUS_SUBSCRIPTION,
   USER_ONLINE_STATUS_QUERY,
-} from '.';
+} from '..';
 
 export const ChatsAndFriendsContext = createContext<any>({});
 

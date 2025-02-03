@@ -3,20 +3,21 @@ import { Link } from 'react-router-dom';
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import { BaseSvg, Button } from '../..';
-import { ChatsAndFriendsContext } from '../../../contexts';
+import { ChatsAndFriendsContext, DrawerContext } from '../../../contexts';
 import { NavBarStyled } from './NavBar.styled';
 
-const NavBar = ({ onMenuClick, toggleDrawer, className }: any) => {
+const NavBar = ({ className }: any) => {
   const {
     chats = [],
     otherFriends = [],
     setIsHomeButtonClicked,
     fetchAll,
   } = useContext(ChatsAndFriendsContext);
+  const { toggleDrawer } = useContext(DrawerContext);
 
   const handleClickLogo = async () => {
     setIsHomeButtonClicked((prev: boolean) => !prev);
-    toggleDrawer?.();
+    toggleDrawer();
     await fetchAll();
   };
 
@@ -37,7 +38,7 @@ const NavBar = ({ onMenuClick, toggleDrawer, className }: any) => {
       ) : null}
       <Button
         endIcon={<MenuRoundedIcon />}
-        onClick={onMenuClick}
+        onClick={() => toggleDrawer(true)}
         className="nav-menu-btn text-hidden-xs"
       >
         <div>Menu</div>

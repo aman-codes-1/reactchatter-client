@@ -1,7 +1,7 @@
 import { MouseEventHandler, useContext } from 'react';
+import { FriendRequest } from '../../../components';
 import { useAuth, useSnackbar } from '../../../hooks';
 import { ChatsAndFriendsContext } from '../../../contexts';
-import { FriendRequest } from '../components';
 
 const FriendRequests = () => {
   const { openSnackbar } = useSnackbar();

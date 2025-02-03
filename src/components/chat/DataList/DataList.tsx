@@ -1,10 +1,9 @@
 import { RefObject, useContext, useLayoutEffect, useRef } from 'react';
 import { Divider, List, useTheme } from '@mui/material';
-import { ListItem } from '../../../../components';
-import { useAuth } from '../../../../hooks';
-import { ChatsAndFriendsContext } from '../../../../contexts';
-import { getMember, scrollToSelected } from '../../../../helpers';
-import { MessageStatus } from '..';
+import { ListItem, MessageStatus } from '../..';
+import { useAuth } from '../../../hooks';
+import { ChatsAndFriendsContext } from '../../../contexts';
+import { getMember, scrollToSelected } from '../../../helpers';
 
 const DataList = ({
   dense = false,
