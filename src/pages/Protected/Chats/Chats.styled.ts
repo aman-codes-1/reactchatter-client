@@ -43,16 +43,16 @@ export const ChatsStyled = styled('div')<{
   },
   '.tool-bar': {
     [theme.breakpoints.down('sm')]: {
-      paddingLeft: 4,
+      paddingLeft: 5,
     },
   },
   '.top-app-bar': {
     display: 'flex',
-    gap: '0.875rem',
+    gap: '1rem',
     alignItems: 'center',
     width: '100%',
     [theme.breakpoints.down('xs')]: {
-      gap: '0.5rem',
+      gap: '0.75rem',
     },
   },
   '.top-bar-back-btn': {
