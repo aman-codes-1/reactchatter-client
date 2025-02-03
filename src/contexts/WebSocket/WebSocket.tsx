@@ -1,24 +1,22 @@
 import { createContext, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { getOnlineStatus } from '../../helpers';
 import { useAuth } from '../../hooks';
 
 export const WebSocketContext = createContext<any>({});
 
 export const WebSocketProvider = ({ children }: any) => {
-  const { auth, setAuth } = useAuth();
+  const { auth } = useAuth();
   const socket = useRef<Socket | null>(null);
   const isHiddenOrBlurredRef = useRef<boolean | null>(false);
   const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const updateOnlineStatus = (isOnline: boolean) => {
-    setAuth((prev: any) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        onlineStatus: getOnlineStatus(isOnline),
-      };
-    });
+    if (!socket.current) return;
+    if (isOnline && !socket?.current?.connected) {
+      socket?.current?.connect();
+    } else if (!isOnline && socket?.current?.connected) {
+      socket?.current?.disconnect();
+    }
   };
 
   const clearInactivityTimer = () => {
@@ -43,6 +41,16 @@ export const WebSocketProvider = ({ children }: any) => {
   };
 
   useEffect(() => {
+    const serverUri = `${process.env.REACT_APP_PROXY_URI}`;
+    if (!serverUri) {
+      console.error('Missing REACT_APP_PROXY_URI environment variable');
+      return;
+    }
+    socket.current = io(serverUri, {
+      auth,
+      transports: ['websocket'],
+    });
+
     const handleOnline = () => updateOnlineStatus(true);
     const handleOffline = () => updateOnlineStatus(false);
     const handleInternetOnline = () => updateOnlineStatus(document.hasFocus());
@@ -78,8 +86,8 @@ export const WebSocketProvider = ({ children }: any) => {
       { target: window, event: 'keydown', handler: handleOnline },
       { target: window, event: 'click', handler: handleOnline },
       { target: window, event: 'scroll', handler: handleOnline },
-      { target: window, event: 'blur', handler: handleBlur },
       { target: window, event: 'focus', handler: handleFocus },
+      { target: window, event: 'blur', handler: handleBlur },
       { target: window, event: 'online', handler: handleInternetOnline },
       { target: window, event: 'offline', handler: handleOffline },
       {
@@ -94,33 +102,13 @@ export const WebSocketProvider = ({ children }: any) => {
     );
 
     return () => {
-      setTimeout(() => {
-        eventListeners.forEach(({ target, event, handler }) =>
-          target.removeEventListener(event, handler),
-        );
-        clearInactivityTimer();
-        handleOffline();
-      }, 0);
+      eventListeners.forEach(({ target, event, handler }) =>
+        target.removeEventListener(event, handler),
+      );
+      clearInactivityTimer();
+      handleOffline();
     };
   }, [auth?.isLoggedIn]);
-
-  useEffect(() => {
-    const serverUri = `${process.env.REACT_APP_PROXY_URI}`;
-    if (!serverUri) {
-      console.error('Missing REACT_APP_PROXY_URI environment variable');
-      return;
-    }
-    socket.current = io(serverUri, {
-      auth,
-      transports: ['websocket'],
-    });
-    socket?.current?.emit('updateUserOnlineStatus', auth);
-    return () => {
-      if (socket?.current) {
-        socket?.current?.disconnect();
-      }
-    };
-  }, [auth?.onlineStatus?.isOnline]);
 
   return (
     <WebSocketContext.Provider value={{ socket: socket?.current }}>

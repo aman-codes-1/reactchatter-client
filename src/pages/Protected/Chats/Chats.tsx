@@ -36,7 +36,7 @@ import { MainLayoutLoader } from '../components';
 import ChatGroups from './ChatGroups';
 import { ChatsStyled } from './Chats.styled';
 
-const Chats = ({ loadingChats }: any) => {
+const Chats = () => {
   const MessageQueue = new MessageQueueService();
   const navigate = useNavigate();
   const { search } = useLocation();
@@ -58,8 +58,8 @@ const Chats = ({ loadingChats }: any) => {
     friendLoading,
     friendCalled,
     cachedMessagesClient,
-    activeClients,
-    activeClientsLoading,
+    userOnlineStatus,
+    userOnlineStatusLoading,
     chatsClient,
     otherFriendsClient,
     createMessage,
@@ -366,8 +366,8 @@ const Chats = ({ loadingChats }: any) => {
   const loading = chatLoading || chatCalled || friendLoading || friendCalled;
 
   const renderSecondary = () => {
-    if (activeClientsLoading) return '';
-    const onlineStatus = activeClients?.activeClients?.onlineStatus;
+    if (userOnlineStatusLoading) return '';
+    const onlineStatus = userOnlineStatus?.userOnlineStatus?.onlineStatus;
     if (onlineStatus) {
       const isOnline = onlineStatus?.isOnline;
       const lastSeen = onlineStatus?.lastSeen;

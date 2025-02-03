@@ -26,9 +26,12 @@ export const createApolloClient = (
       connectionParams: {
         withCredentials: true,
       },
-      retryAttempts: 5,
-      lazy: true,
+      // lazy: true,
       shouldRetry: () => true,
+      retryAttempts: 10,
+      retryWait: async (attempt) => {
+        await new Promise((resolve) => setTimeout(resolve, attempt * 1000));
+      },
       on: {
         connected: () => {
           setIsWsConnected(true);

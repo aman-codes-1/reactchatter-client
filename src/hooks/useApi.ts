@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import axios, { AxiosRequestConfig } from 'axios';
 import { googleLogout } from '@react-oauth/google';
 import { useAuth, useSocket } from '.';
-import { apiRoutes, getOnlineStatus } from '../helpers';
+import { apiRoutes } from '../helpers';
 
 export const useApi = () => {
   const navigate = useNavigate();
@@ -14,10 +14,7 @@ export const useApi = () => {
 
   const logout = (includeFromState?: boolean) => {
     if (socket) {
-      socket?.emit('updateUserOnlineStatus', {
-        ...auth,
-        onlineStatus: getOnlineStatus(false),
-      });
+      socket?.disconnect();
     }
     localStorage.removeItem('token');
     setAuth(undefined);
@@ -71,14 +68,13 @@ export const useApi = () => {
       if (auth?.provider === 'google') {
         googleLogout();
       }
+      logout(!!includeFromState);
       await callApi({
         url: apiRoutes.AuthLogout,
         withCredentials: true,
       });
     } catch (err: any) {
       //
-    } finally {
-      logout(!!includeFromState);
     }
   };
 

@@ -1,4 +1,4 @@
-export { ApolloClientProvider } from './ApolloClient';
+export { ApolloClientContext, ApolloClientProvider } from './ApolloClient';
 export { AuthContext, AuthProvider } from './Auth';
 export * from './ChatsAndFriends';
 export { ConnectionContext, ConnectionProvider } from './Connection';
