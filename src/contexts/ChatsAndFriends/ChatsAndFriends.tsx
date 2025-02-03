@@ -432,15 +432,19 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
           if (isFoundAndUpdated && data?.length) {
             edges = data;
           } else {
-            // to do: sortByTimestamp
-            edges = addObject(OnMessageAddedMessage, edges);
+            const updatedData = addObject(OnMessageAddedMessage, edges);
+            if (updatedData?.length) {
+              edges = sortByTimestamp(updatedData);
+            }
           }
           isWrite = true;
         }
 
         if (isOtherMemberExists) {
-          // to do: sortByTimestamp
-          edges = addObject(OnMessageAddedMessage, edges);
+          const updatedData = addObject(OnMessageAddedMessage, edges);
+          if (updatedData?.length) {
+            edges = sortByTimestamp(updatedData);
+          }
           isWrite = true;
           isWriteChats = true;
         }
@@ -537,8 +541,10 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
           if (isFoundAndUpdated && data?.length) {
             edges = data;
           } else {
-            // to do: sortByTimestamp
-            edges = addObject(OnMessageUpdatedMessage, edges);
+            const updatedData = addObject(OnMessageUpdatedMessage, edges);
+            if (updatedData?.length) {
+              edges = sortByTimestamp(updatedData);
+            }
           }
 
           cachedMessagesClient.writeQuery({
