@@ -30,7 +30,7 @@ const CACHED_MESSAGES_QUERY = gql(/* GraphQL */ `
             timestamp
           }
         }
-        otherMembers {
+        receivers {
           _id
           name
           picture
@@ -89,7 +89,7 @@ const MESSAGES_QUERY = gql(/* GraphQL */ `
             timestamp
           }
         }
-        otherMembers {
+        receivers {
           _id
           name
           picture
@@ -177,7 +177,7 @@ const MESSAGE_ADDED_SUBSCRIPTION = gql(/* GraphQL */ `
             timestamp
           }
         }
-        otherMembers {
+        receivers {
           _id
           name
           picture
@@ -229,7 +229,7 @@ const MESSAGE_UPDATED_SUBSCRIPTION = gql(/* GraphQL */ `
             timestamp
           }
         }
-        otherMembers {
+        receivers {
           _id
           name
           picture
@@ -266,6 +266,7 @@ const CHAT_QUERY = gql(/* GraphQL */ `
         email_verified
         given_name
         family_name
+        unreadMessagesCount
       }
       lastMessage {
         message
@@ -284,7 +285,7 @@ const CHAT_QUERY = gql(/* GraphQL */ `
             timestamp
           }
         }
-        otherMembers {
+        receivers {
           _id
           deliveredStatus {
             isDelivered
@@ -316,6 +317,7 @@ const CHATS_QUERY = gql(/* GraphQL */ `
         email_verified
         given_name
         family_name
+        unreadMessagesCount
       }
       lastMessage {
         message
@@ -334,7 +336,7 @@ const CHATS_QUERY = gql(/* GraphQL */ `
             timestamp
           }
         }
-        otherMembers {
+        receivers {
           _id
           deliveredStatus {
             isDelivered
@@ -380,6 +382,7 @@ const CREATE_CHAT_MUTATION = gql(/* GraphQL */ `
           email_verified
           given_name
           family_name
+          unreadMessagesCount
         }
         friends {
           _id
@@ -406,6 +409,7 @@ const CHAT_ADDED_SUBSCRIPTION = gql(/* GraphQL */ `
           email_verified
           given_name
           family_name
+          unreadMessagesCount
         }
         lastMessage {
           message
@@ -424,7 +428,7 @@ const CHAT_ADDED_SUBSCRIPTION = gql(/* GraphQL */ `
               timestamp
             }
           }
-          otherMembers {
+          receivers {
             _id
             deliveredStatus {
               isDelivered
@@ -458,6 +462,7 @@ const CHAT_UPDATED_SUBSCRIPTION = gql(/* GraphQL */ `
           email_verified
           given_name
           family_name
+          unreadMessagesCount
         }
         lastMessage {
           message
@@ -476,7 +481,7 @@ const CHAT_UPDATED_SUBSCRIPTION = gql(/* GraphQL */ `
               timestamp
             }
           }
-          otherMembers {
+          receivers {
             _id
             deliveredStatus {
               isDelivered
@@ -527,7 +532,7 @@ const FRIEND_QUERY = gql(/* GraphQL */ `
             timestamp
           }
         }
-        otherMembers {
+        receivers {
           _id
           deliveredStatus {
             isDelivered
@@ -578,7 +583,7 @@ const FRIENDS_QUERY = gql(/* GraphQL */ `
             timestamp
           }
         }
-        otherMembers {
+        receivers {
           _id
           deliveredStatus {
             isDelivered
@@ -629,7 +634,7 @@ const OTHER_FRIENDS_QUERY = gql(/* GraphQL */ `
             timestamp
           }
         }
-        otherMembers {
+        receivers {
           _id
           deliveredStatus {
             isDelivered
@@ -681,7 +686,7 @@ const FRIEND_ADDED_SUBSCRIPTION = gql(/* GraphQL */ `
               timestamp
             }
           }
-          otherMembers {
+          receivers {
             _id
             deliveredStatus {
               isDelivered

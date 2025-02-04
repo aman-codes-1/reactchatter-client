@@ -18,7 +18,7 @@ import {
   deleteFriendsCachedMessages,
   getDateLabel2,
   getFriendId,
-  getOtherMembers,
+  getReceivers,
   getSender,
   getTime,
   handleKeyPress,
@@ -59,13 +59,12 @@ const Chats = () => {
     createMessage,
     createChat,
     isListItemClicked,
-    selectedItem,
-    selectedDetails,
+    selectedChat,
+    selectedChatDetails,
     setLoadingCreateMessage,
     setScrollToBottom,
   } = useContext(ChatsAndFriendsContext);
   const { navbarHeight, sideBarWidth } = useContext(DrawerContext);
-  console.log(sideBarWidth);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const appBarRef = useRef<HTMLElement | null>(null);
   const textFieldRef = useRef<HTMLDivElement | null>(null);
@@ -146,8 +145,8 @@ const Chats = () => {
         queueId,
         message,
         timestamp,
-        otherMembers: getOtherMembers(selectedItem?.members, _id),
-        sender: getSender(selectedItem?.members, timestamp, _id),
+        sender: getSender(selectedChat?.members, timestamp, _id),
+        receivers: getReceivers(selectedChat?.members, _id),
       };
 
       if (!chatIdToUse && fullFriendId) {
@@ -168,7 +167,7 @@ const Chats = () => {
         deleteFriend(otherFriendsClient, _id, friendIdToUse);
 
         const friend = {
-          ...selectedItem,
+          ...selectedChat,
           hasChats: true,
           lastMessage: queuedMessage,
         };
@@ -375,7 +374,7 @@ const Chats = () => {
         return lastSeenStr;
       }
     }
-    return selectedDetails?.email;
+    return selectedChatDetails?.email;
   };
 
   const handleClickBack = () => {
@@ -410,14 +409,14 @@ const Chats = () => {
                     btnProps={{
                       disableGutters: true,
                       textProps: {
-                        primary: selectedDetails?.name,
+                        primary: selectedChatDetails?.name,
                         secondary: renderSecondary(),
                       },
                       style: {
                         WebkitLineClamp: 1,
                       },
                       avatarProps: {
-                        src: selectedDetails?.picture,
+                        src: selectedChatDetails?.picture,
                       },
                     }}
                   />

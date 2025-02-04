@@ -69,8 +69,8 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     searchParams.get('type') === 'friend' ? searchParams.get('id') : null;
   const { friendId } = getFriendId(fullFriendId);
   const [isListItemClicked, setIsListItemClicked] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<any>();
-  const [selectedDetails, setSelectedDetails] = useState<any>();
+  const [selectedChat, setSelectedChat] = useState<any>();
+  const [selectedChatDetails, setSelectedChatDetails] = useState<any>();
   const [loadingCreateMessage, setLoadingCreateMessage] = useState(false);
   const [loadingProcessNextMessage, setLoadingProcessNextMessage] =
     useState(false);
@@ -95,7 +95,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     variables: {
       chatId,
     },
-    skip: !chatId || !!friendId || !!selectedItem || !!selectedDetails,
+    skip: !chatId || !!friendId || !!selectedChat || !!selectedChatDetails,
     notifyOnNetworkStatusChange: true,
     onCompleted: (data) => {
       const item = data?.chat;
@@ -103,12 +103,12 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       const isGroupChat = item?.type === 'group';
       if (isPrivateChat) {
         const { otherMember } = getMember(item?.members, _id);
-        setSelectedItem(item);
-        setSelectedDetails(otherMember);
+        setSelectedChat(item);
+        setSelectedChatDetails(otherMember);
       }
       if (isGroupChat) {
-        setSelectedItem(item);
-        setSelectedDetails(item?.groupDetails);
+        setSelectedChat(item);
+        setSelectedChatDetails(item?.groupDetails);
       }
     },
     onError: () => {
@@ -128,7 +128,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       friendId,
       userId: _id,
     },
-    skip: !friendId || !!chatId || !!selectedItem || !!selectedDetails,
+    skip: !friendId || !!chatId || !!selectedChat || !!selectedChatDetails,
     notifyOnNetworkStatusChange: true,
     onCompleted: (data) => {
       const item = data?.friend;
@@ -137,8 +137,8 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         navigate('/');
       } else {
         const { otherMember } = getMember(item?.members, _id);
-        setSelectedItem(item);
-        setSelectedDetails(otherMember);
+        setSelectedChat(item);
+        setSelectedChatDetails(otherMember);
       }
     },
     onError: () => {
@@ -173,7 +173,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
   } = useQuery(MESSAGES_QUERY, {
     fetchPolicy: 'no-cache',
     variables: { chatId },
-    skip: !chatId || !!fullFriendId || !!selectedItem || !!selectedDetails,
+    skip: !chatId || !!fullFriendId || !!selectedChat || !!selectedChatDetails,
     onCompleted: async (data) => {
       const messagesData = data?.messages;
       let edges = messagesData?.edges;
@@ -222,9 +222,9 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
     called: userOnlineStatusCalled,
   } = useQuery(USER_ONLINE_STATUS_QUERY, {
     variables: {
-      userId: selectedDetails?._id,
+      userId: selectedChatDetails?._id,
     },
-    skip: !selectedItem || !selectedDetails,
+    skip: !selectedChat || !selectedChatDetails,
     notifyOnNetworkStatusChange: true,
   });
 
@@ -385,17 +385,17 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       const OnMessageAddedQueueId = OnMessageAddedMessage?.queueId;
       const OnMessageAddedSender = OnMessageAddedMessage?.sender;
       const OnMessageAddedSenderId = OnMessageAddedSender?._id;
-      const OnMessageAddedOtherMembers = OnMessageAddedMessage?.otherMembers;
+      const OnMessageAddedReceivers = OnMessageAddedMessage?.receivers;
 
-      const isMemberExists =
+      const isSenderExists =
         OnMessageAddedSenderId && OnMessageAddedSenderId === _id;
-      const isOtherMemberExists = OnMessageAddedOtherMembers?.length
-        ? OnMessageAddedOtherMembers.some(
-            (member: any) => member?._id && member?._id === _id,
+      const isReceiverExists = OnMessageAddedReceivers?.length
+        ? OnMessageAddedReceivers.some(
+            (receiver: any) => receiver?._id && receiver?._id === _id,
           )
         : false;
 
-      if (isMemberExists || isOtherMemberExists) {
+      if (isSenderExists || isReceiverExists) {
         let edges: any[] = [];
         let pageInfo = {
           endCursor: OnMessageAddedMessageId,
@@ -422,7 +422,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
           isFetched = cachedData?.isFetched;
         }
 
-        if (isMemberExists) {
+        if (isSenderExists) {
           const { isFoundAndUpdated, data } = findAndUpdate(
             OnMessageAddedQueueId,
             'queueId',
@@ -440,7 +440,7 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
           isWrite = true;
         }
 
-        if (isOtherMemberExists) {
+        if (isReceiverExists) {
           const updatedData = addObject(OnMessageAddedMessage, edges);
           if (updatedData?.length) {
             edges = sortByTimestamp(updatedData);
@@ -495,18 +495,17 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
       const OnMessageUpdatedChatId = OnMessageUpdatedMessage?.chatId;
       const OnMessageUpdatedSender = OnMessageUpdatedMessage?.sender;
       const OnMessageUpdatedSenderId = OnMessageUpdatedSender?._id;
-      const OnMessageUpdatedOtherMembers =
-        OnMessageUpdatedMessage?.otherMembers;
+      const OnMessageUpdatedReceivers = OnMessageUpdatedMessage?.receivers;
 
-      const isMemberExists =
+      const isSenderExists =
         OnMessageUpdatedSenderId && OnMessageUpdatedSenderId === _id;
-      const isOtherMemberExists = OnMessageUpdatedOtherMembers?.length
-        ? OnMessageUpdatedOtherMembers.some(
-            (member: any) => member?._id && member?._id === _id,
+      const isReceiverExists = OnMessageUpdatedReceivers?.length
+        ? OnMessageUpdatedReceivers.some(
+            (receiver: any) => receiver?._id && receiver?._id === _id,
           )
         : false;
 
-      if (isMemberExists || isOtherMemberExists) {
+      if (isSenderExists || isReceiverExists) {
         let edges: any[] = [];
         let pageInfo = {
           endCursor: OnMessageUpdatedMessageId,
@@ -531,38 +530,36 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
           isFetched = cachedData?.isFetched;
         }
 
-        if (isMemberExists || isOtherMemberExists) {
-          const { isFoundAndUpdated, data } = findAndUpdate(
-            OnMessageUpdatedQueueId,
-            'queueId',
-            edges,
-            OnMessageUpdatedMessage,
-          );
-          if (isFoundAndUpdated && data?.length) {
-            edges = data;
-          } else {
-            const updatedData = addObject(OnMessageUpdatedMessage, edges);
-            if (updatedData?.length) {
-              edges = sortByTimestamp(updatedData);
-            }
+        const { isFoundAndUpdated, data } = findAndUpdate(
+          OnMessageUpdatedQueueId,
+          'queueId',
+          edges,
+          OnMessageUpdatedMessage,
+        );
+        if (isFoundAndUpdated && data?.length) {
+          edges = data;
+        } else {
+          const updatedData = addObject(OnMessageUpdatedMessage, edges);
+          if (updatedData?.length) {
+            edges = sortByTimestamp(updatedData);
           }
+        }
 
-          cachedMessagesClient.writeQuery({
-            query: CACHED_MESSAGES_QUERY,
-            data: {
-              cachedMessages: {
-                edges,
-                pageInfo,
-                scrollPosition,
-                isFetched,
-              },
+        cachedMessagesClient.writeQuery({
+          query: CACHED_MESSAGES_QUERY,
+          data: {
+            cachedMessages: {
+              edges,
+              pageInfo,
+              scrollPosition,
+              isFetched,
             },
-            variables: { chatId: OnMessageUpdatedChatId },
-          });
+          },
+          variables: { chatId: OnMessageUpdatedChatId },
+        });
 
-          if (isOtherMemberExists) {
-            // to do: update chat with unread message count
-          }
+        if (isReceiverExists) {
+          // to do: update chat with unread message count
         }
       }
     },
@@ -638,8 +635,8 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
                   );
                 }
                 const { otherMember } = getMember(OnChatAddedMembers, _id);
-                setSelectedItem(OnChatAddedChat);
-                setSelectedDetails(otherMember);
+                setSelectedChat(OnChatAddedChat);
+                setSelectedChatDetails(otherMember);
               }
             }
           });
@@ -857,8 +854,8 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
 
   useLayoutEffect(() => {
     if (!pathname?.includes('/chat')) {
-      setSelectedItem(undefined);
-      setSelectedDetails(undefined);
+      setSelectedChat(undefined);
+      setSelectedChatDetails(undefined);
     }
   }, [pathname]);
 
@@ -1207,12 +1204,12 @@ export const ChatsAndFriendsProvider = ({ children }: any) => {
         // isListItemClicked
         isListItemClicked,
         setIsListItemClicked,
-        // selectedItem
-        selectedItem,
-        setSelectedItem,
-        // selectedDetails
-        selectedDetails,
-        setSelectedDetails,
+        // selectedChat
+        selectedChat,
+        setSelectedChat,
+        // selectedChatDetails
+        selectedChatDetails,
+        setSelectedChatDetails,
         // loadingCreateMessage
         loadingCreateMessage,
         setLoadingCreateMessage,

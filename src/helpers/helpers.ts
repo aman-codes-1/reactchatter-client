@@ -2,7 +2,7 @@ import { RefObject } from 'react';
 import moment from 'moment';
 import 'moment/min/locales';
 import { jwtDecode } from 'jwt-decode';
-import { CACHED_MESSAGES_QUERY, MessageData, OtherMember } from '../contexts';
+import { CACHED_MESSAGES_QUERY, MessageData, Receiver } from '../contexts';
 
 moment.locale(navigator.language);
 
@@ -35,11 +35,11 @@ export const getMember = (members: any[], _id: string) => {
 
 export const clickChat = async (
   item: any,
-  details: any,
+  chatDetails: any,
   getChatMessagesWithQueue: any,
   setIsListItemClicked: any,
-  setSelectedItem: any,
-  setSelectedDetails: any,
+  setSelectedChat: any,
+  setSelectedChatDetails: any,
   navigate: any,
   prevPathname: string,
   fetchAll: any,
@@ -53,7 +53,7 @@ export const clickChat = async (
     const id = item?._id;
     const type =
       item?.type === 'private' || item?.type === 'group' ? 'chat' : item?.type;
-    const userId = details?._id;
+    const userId = chatDetails?._id;
     if (type === 'chat') {
       await getChatMessagesWithQueue(id, type);
       route = `/chat?id=${id}&type=${type}`;
@@ -74,8 +74,8 @@ export const clickChat = async (
     console.error('Error fetching messages:', error);
   } finally {
     if (!skipFinally) {
-      setSelectedItem(item);
-      setSelectedDetails(details);
+      setSelectedChat(item);
+      setSelectedChatDetails(chatDetails);
       toggleDrawer();
       if (prevPathname !== route) {
         navigate(route);
@@ -118,11 +118,10 @@ export const scrollToSelected = (
   ref: any,
   itemsRef: any,
   listItems: any[],
-  selectedListItem: any,
+  selectedItem: any,
 ) => {
   const selectedItemIndex = listItems?.findIndex(
-    (item) =>
-      item?._id && selectedListItem?._id && item?._id === selectedListItem?._id,
+    (item) => item?._id && selectedItem?._id && item?._id === selectedItem?._id,
   );
   const listElement = ref?.current;
   const itemElement = itemsRef?.current?.[selectedItemIndex];
@@ -270,25 +269,6 @@ export const getLastMessage = (edges: any[]) => {
   return lastMessage;
 };
 
-export const getOtherMembers = (members: any[], _id: string) => {
-  if (members?.length) {
-    const filteredMembers = filterDataById(members, _id);
-    if (filteredMembers?.length) {
-      const otherMembers = filteredMembers?.map((member: any) => {
-        const { hasAdded, ...rest } = member || {};
-        return {
-          ...rest,
-          deliveredStatus: null,
-          readStatus: null,
-        };
-      });
-      return otherMembers;
-    }
-    return [];
-  }
-  return [];
-};
-
 export const getSender = (members: any[], timestamp: number, _id: string) => {
   if (members?.length) {
     const sender = members?.find(
@@ -309,6 +289,25 @@ export const getSender = (members: any[], timestamp: number, _id: string) => {
     return {};
   }
   return {};
+};
+
+export const getReceivers = (members: any[], _id: string) => {
+  if (members?.length) {
+    const filteredMembers = filterDataById(members, _id);
+    if (filteredMembers?.length) {
+      const receivers = filteredMembers?.map((member: any) => {
+        const { hasAdded, ...rest } = member || {};
+        return {
+          ...rest,
+          deliveredStatus: null,
+          readStatus: null,
+        };
+      });
+      return receivers;
+    }
+    return [];
+  }
+  return [];
 };
 
 export const addUpdateChat = (
@@ -458,7 +457,7 @@ export const checkIsMemberExists = (
   return { isCurrentMember, isOtherMember };
 };
 
-export const checkMessageStatus = (msg: MessageData, selectedItem: any) => {
+export const checkMessageStatus = (msg: MessageData, selectedChat: any) => {
   let isQueued;
   let isSent;
   let isDelivered;
@@ -470,21 +469,19 @@ export const checkMessageStatus = (msg: MessageData, selectedItem: any) => {
   const sentStatus = sender?.sentStatus;
   isSent = sentStatus?.isSent;
 
-  if (selectedItem?.type === 'private') {
-    const receiver = msg?.otherMembers?.[0];
+  if (selectedChat?.type === 'private') {
+    const receiver = msg?.receivers?.[0];
     const deliveredStatus = receiver?.deliveredStatus;
     isDelivered = deliveredStatus?.isDelivered;
     const readStatus = receiver?.readStatus;
     isRead = readStatus?.isRead;
   }
 
-  if (selectedItem?.type === 'group') {
-    isDelivered = msg?.otherMembers?.every(
-      (el: OtherMember) => el?.deliveredStatus?.isDelivered,
+  if (selectedChat?.type === 'group') {
+    isDelivered = msg?.receivers?.every(
+      (el: Receiver) => el?.deliveredStatus?.isDelivered,
     );
-    isRead = msg?.otherMembers?.every(
-      (el: OtherMember) => el?.readStatus?.isRead,
-    );
+    isRead = msg?.receivers?.every((el: Receiver) => el?.readStatus?.isRead);
   }
 
   isDelivered = isDelivered && !isRead;

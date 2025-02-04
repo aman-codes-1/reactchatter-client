@@ -21,9 +21,9 @@ const SideBarList = ({ className }: any) => {
     pendingRequestsCount = 0,
     sentRequestsCount = 0,
     setIsListItemClicked,
-    selectedItem,
-    setSelectedItem,
-    setSelectedDetails,
+    selectedChat,
+    setSelectedChat,
+    setSelectedChatDetails,
     isFetchingChats,
     isFetchingOtherFriends,
     getChatMessagesWithQueue,
@@ -78,15 +78,15 @@ const SideBarList = ({ className }: any) => {
   const handleClickChat = async (
     _: React.MouseEvent<HTMLDivElement, MouseEvent>,
     item: any,
-    details: any,
+    chatDetails: any,
   ) => {
     await clickChat(
       item,
-      details,
+      chatDetails,
       getChatMessagesWithQueue,
       setIsListItemClicked,
-      setSelectedItem,
-      setSelectedDetails,
+      setSelectedChat,
+      setSelectedChatDetails,
       navigate,
       prevPathname,
       fetchAll,
@@ -141,7 +141,7 @@ const SideBarList = ({ className }: any) => {
             <DataList
               dense
               data={currentChats}
-              selectedItem={selectedItem}
+              selectedChat={selectedChat}
               handleClickListItem={handleClickChat}
               className="flex-list-item margin-bottom"
               scrollDependencies={[toggleChats, toggleFriends]}
@@ -179,7 +179,7 @@ const SideBarList = ({ className }: any) => {
               <DataList
                 dense
                 data={currentOtherFriends}
-                selectedItem={selectedItem}
+                selectedChat={selectedChat}
                 handleClickListItem={handleClickChat}
                 className="flex-list-item margin-bottom"
                 scrollDependencies={[toggleChats, toggleFriends]}

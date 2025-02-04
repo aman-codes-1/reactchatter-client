@@ -7,15 +7,15 @@ import { checkMessageStatus } from '../../../helpers';
 const MessageStatus = ({
   msg,
   messageStatus,
-  selectedItem,
+  selectedChat,
   color,
   readColor,
 }: any) => {
   const theme = useTheme();
 
   const { isQueued, isSent, isDelivered, isRead } =
-    (msg && selectedItem
-      ? checkMessageStatus(msg, selectedItem)
+    (msg && selectedChat
+      ? checkMessageStatus(msg, selectedChat)
       : messageStatus) || {};
 
   return (

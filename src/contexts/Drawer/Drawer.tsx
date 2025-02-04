@@ -41,7 +41,6 @@ export const DrawerProvider = ({ children }: any) => {
   }, []);
 
   const toggleDrawer = (isSwitch?: boolean, value?: boolean) => {
-    console.log(isSwitch);
     if (isSwitch) {
       setIsDrawerOpen((prev) => !prev);
     } else {

@@ -16,14 +16,14 @@ const ChatBubble = ({
   const theme = useTheme();
   const [isResize, setIsResize] = useState(false);
   const [isOverflow, setIsOverflow] = useState(false);
-  const { selectedItem } = useContext(ChatsAndFriendsContext);
+  const { selectedChat } = useContext(ChatsAndFriendsContext);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const messageRef = useRef<HTMLSpanElement | null>(null);
 
   const timestamp = msg?.timestamp;
   const messageStatus = useMemo(
-    () => checkMessageStatus(msg, selectedItem),
-    [msg, selectedItem],
+    () => checkMessageStatus(msg, selectedChat),
+    [msg, selectedChat],
   );
   const { isQueued } = messageStatus || {};
 

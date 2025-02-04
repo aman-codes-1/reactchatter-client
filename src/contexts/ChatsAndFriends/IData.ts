@@ -30,7 +30,7 @@ type Sender = {
   sentStatus: SentStatus;
 };
 
-export type OtherMember = {
+export type Receiver = {
   _id: string;
   deliveredStatus: DeliveredStatus;
   readStatus: ReadStatus;
@@ -38,12 +38,11 @@ export type OtherMember = {
 
 export type MessageData = {
   _id: string;
-  queueId?: string;
-  chatId?: string;
-  friendId?: string;
-  friendUserId?: string;
+  queueId: string;
+  chatId: string;
+  isActive?: boolean;
   message: string;
   sender: Sender;
-  otherMembers?: OtherMember[];
+  receivers?: Receiver[];
   timestamp: number;
 };

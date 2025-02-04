@@ -1,5 +1,5 @@
 import { RefObject, useContext, useLayoutEffect, useRef } from 'react';
-import { Divider, List, useTheme } from '@mui/material';
+import { Badge, Divider, List, useTheme } from '@mui/material';
 import { ListItem, MessageStatus } from '../..';
 import { useAuth } from '../../../hooks';
 import { ChatsAndFriendsContext } from '../../../contexts';
@@ -10,16 +10,16 @@ const DataList = ({
   disableGutters = false,
   dividerVariant,
   data,
-  selectedItem,
+  selectedChat,
   handleClickListItem,
   className,
   scrollDependencies = [],
 }: any) => {
   const theme = useTheme();
   const { auth: { _id = '' } = {} } = useAuth();
+  const { isHomeButtonClicked } = useContext(ChatsAndFriendsContext);
   const listRef = useRef<HTMLUListElement | null>(null);
   const listItemsRef = useRef<HTMLDivElement[] | null[]>([]);
-  const { isHomeButtonClicked } = useContext(ChatsAndFriendsContext);
 
   useLayoutEffect(() => {
     if (listRef?.current) {
@@ -33,9 +33,9 @@ const DataList = ({
         listRef?.current &&
         listItemsRef?.current?.length &&
         data?.length &&
-        selectedItem
+        selectedChat
       ) {
-        scrollToSelected(listRef, listItemsRef, data, selectedItem);
+        scrollToSelected(listRef, listItemsRef, data, selectedChat);
       }
     };
 
@@ -46,9 +46,9 @@ const DataList = ({
     return () => {
       window.removeEventListener('resize', scrollSelected);
     };
-  }, [data, selectedItem, ...scrollDependencies]);
+  }, [data, selectedChat, ...scrollDependencies]);
 
-  const renderSecondary = (item: any, details: any) => {
+  const renderSecondary = (item: any, chatDetails: any) => {
     const msg = item?.lastMessage;
     let isComponent = false;
     let component = null;
@@ -64,7 +64,7 @@ const DataList = ({
           }}
         >
           {msg?.sender?._id && msg?.sender?._id === _id ? (
-            <MessageStatus msg={msg} selectedItem={item} />
+            <MessageStatus msg={msg} selectedChat={item} />
           ) : null}
           <span
             style={{
@@ -80,7 +80,7 @@ const DataList = ({
         </div>
       );
     } else {
-      component = details?.email;
+      component = chatDetails?.email;
     }
 
     return {
@@ -96,23 +96,25 @@ const DataList = ({
     handleClick: any,
     itemsRef: RefObject<HTMLDivElement[] | null[]>,
   ) => {
-    let details: any;
     const isPrivateChat = item?.type === 'private';
     const isGroupChat = item?.type === 'group';
     const isFriend = item?.type === 'friend';
 
+    const { currentMember, otherMember } = getMember(item?.members, _id);
+
+    let chatDetails: any;
+
     if (isPrivateChat || isFriend) {
-      const { otherMember } = getMember(item?.members, _id);
-      details = otherMember;
+      chatDetails = otherMember;
     }
 
     if (isGroupChat) {
-      details = item?.groupDetails;
+      chatDetails = item?.groupDetails;
     }
 
-    const { isComponent, component } = renderSecondary(item, details);
+    const { isComponent, component } = renderSecondary(item, chatDetails);
 
-    if (details) {
+    if (chatDetails) {
       return (
         <div key={item?._id}>
           <ListItem
@@ -124,11 +126,11 @@ const DataList = ({
             }}
             btnProps={{
               textProps: {
-                primary: details?.name,
+                primary: chatDetails?.name,
                 secondary: component,
                 slotProps: {
                   primary: {
-                    ...(details?.unreadMessageCount // to do
+                    ...(otherMember?.unreadMessagesCount // to do
                       ? {
                           fontWeight: 600,
                         }
@@ -136,7 +138,7 @@ const DataList = ({
                   },
                   secondary: {
                     ...(isComponent ? { component: 'div' as any } : {}),
-                    ...(details?.unreadMessageCount // to do
+                    ...(otherMember?.unreadMessagesCount // to do
                       ? {
                           fontWeight: 700,
                           style: {
@@ -151,9 +153,17 @@ const DataList = ({
                 },
               },
               avatarProps: {
-                src: details?.picture,
+                src: chatDetails?.picture,
               },
-              onClick: (_: any) => handleClick(_, item, details),
+              endIcon: (
+                <Badge
+                  badgeContent={currentMember?.unreadMessagesCount}
+                  color="secondary"
+                  overlap="circular"
+                  sx={{ mr: '0.5rem' }}
+                />
+              ),
+              onClick: (_: any) => handleClick(_, item, chatDetails),
               selected,
             }}
           />
@@ -186,7 +196,7 @@ const DataList = ({
         renderList(
           item,
           idx,
-          item?._id && selectedItem?._id && item?._id === selectedItem?._id,
+          item?._id && selectedChat?._id && item?._id === selectedChat?._id,
           handleClickListItem,
           listItemsRef,
         ),

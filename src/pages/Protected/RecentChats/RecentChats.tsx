@@ -9,9 +9,9 @@ const RecentChats = ({ loadingRecentChats }: any) => {
   const {
     chats = [],
     setIsListItemClicked,
-    selectedItem,
-    setSelectedItem,
-    setSelectedDetails,
+    selectedChat,
+    setSelectedChat,
+    setSelectedChatDetails,
     isFetchingChats,
     isFetchingOtherFriends,
     getChatMessagesWithQueue,
@@ -29,15 +29,15 @@ const RecentChats = ({ loadingRecentChats }: any) => {
   const handleClickChat = async (
     _: React.MouseEvent<HTMLDivElement, MouseEvent>,
     item: any,
-    details: any,
+    chatDetails: any,
   ) => {
     await clickChat(
       item,
-      details,
+      chatDetails,
       getChatMessagesWithQueue,
       setIsListItemClicked,
-      setSelectedItem,
-      setSelectedDetails,
+      setSelectedChat,
+      setSelectedChatDetails,
       navigate,
       prevPathname,
       fetchAll,
@@ -58,7 +58,7 @@ const RecentChats = ({ loadingRecentChats }: any) => {
       <DataList
         disableGutters
         data={currentChats}
-        selectedItem={selectedItem}
+        selectedChat={selectedChat}
         handleClickListItem={handleClickChat}
       />
     </MainLayout>
